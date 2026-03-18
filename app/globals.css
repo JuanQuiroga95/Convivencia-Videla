@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0A1628;
+  --blue: #1B3A6B;
+  --gold: #C9A84C;
+  --gold-light: #E8C96E;
+  --silver: #8B9CB0;
+  --light: #EEF2F7;
+  --accent: #2563EB;
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
+  
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-condensed: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-body);
+  background: var(--navy);
+  color: white;
+}
+
+body {
+  min-height: 100vh;
+  background: #0A1628;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-condensed { font-family: var(--font-condensed); }
+.font-body { font-family: var(--font-body); }
+
+/* Gold gradient text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #C9A84C, #E8C96E, #C9A84C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(10, 22, 40, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+/* Dimension badges */
+.badge-resolutivo { background: rgba(220, 38, 38, 0.2); color: #FCA5A5; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-formativo { background: rgba(5, 150, 105, 0.2); color: #6EE7B7; border: 1px solid rgba(5, 150, 105, 0.3); }
+.badge-preventivo { background: rgba(37, 99, 235, 0.2); color: #93C5FD; border: 1px solid rgba(37, 99, 235, 0.3); }
+.badge-academico { background: rgba(201, 168, 76, 0.2); color: #FCD34D; border: 1px solid rgba(201, 168, 76, 0.3); }
+
+/* Animated gradient background */
+.bg-animated {
+  background: linear-gradient(135deg, #0A1628, #1B3A6B, #0A1628);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Score ring */
+.score-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+/* Nav active */
+.nav-active {
+  background: rgba(201, 168, 76, 0.15);
+  color: #C9A84C;
+  border-left: 3px solid #C9A84C;
+}
+
+/* Input styles */
+.input-videla {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+  font-family: var(--font-body);
+  transition: border-color 0.2s;
+}
+
+.input-videla:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.input-videla option {
+  background: #1B3A6B;
+  color: white;
+}
+
+/* Button */
+.btn-gold {
+  background: linear-gradient(135deg, #C9A84C, #E8C96E);
+  color: #0A1628;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-condensed);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-gold:active { transform: translateY(0); }
+.btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: var(--font-condensed);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  background: rgba(201, 168, 76, 0.1);
+}
+
+/* Rank medals */
+.rank-1 { color: #FFD700; }
+.rank-2 { color: #C0C0C0; }
+.rank-3 { color: #CD7F32; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+/* Card hover */
+.card-hover {
+  transition: transform 0.2s, border-color 0.2s;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(201, 168, 76, 0.4);
+}
+
+/* Pulse animation for live indicator */
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); }
+}
+.pulse-gold { animation: pulse-gold 2s infinite; }
+
+/* Slide in animation */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.slide-in { animation: slideIn 0.4s ease forwards; }
+
+/* Stagger children */
+.stagger > * { animation: slideIn 0.4s ease forwards; opacity: 0; }
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
