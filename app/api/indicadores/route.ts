@@ -11,21 +11,29 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       curso_id, mes, anio, limpieza, uniforme,
-      puntualidad, asistencia, actas, ice_puntos, pct_aprobados
+      asistencia, actas, ice_puntos,
+      interv_tempranas, situaciones_previas, pct_aprobados
     } = body
 
     await sql`
-      INSERT INTO indicadores (curso_id, mes, anio, limpieza, uniforme, puntualidad, asistencia, actas, ice_puntos, pct_aprobados, updated_at)
-      VALUES (${curso_id}, ${mes}, ${anio}, ${limpieza}, ${uniforme || null}, ${puntualidad}, ${asistencia}, ${actas}, ${ice_puntos}, ${pct_aprobados}, NOW())
+      INSERT INTO indicadores
+        (curso_id, mes, anio, limpieza, uniforme, asistencia, actas, ice_puntos,
+         interv_tempranas, situaciones_previas, pct_aprobados, updated_at)
+      VALUES
+        (${curso_id}, ${mes}, ${anio}, ${limpieza}, ${uniforme || null},
+         ${asistencia}, ${actas}, ${ice_puntos},
+         ${interv_tempranas ?? 0}, ${situaciones_previas ?? 0},
+         ${pct_aprobados}, NOW())
       ON CONFLICT (curso_id, mes, anio) DO UPDATE SET
-        limpieza = EXCLUDED.limpieza,
-        uniforme = EXCLUDED.uniforme,
-        puntualidad = EXCLUDED.puntualidad,
-        asistencia = EXCLUDED.asistencia,
-        actas = EXCLUDED.actas,
-        ice_puntos = EXCLUDED.ice_puntos,
-        pct_aprobados = EXCLUDED.pct_aprobados,
-        updated_at = NOW()
+        limpieza           = EXCLUDED.limpieza,
+        uniforme           = EXCLUDED.uniforme,
+        asistencia         = EXCLUDED.asistencia,
+        actas              = EXCLUDED.actas,
+        ice_puntos         = EXCLUDED.ice_puntos,
+        interv_tempranas   = EXCLUDED.interv_tempranas,
+        situaciones_previas= EXCLUDED.situaciones_previas,
+        pct_aprobados      = EXCLUDED.pct_aprobados,
+        updated_at         = NOW()
     `
     return NextResponse.json({ ok: true, message: 'Indicadores guardados exitosamente' })
   } catch (e: any) {

@@ -2,46 +2,50 @@ import Nav from '@/components/Nav'
 import { BookOpen } from 'lucide-react'
 
 const RUBRICA_LIMPIEZA = [
-  { val: '⭐⭐⭐⭐⭐', label: '5 – Aula impecable', desc: 'Sin residuos, bancos ordenados, pizarrón limpio, no hay elementos personales olvidados.' },
-  { val: '⭐⭐⭐⭐', label: '4 – Orden general correcto', desc: 'Pequeños detalles pero el aula luce ordenada y limpia en términos generales.' },
-  { val: '⭐⭐⭐', label: '3 – Detalles menores', desc: 'Papeles en el piso, bancos algo desordenados, requiere atención puntual.' },
-  { val: '⭐⭐', label: '2 – Desorden visible', desc: 'Múltiples puntos sucios o desordenados que requieren intervención.' },
-  { val: '⭐', label: '1 – Incumplimiento reiterado', desc: 'Aula sistemáticamente descuidada. Se registra y comunica a la división.' },
+  { val: '⭐⭐⭐⭐⭐', label: '5 – Aula impecable', desc: 'Sin residuos, bancos ordenados, pizarrón limpio.' },
+  { val: '⭐⭐⭐⭐', label: '4 – Orden general correcto', desc: 'Pequeños detalles pero el aula luce ordenada.' },
+  { val: '⭐⭐⭐', label: '3 – Detalles menores', desc: 'Papeles en el piso, bancos algo desordenados.' },
+  { val: '⭐⭐', label: '2 – Desorden visible', desc: 'Múltiples puntos sucios o desordenados.' },
+  { val: '⭐', label: '1 – Incumplimiento reiterado', desc: 'Aula sistemáticamente descuidada.' },
 ]
 
 const PUNTAJE_TABLA = [
-  { indicador: 'VAR resueltos sin escalar (100%)', pts: '+15', dim: 'Resolutivo', color: '#FCA5A5' },
-  { indicador: 'Sin actas disciplinarias', pts: '+10', dim: 'Resolutivo', color: '#FCA5A5' },
-  { indicador: 'Puntos ICE = 0', pts: '+5', dim: 'Resolutivo', color: '#FCA5A5' },
-  { indicador: 'Limpieza 5/5', pts: '+8', dim: 'Formativo', color: '#6EE7B7' },
-  { indicador: 'Uniforme >95%', pts: '+8', dim: 'Formativo', color: '#6EE7B7' },
-  { indicador: 'Puntualidad ≥95%', pts: '+7', dim: 'Formativo', color: '#6EE7B7' },
-  { indicador: 'Asistencia ≥95%', pts: '+7', dim: 'Formativo', color: '#6EE7B7' },
-  { indicador: 'Intervenciones tempranas ×3 (máx 10)', pts: '+10', dim: 'Preventivo', color: '#93C5FD' },
-  { indicador: 'Situaciones antes de acta ×3 (máx 10)', pts: '+10', dim: 'Preventivo', color: '#93C5FD' },
-  { indicador: 'Materias aprobadas ≥90%', pts: '+20', dim: 'Académico', color: '#FCD34D' },
+  { indicador: 'VIR resueltos sin escalar (100%)', pts: '+20', dim: 'Resolutivo', color: '#991B1B', bg: '#FEE2E2' },
+  { indicador: 'Sin actas disciplinarias', pts: '+12', dim: 'Resolutivo', color: '#991B1B', bg: '#FEE2E2' },
+  { indicador: 'Puntos ICE = 0', pts: '+8', dim: 'Resolutivo', color: '#991B1B', bg: '#FEE2E2' },
+  { indicador: 'Limpieza 5/5', pts: '+10', dim: 'Formativo', color: '#064E3B', bg: '#D1FAE5' },
+  { indicador: 'Uniforme >95%', pts: '+10', dim: 'Formativo', color: '#064E3B', bg: '#D1FAE5' },
+  { indicador: 'Asistencia ≥95%', pts: '+10', dim: 'Formativo', color: '#064E3B', bg: '#D1FAE5' },
+  { indicador: 'Materias aprobadas ≥90%', pts: '+20', dim: 'Académico', color: '#78350F', bg: '#FEF3C7' },
 ]
 
 export default function ReglasPage() {
+  const G = '#2D7A4F'
+  const O = '#E85D04'
+  const R = '#C1121F'
+
+  const SectionTitle = ({ text, color = G }: { text: string, color?: string }) => (
+    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color, letterSpacing: '0.08em', marginBottom: '14px', borderLeft: `4px solid ${color}`, paddingLeft: '12px' }}>
+      {text}
+    </h2>
+  )
+
   return (
-    <div style={{ background: 'var(--green-dark)', minHeight: '100vh' }}>
+    <div style={{ background: '#F4F7F4', minHeight: '100vh' }}>
       <Nav />
       <main className="md:ml-56 pb-24 md:pb-8">
 
         {/* Header */}
-        <div className="px-6 py-8" style={{
-          background: 'linear-gradient(135deg, #0a1205, #1a2c08, #0a1205)',
-          borderBottom: '1px solid rgba(201,168,76,0.2)'
-        }}>
+        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg" style={{ background: 'rgba(201,168,76,0.2)' }}>
-              <BookOpen size={24} style={{ color: '#FCD34D' }} />
+            <div className="p-2 rounded-lg" style={{ background: 'rgba(232,93,4,0.25)', border: '1px solid rgba(232,93,4,0.4)' }}>
+              <BookOpen size={24} style={{ color: 'var(--orange)' }} />
             </div>
             <div>
               <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'white' }}>
                 REGLAS Y RÚBRICAS
               </h1>
-              <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.85rem' }}>
+              <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
                 Criterios objetivos y sistema de puntos
               </p>
             </div>
@@ -52,90 +56,50 @@ export default function ReglasPage() {
 
           {/* Dimensions */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
-              DIMENSIONES DEL MODELO
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <SectionTitle text="DIMENSIONES DEL MODELO" color="var(--green-dark)" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { title: 'RESOLUTIVA', sub: 'Gestión de conflictos', pts: '30 pts máx.', color: '#DC2626', badge: 'badge-resolutivo',
-                  items: ['VAR activados y resueltos', 'Actas disciplinarias', 'Puntos ICE'] },
-                { title: 'FORMATIVA', sub: 'Hábitos institucionales', pts: '30 pts máx.', color: '#059669', badge: 'badge-formativo',
-                  items: ['Limpieza del aula', 'Cumplimiento de uniforme', 'Puntualidad', 'Asistencia'] },
-                { title: 'PREVENTIVA', sub: 'Anticipación al conflicto', pts: '20 pts máx.', color: '#2563EB', badge: 'badge-preventivo',
-                  items: ['Intervenciones tempranas', 'Situaciones abordadas antes de acta'] },
-                { title: 'ACADÉMICA', sub: 'Rendimiento escolar', pts: '20 pts máx.', color: 'var(--orange)', badge: 'badge-academico',
-                  items: ['% materias aprobadas'] },
-              ].map(({ title, sub, pts, color, badge, items }) => (
-                <div key={title} className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${color}33` }}>
-                  <div className={`inline-block px-2 py-0.5 rounded-full text-xs mb-2 ${badge}`} style={{ fontFamily: 'var(--font-condensed)' }}>
-                    {title}
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.8rem' }}>{sub}</div>
-                  <div style={{ fontFamily: 'var(--font-display)', color, fontSize: '1.1rem', margin: '4px 0' }}>{pts}</div>
-                  <ul className="space-y-1">
-                    {items.map(item => (
-                      <li key={item} style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.8rem', paddingLeft: '8px', borderLeft: `2px solid ${color}44` }}>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                { title: 'RESOLUTIVA', sub: 'Gestión de conflictos VIR', pts: '40 pts', color: R, bg: '#FEE2E2', border: '#FCA5A5' },
+                { title: 'FORMATIVA',  sub: 'Uniforme, asistencia, entorno', pts: '40 pts', color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7' },
+                { title: 'ACADÉMICA',  sub: 'Rendimiento académico', pts: '20 pts', color: '#78350F', bg: '#FEF3C7', border: '#FCD34D' },
+              ].map(({ title, sub, pts, color, bg, border }) => (
+                <div key={title} style={{ background: bg, border: `2px solid ${border}`, borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color, letterSpacing: '0.05em' }}>{title}</div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color, fontSize: '2rem', lineHeight: 1, margin: '4px 0' }}>{pts}</div>
+                  <div style={{ fontFamily: 'var(--font-body)', color, fontSize: '0.82rem', opacity: 0.8 }}>{sub}</div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* VAR Protocol */}
+          {/* Puntajes */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
-              PROTOCOLO VAR
-            </h2>
-            <div className="space-y-3">
-              {[
-                { letra: 'V', titulo: 'VERSIÓN DE LOS HECHOS', desc: 'Cada parte involucrada expone su versión sin interrupciones. El adulto modera sin juzgar. Se respeta el turno de palabra y no se permiten ironías ni acusaciones cruzadas.', color: '#DC2626' },
-                { letra: 'A', titulo: 'ACUERDO VULNERADO', desc: 'Se identifica cuál norma positiva acordada fue afectada. No se habla de "portarse mal", sino de qué compromiso institucional no se respetó.', color: '#D97706' },
-                { letra: 'R', titulo: 'REPARACIÓN CONCRETA', desc: 'Se define una acción reparadora: disculpa explícita, compromiso escrito, acción concreta de servicio al curso, o devolución/reposición. Si hay reparación, el conflicto no escala a acta.', color: '#059669' },
-              ].map(({ letra, titulo, desc, color }) => (
-                <div key={letra} className="flex gap-4 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${color}33` }}>
-                  <div style={{
-                    width: '48px', height: '48px', flexShrink: 0,
-                    background: `linear-gradient(135deg, ${color}, ${color}99)`,
-                    borderRadius: '12px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'var(--font-display)', fontSize: '1.8rem', color: 'white'
-                  }}>
-                    {letra}
-                  </div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                      {titulo}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                      {desc}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 p-3 rounded-lg" style={{ background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.3)' }}>
-              <div style={{ fontFamily: 'var(--font-condensed)', color: '#6EE7B7', fontSize: '0.8rem' }}>
-                💡 IMPORTANTE: Si el conflicto se resuelve con VAR → el curso NO pierde puntos y suma en la dimensión resolutiva.
+            <SectionTitle text="TABLA DE PUNTAJES" color={O} />
+            <div style={{ borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--green-border)' }}>
+              <div style={{ background: G, color: 'white', padding: '10px 16px', display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '16px', fontFamily: 'var(--font-condensed)', fontSize: '0.8rem', letterSpacing: '0.08em', fontWeight: 700 }}>
+                <span>INDICADOR</span><span>DIM.</span><span>PTS</span>
               </div>
+              {PUNTAJE_TABLA.map((r, i) => (
+                <div key={i} style={{ padding: '10px 16px', display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '16px', alignItems: 'center', background: i % 2 === 0 ? 'white' : '#F4F7F4', borderTop: '1px solid rgba(45,122,79,0.12)' }}>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: '#0F2010', fontWeight: 500 }}>{r.indicador}</span>
+                  <span style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', background: r.bg, color: r.color, padding: '3px 8px', borderRadius: '20px', fontWeight: 700, whiteSpace: 'nowrap' as const }}>{r.dim}</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: G, textAlign: 'right' as const }}>{r.pts}</span>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* Limpieza rubric */}
+          {/* Rúbrica limpieza */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
-              RÚBRICA DE LIMPIEZA
-            </h2>
-            <div className="space-y-2">
-              {RUBRICA_LIMPIEZA.map(({ val, label, desc }) => (
-                <div key={val} className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div className="flex items-center gap-3">
-                    <div style={{ minWidth: '80px', fontFamily: 'var(--font-condensed)', color: 'var(--orange)', fontSize: '0.85rem' }}>{val}</div>
+            <SectionTitle text="RÚBRICA: CUIDADO DEL ENTORNO" color={G} />
+            <div style={{ borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--green-border)' }}>
+              {RUBRICA_LIMPIEZA.map((r, i) => (
+                <div key={i} style={{ padding: '12px 16px', background: i % 2 === 0 ? 'white' : '#F4F7F4', borderTop: i > 0 ? '1px solid rgba(45,122,79,0.12)' : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{r.val}</span>
                     <div>
-                      <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', fontSize: '0.9rem' }}>{label}</div>
-                      <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.8rem' }}>{desc}</div>
+                      <div style={{ fontFamily: 'var(--font-condensed)', color: '#1A4D2E', fontWeight: 700, fontSize: '0.9rem' }}>{r.label}</div>
+                      <div style={{ fontFamily: 'var(--font-body)', color: '#4A6741', fontSize: '0.82rem', marginTop: '2px' }}>{r.desc}</div>
                     </div>
                   </div>
                 </div>
@@ -143,55 +107,44 @@ export default function ReglasPage() {
             </div>
           </section>
 
-          {/* Points table */}
+          {/* VIR Categorias */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
-              TABLA DE PUNTOS
-            </h2>
-            <div className="glass rounded-xl overflow-hidden">
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-condensed)', fontSize: '0.85rem' }}>
-                <thead>
-                  <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', color: '#6B7280', letterSpacing: '0.05em' }}>INDICADOR</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'center', color: '#6B7280' }}>PUNTOS</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'center', color: '#6B7280' }}>DIMENSIÓN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PUNTAJE_TABLA.map(({ indicador, pts, dim, color }) => (
-                    <tr key={indicador} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '10px 12px', color: '#D1D5DB' }}>{indicador}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--orange)', fontWeight: 600 }}>{pts}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ color, fontSize: '0.75rem' }}>{dim}</span>
-                      </td>
-                    </tr>
-                  ))}
-                  <tr style={{ borderTop: '2px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.05)' }}>
-                    <td style={{ padding: '10px 12px', color: 'white', fontWeight: 600 }}>TOTAL MÁXIMO</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--orange)', fontFamily: 'var(--font-display)', fontSize: '1.2rem' }}>100</td>
-                    <td />
-                  </tr>
-                </tbody>
-              </table>
+            <SectionTitle text="CATEGORÍAS VIR" color={R} />
+            <div className="space-y-2">
+              {[
+                { cat: '🟢 Interacción entre Pares', color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7', items: ['Esconder/romper materiales', 'Conflicto verbal', 'Hostigamiento'] },
+                { cat: '🟠 Relación con Docente/Preceptor', color: '#7C2D12', bg: '#FEF3C7', border: '#FCD34D', items: ['Desobediencia', 'Respuesta verbal inadecuada', 'Ignorar consignas'] },
+                { cat: '🟣 Cuidado del Entorno', color: '#4C1D95', bg: '#EDE9FE', border: '#C4B5FD', items: ['Desorden', 'Suciedad', 'Deterioro de mobiliario', 'Rayar/pintar superficies'] },
+                { cat: '🔵 Relación con la Clase', color: '#1E3A5F', bg: '#DBEAFE', border: '#93C5FD', items: ['Interrupción reiterada', 'Uso indebido del celular', 'Ingreso tardío', 'No realizar la actividad'] },
+                { cat: '🟡 Campo (Acciones Destacadas)', color: '#78350F', bg: '#FEF3C7', border: '#FCD34D', items: ['Actos escolares', 'Representación institucional', 'Proyectos solidarios', 'Producciones institucionales'] },
+              ].map(({ cat, color, bg, border, items }) => (
+                <div key={cat} style={{ background: bg, border: `2px solid ${border}`, borderRadius: '10px', padding: '12px 16px' }}>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color, fontWeight: 700, fontSize: '0.9rem', marginBottom: '6px' }}>{cat}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+                    {items.map(item => (
+                      <span key={item} style={{ background: 'white', color, border: `1px solid ${border}`, borderRadius: '20px', padding: '2px 10px', fontFamily: 'var(--font-body)', fontSize: '0.78rem', fontWeight: 500 }}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* Recognition */}
+          {/* Reparaciones */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
-              RECONOCIMIENTO FINAL
-            </h2>
-            <div className="grid grid-cols-1 gap-3">
+            <SectionTitle text="TIPOS DE REPARACIÓN" color={G} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { titulo: '🏆 Curso con Mayor Puntaje Integral', desc: 'El curso con mayor puntuación total al cierre de cada período.' },
-                { titulo: '📈 Curso con Mayor Mejora', desc: 'El curso que más creció comparando su promedio del segundo período vs. el primero.' },
-                { titulo: '🤝 Curso con Mejor Autorregulación', desc: 'El curso con mayor % de VAR resueltos sin escalar a acta.' },
-                { titulo: '🎓 Curso con Mayor Compromiso Académico', desc: 'El curso con mayor porcentaje de materias aprobadas al cierre del trimestre.' },
-              ].map(({ titulo, desc }) => (
-                <div key={titulo} className="p-4 rounded-xl" style={{ background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.2)' }}>
-                  <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', marginBottom: '4px' }}>{titulo}</div>
-                  <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.85rem' }}>{desc}</div>
+                { tipo: 'Disculpa explícita', desc: 'Reconocimiento verbal o escrito de la situación ante los afectados.', emoji: '🤝' },
+                { tipo: 'Acción reparadora concreta', desc: 'Una acción específica que repara el daño causado.', emoji: '🔧' },
+                { tipo: 'Reflexión guiada', desc: 'Proceso reflexivo acompañado por un adulto de la institución.', emoji: '💭' },
+              ].map(({ tipo, desc, emoji }) => (
+                <div key={tipo} style={{ background: 'white', border: '2px solid var(--green-border)', borderRadius: '10px', padding: '14px' }}>
+                  <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>{emoji}</div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontWeight: 700, fontSize: '0.9rem', marginBottom: '4px' }}>{tipo}</div>
+                  <div style={{ fontFamily: 'var(--font-body)', color: '#4A6741', fontSize: '0.8rem', lineHeight: 1.5 }}>{desc}</div>
                 </div>
               ))}
             </div>
