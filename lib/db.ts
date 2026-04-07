@@ -57,10 +57,14 @@ export async function setupDatabase() {
     actas INTEGER DEFAULT 0,
     ice_puntos INTEGER DEFAULT 0,
     pct_aprobados DECIMAL(5,2),
+    interv_tempranas INTEGER DEFAULT 0,
+    situaciones_previas INTEGER DEFAULT 0,
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(curso_id, mes, anio)
   )`
 
+  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS interv_tempranas INTEGER DEFAULT 0`
+  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS situaciones_previas INTEGER DEFAULT 0`
   return { ok: true }
 }
 
@@ -82,5 +86,7 @@ export async function setupUsuarios() {
     VALUES ('Administrador', 'Videla.4012', 'VirVidela4012', 'admin')
     ON CONFLICT (usuario) DO NOTHING`
 
+  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS interv_tempranas INTEGER DEFAULT 0`
+  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS situaciones_previas INTEGER DEFAULT 0`
   return { ok: true }
 }
