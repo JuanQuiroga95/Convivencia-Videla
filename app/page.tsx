@@ -31,7 +31,7 @@ export default function Home() {
         <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src="/escudo.jpg" alt="Escudo" style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--orange)' }} />
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.15rem', letterSpacing: '0.06em', color: 'white' }}>CLIMA DE CONVIVENCIA</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.15rem', letterSpacing: '0.06em', color: 'white' }}>CLIMA VIDELIANO</span>
             <span style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.45)', fontSize: '0.82rem', letterSpacing: '0.1em' }}>VIDELA</span>
           </div>
           <Link href="/login" style={{ textDecoration: 'none' }}>
@@ -57,7 +57,7 @@ export default function Home() {
           </div>
 
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 6vw, 3.5rem)', lineHeight: 1.05, marginBottom: '10px', color: 'var(--green-dark)' }}>
-            CLIMA DE CONVIVENCIA<br/><span style={{ color: 'var(--orange)' }}>VIDELA</span>
+            CLIMA VIDELIANO<br/><span style={{ color: 'var(--orange)' }}>VIDELA</span>
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', color: '#2D5A30', fontSize: '0.95rem', maxWidth: '480px', margin: '0 auto', lineHeight: 1.6, fontWeight: 500 }}>
             Sistema de seguimiento del clima escolar

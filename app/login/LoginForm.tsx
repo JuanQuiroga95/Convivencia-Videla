@@ -5,7 +5,7 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 export default function LoginForm() {
   const params = useSearchParams()
-  const from = params.get('from') || '/var'
+  const from = params.get('from') || '/dashboard'
   const [form, setForm] = useState({ usuario: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)

@@ -14,13 +14,13 @@ export function middleware(request: NextRequest) {
   const session = getSession(request)
 
   const soloAdmin = ['/admin', '/qr']
-  const operativo = ['/var', '/campo', '/indicadores', '/historial', '/tablero']
+  const protegidas = ['/dashboard', '/var', '/campo', '/indicadores', '/historial', '/tablero']
 
   if (soloAdmin.some(r => pathname.startsWith(r))) {
     if (!session || session.rol !== 'admin')
       return NextResponse.redirect(new URL('/login?from=' + pathname, request.url))
   }
-  if (operativo.some(r => pathname.startsWith(r))) {
+  if (protegidas.some(r => pathname.startsWith(r))) {
     if (!session || !['admin', 'operativo'].includes(session.rol))
       return NextResponse.redirect(new URL('/login?from=' + pathname, request.url))
   }
@@ -28,5 +28,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/var/:path*', '/campo/:path*', '/indicadores/:path*', '/historial/:path*', '/tablero/:path*', '/qr/:path*', '/admin/:path*'],
+  matcher: ['/dashboard/:path*', '/var/:path*', '/campo/:path*', '/indicadores/:path*', '/historial/:path*', '/tablero/:path*', '/qr/:path*', '/admin/:path*'],
 }
