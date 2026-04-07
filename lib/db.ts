@@ -26,17 +26,24 @@ export async function setupDatabase() {
     ('5°1°', '1', 5), ('5°2°', '2', 5), ('5°3°', '3', 5)
     ON CONFLICT (nombre) DO NOTHING`
 
+  // Main VIR/VAR table with new columns
   await sql`CREATE TABLE IF NOT EXISTS var_registros (
     id SERIAL PRIMARY KEY,
     curso_id INTEGER REFERENCES cursos(id),
-    tipo_situacion VARCHAR(100) NOT NULL,
+    categoria_id VARCHAR(50),
+    tipo_situacion VARCHAR(200) NOT NULL,
     resuelto BOOLEAN NOT NULL DEFAULT false,
     tipo_reparacion VARCHAR(100),
     intervino VARCHAR(50) NOT NULL,
+    nombre_activador VARCHAR(150),
     mes INTEGER NOT NULL,
     anio INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
   )`
+
+  // Migrate: add columns if they don't exist
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS categoria_id VARCHAR(50)`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS nombre_activador VARCHAR(150)`
 
   await sql`CREATE TABLE IF NOT EXISTS indicadores (
     id SERIAL PRIMARY KEY,
@@ -49,8 +56,6 @@ export async function setupDatabase() {
     asistencia DECIMAL(5,2),
     actas INTEGER DEFAULT 0,
     ice_puntos INTEGER DEFAULT 0,
-    interv_tempranas INTEGER DEFAULT 0,
-    situaciones_previas INTEGER DEFAULT 0,
     pct_aprobados DECIMAL(5,2),
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(curso_id, mes, anio)

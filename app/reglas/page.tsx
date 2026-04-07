@@ -24,7 +24,7 @@ const PUNTAJE_TABLA = [
 
 export default function ReglasPage() {
   return (
-    <div style={{ background: '#0A1628', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--green-dark)', minHeight: '100vh' }}>
       <Nav />
       <main className="md:ml-56 pb-24 md:pb-8">
 
@@ -52,7 +52,7 @@ export default function ReglasPage() {
 
           {/* Dimensions */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
               DIMENSIONES DEL MODELO
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -63,7 +63,7 @@ export default function ReglasPage() {
                   items: ['Limpieza del aula', 'Cumplimiento de uniforme', 'Puntualidad', 'Asistencia'] },
                 { title: 'PREVENTIVA', sub: 'Anticipación al conflicto', pts: '20 pts máx.', color: '#2563EB', badge: 'badge-preventivo',
                   items: ['Intervenciones tempranas', 'Situaciones abordadas antes de acta'] },
-                { title: 'ACADÉMICA', sub: 'Rendimiento escolar', pts: '20 pts máx.', color: '#C9A84C', badge: 'badge-academico',
+                { title: 'ACADÉMICA', sub: 'Rendimiento escolar', pts: '20 pts máx.', color: 'var(--orange)', badge: 'badge-academico',
                   items: ['% materias aprobadas'] },
               ].map(({ title, sub, pts, color, badge, items }) => (
                 <div key={title} className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${color}33` }}>
@@ -86,7 +86,7 @@ export default function ReglasPage() {
 
           {/* VAR Protocol */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
               PROTOCOLO VAR
             </h2>
             <div className="space-y-3">
@@ -125,14 +125,14 @@ export default function ReglasPage() {
 
           {/* Limpieza rubric */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
               RÚBRICA DE LIMPIEZA
             </h2>
             <div className="space-y-2">
               {RUBRICA_LIMPIEZA.map(({ val, label, desc }) => (
                 <div key={val} className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                   <div className="flex items-center gap-3">
-                    <div style={{ minWidth: '80px', fontFamily: 'var(--font-condensed)', color: '#C9A84C', fontSize: '0.85rem' }}>{val}</div>
+                    <div style={{ minWidth: '80px', fontFamily: 'var(--font-condensed)', color: 'var(--orange)', fontSize: '0.85rem' }}>{val}</div>
                     <div>
                       <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', fontSize: '0.9rem' }}>{label}</div>
                       <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.8rem' }}>{desc}</div>
@@ -145,7 +145,7 @@ export default function ReglasPage() {
 
           {/* Points table */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
               TABLA DE PUNTOS
             </h2>
             <div className="glass rounded-xl overflow-hidden">
@@ -161,7 +161,7 @@ export default function ReglasPage() {
                   {PUNTAJE_TABLA.map(({ indicador, pts, dim, color }) => (
                     <tr key={indicador} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '10px 12px', color: '#D1D5DB' }}>{indicador}</td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: '#C9A84C', fontWeight: 600 }}>{pts}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--orange)', fontWeight: 600 }}>{pts}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{ color, fontSize: '0.75rem' }}>{dim}</span>
                       </td>
@@ -169,7 +169,7 @@ export default function ReglasPage() {
                   ))}
                   <tr style={{ borderTop: '2px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.05)' }}>
                     <td style={{ padding: '10px 12px', color: 'white', fontWeight: 600 }}>TOTAL MÁXIMO</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#C9A84C', fontFamily: 'var(--font-display)', fontSize: '1.2rem' }}>100</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--orange)', fontFamily: 'var(--font-display)', fontSize: '1.2rem' }}>100</td>
                     <td />
                   </tr>
                 </tbody>
@@ -179,7 +179,7 @@ export default function ReglasPage() {
 
           {/* Recognition */}
           <section>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: '#C9A84C', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--orange)', letterSpacing: '0.08em', marginBottom: '12px' }}>
               RECONOCIMIENTO FINAL
             </h2>
             <div className="grid grid-cols-1 gap-3">

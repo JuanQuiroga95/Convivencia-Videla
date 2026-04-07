@@ -1,12 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
-import { BarChart3, TrendingUp, Trophy, RefreshCw, AlertCircle } from 'lucide-react'
+import { BarChart3, Trophy, RefreshCw } from 'lucide-react'
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, Legend
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend
 } from 'recharts'
-import { MESES } from '@/lib/scoring'
+import { getPeriodoLabel } from '@/lib/scoring'
 
 interface PuntajeData {
   curso_id: number
@@ -14,7 +13,6 @@ interface PuntajeData {
   puntaje_total: number
   puntaje_resolutivo: number
   puntaje_formativo: number
-  puntaje_preventivo: number
   puntaje_academico: number
   pct_var_resueltos: number
   tiene_datos: boolean
@@ -23,66 +21,63 @@ interface PuntajeData {
 const MEDAL = ['🥇', '🥈', '🥉']
 
 const getScoreColor = (score: number) => {
-  if (score >= 75) return '#C9A84C'
-  if (score >= 50) return '#2563EB'
-  if (score >= 25) return '#D97706'
-  return '#6B7280'
+  if (score >= 75) return '#2D7A4F'
+  if (score >= 50) return '#E85D04'
+  if (score >= 25) return '#B45309'
+  return '#8A9E87'
 }
 
 export default function TableroPage() {
   const now = new Date()
-  const [mes, setMes] = useState(now.getMonth() + 1)
+  const currentPeriodo = now.getMonth() < 7 ? 1 : 2
+  const [periodo, setPeriodo] = useState(currentPeriodo)
   const [anio] = useState(now.getFullYear())
   const [ranking, setRanking] = useState<PuntajeData[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState<PuntajeData | null>(null)
-  const [tab, setTab] = useState<'ranking' | 'grafico' | 'detalle'>('ranking')
+  const [tab, setTab] = useState<'ranking' | 'grafico'>('ranking')
 
   const loadData = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/ranking?mes=${mes}&anio=${anio}&t=${Date.now()}`)
+      const res = await fetch(`/api/ranking?periodo=${periodo}&anio=${anio}&t=${Date.now()}`)
       const data = await res.json()
       setRanking(data.ranking || [])
     } catch {}
     setLoading(false)
   }
 
-  useEffect(() => { loadData() }, [mes])
+  useEffect(() => { loadData() }, [periodo])
 
   const conDatos = ranking.filter(r => r.tiene_datos)
   const sinDatos = ranking.filter(r => !r.tiene_datos)
 
   const chartData = conDatos.map(r => ({
     name: r.curso_nombre,
-    Total: r.puntaje_total,
     Resolutivo: r.puntaje_resolutivo,
     Formativo: r.puntaje_formativo,
-    Preventivo: r.puntaje_preventivo,
     Académico: r.puntaje_academico,
   }))
 
+  const G = '#2D7A4F'
+  const O = '#E85D04'
+
   return (
-    <div style={{ background: '#0A1628', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <Nav />
       <main className="md:ml-56 pb-24 md:pb-8">
-
         {/* Header */}
-        <div className="px-6 py-8" style={{
-          background: 'linear-gradient(135deg, #0a0f1a, #0f1f3d, #0a0f1a)',
-          borderBottom: '1px solid rgba(37,99,235,0.2)'
-        }}>
+        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ background: 'rgba(37,99,235,0.2)' }}>
-                <BarChart3 size={24} style={{ color: '#93C5FD' }} />
+              <div className="p-2 rounded-lg" style={{ background: 'rgba(232,93,4,0.2)' }}>
+                <BarChart3 size={24} style={{ color: 'var(--orange)' }} />
               </div>
               <div>
                 <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'white' }}>
                   TABLERO
                 </h1>
-                <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.85rem' }}>
-                  Ranking mensual · {MESES[mes]} {anio}
+                <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>
+                  Ranking por período · {getPeriodoLabel(periodo)} · {anio}
                   {conDatos.length > 0 && (
                     <span style={{ color: '#6EE7B7', marginLeft: '8px' }}>
                       · {conDatos.length} curso{conDatos.length !== 1 ? 's' : ''} con datos
@@ -92,157 +87,132 @@ export default function TableroPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <select
-                value={mes}
-                onChange={e => setMes(parseInt(e.target.value))}
-                className="input-videla"
-                style={{ width: 'auto', padding: '8px 12px' }}>
-                {MESES.slice(1).map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
-              </select>
-              <button onClick={loadData} className="btn-outline" style={{ padding: '8px 12px' }}>
+            <div className="flex items-center gap-2">
+              {/* Periodo selector */}
+              <div className="flex gap-1">
+                {[1, 2].map(p => (
+                  <button key={p} onClick={() => setPeriodo(p)}
+                    style={{
+                      background: periodo === p ? O : 'rgba(255,255,255,0.1)',
+                      color: 'white',
+                      border: `1.5px solid ${periodo === p ? O : 'rgba(255,255,255,0.2)'}`,
+                      borderRadius: '8px',
+                      padding: '6px 14px',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--font-condensed)',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s',
+                    }}>
+                    Período {p}
+                  </button>
+                ))}
+              </div>
+              <button onClick={loadData} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', color: 'white' }}>
                 <RefreshCw size={16} />
               </button>
             </div>
           </div>
 
+          {/* Tab selector */}
           <div className="flex gap-2 mt-4">
-            {[
-              { key: 'ranking', label: 'Ranking', icon: Trophy },
-              { key: 'grafico', label: 'Gráfico', icon: BarChart3 },
-              { key: 'detalle', label: 'Detalle', icon: TrendingUp },
-            ].map(({ key, label, icon: Icon }) => (
-              <button key={key} onClick={() => setTab(key as typeof tab)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all"
+            {(['ranking', 'grafico'] as const).map(t => (
+              <button key={t} onClick={() => setTab(t)}
                 style={{
-                  fontFamily: 'var(--font-condensed)', letterSpacing: '0.05em', cursor: 'pointer',
-                  background: tab === key ? 'rgba(37,99,235,0.3)' : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${tab === key ? 'rgba(37,99,235,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                  color: tab === key ? '#93C5FD' : '#6B7280',
+                  background: tab === t ? 'white' : 'transparent',
+                  color: tab === t ? G : 'rgba(255,255,255,0.55)',
+                  border: `1px solid ${tab === t ? 'white' : 'rgba(255,255,255,0.2)'}`,
+                  borderRadius: '6px', padding: '5px 16px', cursor: 'pointer',
+                  fontFamily: 'var(--font-condensed)', letterSpacing: '0.06em', fontSize: '0.85rem', fontWeight: 700,
                 }}>
-                <Icon size={14} />{label}
+                {t === 'ranking' ? '🏆 Ranking' : '📊 Gráfico'}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="p-6">
-
+        <div className="px-4 py-6">
           {loading && (
-            <div className="flex items-center justify-center py-16">
-              <div style={{ fontFamily: 'var(--font-condensed)', color: '#6B7280', letterSpacing: '0.1em' }}>
-                CARGANDO...
-              </div>
+            <div className="text-center py-16">
+              <div style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>CARGANDO...</div>
             </div>
           )}
 
-          {/* RANKING TAB */}
           {!loading && tab === 'ranking' && (
-            <div className="space-y-3 max-w-2xl">
-
-              {conDatos.length === 0 && (
-                <div className="rounded-xl p-6 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <AlertCircle size={32} style={{ color: '#374151', margin: '0 auto 12px' }} />
-                  <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', marginBottom: '6px' }}>
-                    No hay datos cargados para {MESES[mes]}
+            <div className="max-w-2xl">
+              {/* Legend */}
+              <div className="flex gap-3 flex-wrap mb-5">
+                {[
+                  { label: 'Resolutivo', color: '#C1121F' },
+                  { label: 'Formativo', color: G },
+                  { label: 'Académico', color: O },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2" style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+                    {label}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.85rem' }}>
-                    Cargá VAR o indicadores desde las secciones correspondientes para que aparezcan los puntajes.
-                  </div>
-                </div>
-              )}
+                ))}
+              </div>
 
-              {/* Cursos CON datos */}
-              {conDatos.map((curso, idx) => (
-                <div
-                  key={curso.curso_id}
-                  onClick={() => setSelected(selected?.curso_id === curso.curso_id ? null : curso)}
-                  className="rounded-xl p-4 card-hover cursor-pointer"
-                  style={{
-                    background: selected?.curso_id === curso.curso_id ? 'rgba(201,168,76,0.1)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${selected?.curso_id === curso.curso_id ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                  }}>
-                  <div className="flex items-center gap-4">
-                    <div className="text-2xl w-8 text-center" style={{ fontFamily: 'var(--font-display)' }}>
-                      {idx < 3 ? MEDAL[idx] : <span style={{ color: '#4B5563' }}>{idx + 1}</span>}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', letterSpacing: '0.05em', color: 'white' }}>
-                        {curso.curso_nombre}
+              <div className="space-y-3 stagger">
+                {conDatos.map((r, i) => (
+                  <div key={r.curso_id} className="rounded-xl card-hover" style={{ border: '1.5px solid var(--green-border)', background: 'white', overflow: 'hidden' }}>
+                    <div style={{ height: '4px', background: `linear-gradient(90deg, ${getScoreColor(r.puntaje_total)}, ${O})` }} />
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', minWidth: '36px', textAlign: 'center' }}>
+                          {i < 3 ? MEDAL[i] : <span style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>#{i + 1}</span>}
+                        </div>
+                        <div className="flex-1">
+                          <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', letterSpacing: '0.05em', color: 'var(--green-dark)' }}>
+                            {r.curso_nombre}
+                          </div>
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: getScoreColor(r.puntaje_total), lineHeight: 1 }}>
+                          {r.puntaje_total}
+                          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/100</span>
+                        </div>
                       </div>
-                      <div className="flex gap-2 mt-1 flex-wrap">
+
+                      {/* Score bar */}
+                      <div style={{ background: 'var(--bg-alt)', borderRadius: '4px', height: '8px', overflow: 'hidden', marginBottom: '12px' }}>
+                        <div style={{ background: `linear-gradient(90deg, ${getScoreColor(r.puntaje_total)}, ${O})`, height: '100%', width: `${r.puntaje_total}%`, transition: 'width 0.8s ease', borderRadius: '4px' }} />
+                      </div>
+
+                      {/* Dimension breakdown */}
+                      <div className="grid grid-cols-3 gap-2">
                         {[
-                          { label: 'R', val: curso.puntaje_resolutivo, color: '#FCA5A5' },
-                          { label: 'F', val: curso.puntaje_formativo, color: '#6EE7B7' },
-                          { label: 'P', val: curso.puntaje_preventivo, color: '#93C5FD' },
-                          { label: 'A', val: curso.puntaje_academico, color: '#FCD34D' },
-                        ].map(({ label, val, color }) => (
-                          <span key={label} style={{
-                            fontFamily: 'var(--font-condensed)', fontSize: '0.75rem',
-                            padding: '2px 8px', borderRadius: '4px',
-                            background: 'rgba(255,255,255,0.06)', color
-                          }}>
-                            {label}: {val}
-                          </span>
+                          { label: 'Resolutivo', val: r.puntaje_resolutivo, max: 40, color: '#C1121F', bgColor: 'rgba(193,18,31,0.07)' },
+                          { label: 'Formativo', val: r.puntaje_formativo, max: 40, color: G, bgColor: 'rgba(45,122,79,0.08)' },
+                          { label: 'Académico', val: r.puntaje_academico, max: 20, color: O, bgColor: 'rgba(232,93,4,0.07)' },
+                        ].map(({ label, val, max, color, bgColor }) => (
+                          <div key={label} className="text-center p-2 rounded-lg" style={{ background: bgColor }}>
+                            <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color }}>{val}</div>
+                            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>{label} /{max}</div>
+                          </div>
                         ))}
                       </div>
-                    </div>
 
-                    <div className="text-right flex-shrink-0">
-                      <div style={{
-                        fontFamily: 'var(--font-display)', fontSize: '2rem',
-                        color: getScoreColor(curso.puntaje_total), lineHeight: 1
-                      }}>
-                        {curso.puntaje_total}
-                      </div>
-                      <div style={{ fontFamily: 'var(--font-condensed)', color: '#6B7280', fontSize: '0.7rem' }}>/ 100</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(255,255,255,0.07)' }}>
-                    <div style={{
-                      height: '100%', width: `${curso.puntaje_total}%`,
-                      background: `linear-gradient(90deg, ${getScoreColor(curso.puntaje_total)}, ${getScoreColor(curso.puntaje_total)}88)`,
-                      borderRadius: '99px', transition: 'width 0.6s ease'
-                    }} />
-                  </div>
-
-                  {selected?.curso_id === curso.curso_id && (
-                    <div className="mt-4 pt-4 grid grid-cols-2 gap-3 slide-in" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                      {[
-                        { label: 'VAR resueltos', val: `${curso.pct_var_resueltos}%`, color: '#FCA5A5' },
-                        { label: 'Resolutivo', val: `${curso.puntaje_resolutivo}/30`, color: '#FCA5A5' },
-                        { label: 'Formativo', val: `${curso.puntaje_formativo}/30`, color: '#6EE7B7' },
-                        { label: 'Preventivo', val: `${curso.puntaje_preventivo}/20`, color: '#93C5FD' },
-                        { label: 'Académico', val: `${curso.puntaje_academico}/20`, color: '#FCD34D' },
-                        { label: 'Total', val: `${curso.puntaje_total}/100`, color: '#C9A84C' },
-                      ].map(({ label, val, color }) => (
-                        <div key={label}>
-                          <div style={{ fontFamily: 'var(--font-condensed)', color: '#6B7280', fontSize: '0.7rem', letterSpacing: '0.1em' }}>{label.toUpperCase()}</div>
-                          <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color }}>{val}</div>
+                      {r.pct_var_resueltos > 0 && (
+                        <div style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
+                          VIR resueltos: <span style={{ color: G, fontWeight: 700 }}>{r.pct_var_resueltos}%</span>
                         </div>
-                      ))}
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Cursos SIN datos - separados y atenuados */}
-              {sinDatos.length > 0 && conDatos.length > 0 && (
-                <div className="mt-4">
-                  <div style={{ fontFamily: 'var(--font-condensed)', color: '#374151', fontSize: '0.75rem', letterSpacing: '0.15em', marginBottom: '8px', paddingLeft: '4px' }}>
-                    SIN DATOS CARGADOS — {MESES[mes].toUpperCase()}
                   </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                    {sinDatos.map(curso => (
-                      <div key={curso.curso_id} className="rounded-lg p-3 text-center"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: '#374151' }}>
-                          {curso.curso_nombre}
-                        </div>
-                        <div style={{ fontFamily: 'var(--font-condensed)', color: '#1F2937', fontSize: '0.7rem' }}>sin datos</div>
-                      </div>
+                ))}
+              </div>
+
+              {sinDatos.length > 0 && (
+                <div className="mt-6">
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-muted)', fontSize: '0.78rem', letterSpacing: '0.1em', marginBottom: '8px' }}>
+                    SIN DATOS CARGADOS EN ESTE PERÍODO
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sinDatos.map(r => (
+                      <span key={r.curso_id} style={{ fontFamily: 'var(--font-condensed)', background: 'var(--bg-alt)', border: '1px solid var(--green-border)', color: 'var(--text-muted)', borderRadius: '6px', padding: '4px 10px', fontSize: '0.85rem' }}>
+                        {r.curso_nombre}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -250,92 +220,31 @@ export default function TableroPage() {
             </div>
           )}
 
-          {/* GRAFICO TAB */}
-          {!loading && tab === 'grafico' && (
-            <div className="space-y-6 max-w-3xl">
-              {conDatos.length === 0 ? (
-                <div className="text-center py-12" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
-                  No hay datos para graficar en {MESES[mes]}
+          {!loading && tab === 'grafico' && chartData.length > 0 && (
+            <div className="max-w-3xl">
+              <div className="rounded-xl p-4" style={{ border: '1.5px solid var(--green-border)', background: 'white' }}>
+                <div style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.78rem', letterSpacing: '0.1em', marginBottom: '12px' }}>
+                  PUNTAJE POR DIMENSIÓN · {getPeriodoLabel(periodo)}
                 </div>
-              ) : (
-                <>
-                  <div className="glass rounded-xl p-4">
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.75rem', letterSpacing: '0.1em', marginBottom: '16px' }}>
-                      PUNTAJE TOTAL POR CURSO — {MESES[mes].toUpperCase()}
-                    </div>
-                    <ResponsiveContainer width="100%" height={Math.max(conDatos.length * 36, 150)}>
-                      <BarChart data={chartData} layout="vertical">
-                        <XAxis type="number" domain={[0, 100]} tick={{ fill: '#6B7280', fontSize: 11 }} />
-                        <YAxis dataKey="name" type="category" tick={{ fill: '#D1D5DB', fontSize: 12, fontFamily: 'var(--font-condensed)' }} width={42} />
-                        <Tooltip contentStyle={{ background: '#1B3A6B', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'white' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-                        <Bar dataKey="Total" fill="#C9A84C" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  <div className="glass rounded-xl p-4">
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.75rem', letterSpacing: '0.1em', marginBottom: '16px' }}>
-                      DIMENSIONES POR CURSO
-                    </div>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                        <XAxis dataKey="name" tick={{ fill: '#9CA3AF', fontSize: 11, fontFamily: 'var(--font-condensed)' }} />
-                        <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} />
-                        <Tooltip contentStyle={{ background: '#1B3A6B', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'white' }} />
-                        <Legend wrapperStyle={{ fontFamily: 'var(--font-condensed)', fontSize: '11px' }} />
-                        <Bar dataKey="Resolutivo" fill="#DC2626" radius={[2, 2, 0, 0]} />
-                        <Bar dataKey="Formativo" fill="#059669" radius={[2, 2, 0, 0]} />
-                        <Bar dataKey="Preventivo" fill="#2563EB" radius={[2, 2, 0, 0]} />
-                        <Bar dataKey="Académico" fill="#C9A84C" radius={[2, 2, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </>
-              )}
+                <ResponsiveContainer width="100%" height={320}>
+                  <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 30, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,122,79,0.1)" />
+                    <XAxis dataKey="name" tick={{ fontFamily: 'var(--font-condensed)', fontSize: 11, fill: 'var(--text-secondary)' }} angle={-45} textAnchor="end" />
+                    <YAxis tick={{ fontFamily: 'var(--font-condensed)', fontSize: 11, fill: 'var(--text-muted)' }} />
+                    <Tooltip contentStyle={{ fontFamily: 'var(--font-condensed)', border: '1px solid var(--green-border)', borderRadius: '8px', background: 'white', color: 'var(--text-primary)' }} />
+                    <Legend wrapperStyle={{ fontFamily: 'var(--font-condensed)', fontSize: '12px' }} />
+                    <Bar dataKey="Resolutivo" fill="#C1121F" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Formativo" fill={G} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Académico" fill={O} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
 
-          {/* DETALLE TAB */}
-          {!loading && tab === 'detalle' && (
-            <div className="max-w-2xl">
-              {conDatos.length === 0 ? (
-                <div className="text-center py-12" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
-                  No hay datos cargados para {MESES[mes]}
-                </div>
-              ) : (
-                <div className="glass rounded-xl overflow-hidden">
-                  <div className="px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                    <span style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.75rem', letterSpacing: '0.1em' }}>
-                      TABLA DETALLADA — {MESES[mes].toUpperCase()} {anio}
-                    </span>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-condensed)', fontSize: '0.85rem' }}>
-                      <thead>
-                        <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
-                          {['#', 'Curso', 'Res.', 'Form.', 'Prev.', 'Acad.', 'Total'].map(h => (
-                            <th key={h} style={{ padding: '10px 8px', color: '#6B7280', letterSpacing: '0.05em', textAlign: 'center' }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {conDatos.map((r, i) => (
-                          <tr key={r.curso_id} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                            <td style={{ padding: '10px 8px', textAlign: 'center', color: '#6B7280' }}>{i + 1}</td>
-                            <td style={{ padding: '10px 8px', color: 'white', fontWeight: 600 }}>{r.curso_nombre}</td>
-                            <td style={{ padding: '10px 8px', textAlign: 'center', color: '#FCA5A5' }}>{r.puntaje_resolutivo}</td>
-                            <td style={{ padding: '10px 8px', textAlign: 'center', color: '#6EE7B7' }}>{r.puntaje_formativo}</td>
-                            <td style={{ padding: '10px 8px', textAlign: 'center', color: '#93C5FD' }}>{r.puntaje_preventivo}</td>
-                            <td style={{ padding: '10px 8px', textAlign: 'center', color: '#FCD34D' }}>{r.puntaje_academico}</td>
-                            <td style={{ padding: '10px 8px', textAlign: 'center', color: getScoreColor(r.puntaje_total), fontWeight: 700, fontSize: '1rem' }}>{r.puntaje_total}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
+          {!loading && chartData.length === 0 && tab === 'grafico' && (
+            <div className="text-center py-16" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)' }}>
+              No hay datos cargados para graficar en este período.
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@ export const revalidate = 0
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getSQL } from '@/lib/db'
-import { calcularPuntaje } from '@/lib/scoring'
+import { calcularPuntaje, getMesPeriodo } from '@/lib/scoring'
 
 const CURSOS_DEFAULT = [
   '1°1°','1°2°','1°3°','2°1°','2°2°','2°3°',
@@ -12,40 +12,42 @@ const CURSOS_DEFAULT = [
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const mes = parseInt(searchParams.get('mes') || String(new Date().getMonth() + 1))
+  const periodo = parseInt(searchParams.get('periodo') || '1')
   const anio = parseInt(searchParams.get('anio') || String(new Date().getFullYear()))
+  const meses = getMesPeriodo(periodo)
 
   const sql = await getSQL()
   if (!sql) {
     const ranking = CURSOS_DEFAULT.map(c => ({
-      curso_id: c.id, curso_nombre: c.nombre, mes, anio,
+      curso_id: c.id, curso_nombre: c.nombre, periodo, anio,
       puntaje_total: 0, puntaje_resolutivo: 0, puntaje_formativo: 0,
-      puntaje_preventivo: 0, puntaje_academico: 0,
-      pct_var_resueltos: 0, tiene_datos: false
+      puntaje_academico: 0, pct_var_resueltos: 0, tiene_datos: false
     }))
-    return NextResponse.json({ ranking, mes, anio })
+    return NextResponse.json({ ranking, periodo, anio })
   }
 
   try {
     const cursosResult = await sql`SELECT * FROM cursos ORDER BY anio, division`
     const cursos = cursosResult.rows
 
-    // VAR: cursos que tienen al menos 1 registro este mes
+    // VAR aggregated over all months in period
     const varResult = await sql`
       SELECT
         curso_id,
         COUNT(*)::int as var_total,
         SUM(CASE WHEN resuelto = true THEN 1 ELSE 0 END)::int as var_resueltos
       FROM var_registros
-      WHERE mes = ${mes} AND anio = ${anio}
+      WHERE anio = ${anio} AND mes = ANY(${meses})
       GROUP BY curso_id
     `
     const varMap = new Map(varResult.rows.map((r: any) => [r.curso_id, r]))
 
-    // Indicadores: cursos que tienen fila cargada este mes
+    // Indicadores: take latest per curso in period (by max mes)
     const indResult = await sql`
-      SELECT * FROM indicadores
-      WHERE mes = ${mes} AND anio = ${anio}
+      SELECT DISTINCT ON (curso_id) *
+      FROM indicadores
+      WHERE anio = ${anio} AND mes = ANY(${meses})
+      ORDER BY curso_id, mes DESC
     `
     const indMap = new Map(indResult.rows.map((r: any) => [r.curso_id, r]))
 
@@ -56,7 +58,7 @@ export async function GET(request: NextRequest) {
       const puntaje = calcularPuntaje({
         curso_id: curso.id,
         curso_nombre: curso.nombre,
-        mes,
+        periodo,
         anio,
         tiene_var: !!varData,
         tiene_indicadores: !!indData,
@@ -68,15 +70,12 @@ export async function GET(request: NextRequest) {
         uniforme: indData ? (indData.uniforme ?? null) : null,
         puntualidad: indData ? (indData.puntualidad !== null ? parseFloat(indData.puntualidad) : null) : null,
         asistencia: indData ? (indData.asistencia !== null ? parseFloat(indData.asistencia) : null) : null,
-        interv_tempranas: indData?.interv_tempranas ?? 0,
-        situaciones_previas: indData?.situaciones_previas ?? 0,
         pct_aprobados: indData ? (indData.pct_aprobados !== null ? parseFloat(indData.pct_aprobados) : null) : null,
       })
 
       return puntaje
     })
 
-    // Cursos sin datos van al final, los que tienen datos ordenados por puntaje
     ranking.sort((a: any, b: any) => {
       if (!a.tiene_datos && !b.tiene_datos) return 0
       if (!a.tiene_datos) return 1
@@ -84,9 +83,9 @@ export async function GET(request: NextRequest) {
       return b.puntaje_total - a.puntaje_total
     })
 
-    return NextResponse.json({ ranking, mes, anio })
+    return NextResponse.json({ ranking, periodo, anio })
   } catch (e: any) {
     console.error('Ranking error:', e)
-    return NextResponse.json({ ranking: [], mes, anio, error: e.message })
+    return NextResponse.json({ ranking: [], periodo, anio, error: e.message })
   }
 }

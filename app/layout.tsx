@@ -20,7 +20,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
-      <body style={{ background: '#0A1628', color: 'white', minHeight: '100vh' }}>
+      <body style={{ background: 'var(--bg)', color: 'white', minHeight: '100vh' }}>
         {children}
       </body>
     </html>

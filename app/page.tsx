@@ -6,7 +6,7 @@ export default function Home() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0A1628' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Header público */}
       <header style={{
         borderBottom: '1px solid rgba(201,168,76,0.15)',
@@ -35,8 +35,8 @@ export default function Home() {
         {/* Hero */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#C9A84C' }} className="pulse-gold" />
-            <span style={{ fontFamily: 'var(--font-condensed)', color: '#C9A84C', fontSize: '0.8rem', letterSpacing: '0.2em' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--orange)' }} className="pulse-gold" />
+            <span style={{ fontFamily: 'var(--font-condensed)', color: 'var(--orange)', fontSize: '0.8rem', letterSpacing: '0.2em' }}>
               {currentMonth.toUpperCase()} {currentYear} · EN CURSO
             </span>
           </div>
