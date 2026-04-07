@@ -26,7 +26,6 @@ export async function setupDatabase() {
     ('5°1°', '1', 5), ('5°2°', '2', 5), ('5°3°', '3', 5)
     ON CONFLICT (nombre) DO NOTHING`
 
-  // Main VIR/VAR table with new columns
   await sql`CREATE TABLE IF NOT EXISTS var_registros (
     id SERIAL PRIMARY KEY,
     curso_id INTEGER REFERENCES cursos(id),
@@ -40,8 +39,6 @@ export async function setupDatabase() {
     anio INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
   )`
-
-  // Migrate: add columns if they don't exist
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS categoria_id VARCHAR(50)`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS nombre_activador VARCHAR(150)`
 
@@ -52,7 +49,6 @@ export async function setupDatabase() {
     anio INTEGER NOT NULL,
     limpieza INTEGER,
     uniforme VARCHAR(20),
-    puntualidad DECIMAL(5,2),
     asistencia DECIMAL(5,2),
     actas INTEGER DEFAULT 0,
     ice_puntos INTEGER DEFAULT 0,
@@ -62,9 +58,26 @@ export async function setupDatabase() {
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(curso_id, mes, anio)
   )`
-
   await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS interv_tempranas INTEGER DEFAULT 0`
   await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS situaciones_previas INTEGER DEFAULT 0`
+  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS asistencia DECIMAL(5,2)`
+
+  // NUEVO: tabla de acciones de campo positivo
+  await sql`CREATE TABLE IF NOT EXISTS campo_positivo (
+    id SERIAL PRIMARY KEY,
+    curso_id INTEGER REFERENCES cursos(id),
+    tipo_accion VARCHAR(200) NOT NULL,
+    descripcion TEXT NOT NULL,
+    evidencia_url VARCHAR(500),
+    evidencia_tipo VARCHAR(20) DEFAULT 'enlace',
+    puntos INTEGER NOT NULL DEFAULT 5,
+    fecha DATE NOT NULL,
+    mes INTEGER NOT NULL,
+    anio INTEGER NOT NULL,
+    nombre_docente VARCHAR(150) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`
+
   return { ok: true }
 }
 
@@ -86,7 +99,5 @@ export async function setupUsuarios() {
     VALUES ('Administrador', 'Videla.4012', 'VirVidela4012', 'admin')
     ON CONFLICT (usuario) DO NOTHING`
 
-  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS interv_tempranas INTEGER DEFAULT 0`
-  await sql`ALTER TABLE indicadores ADD COLUMN IF NOT EXISTS situaciones_previas INTEGER DEFAULT 0`
   return { ok: true }
 }

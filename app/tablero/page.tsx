@@ -227,10 +227,11 @@ export default function TableroPage() {
                       </div>
 
                       {/* Desglose */}
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-3 gap-2">
                         {[
                           { label: 'Resolutivo', val: r.puntaje_resolutivo, max: 40, color: R, bg: '#FEE2E2' },
                           { label: 'Formativo',  val: r.puntaje_formativo,  max: 40, color: G, bg: '#D1FAE5' },
+                          { label: 'Campo ⭐', val: (r as any).puntaje_campo ?? 0, max: 20, color: '#B45309', bg: '#FEF3C7' },
                         ].map(({ label, val, max, color, bg }) => (
                           <div key={label} style={{ background: bg, borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
                             <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color }}>{val}</div>

@@ -12,10 +12,9 @@ const CURSOS_DEFAULT = [
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const mes    = parseInt(searchParams.get('mes')  || String(new Date().getMonth() + 1))
-  const anio   = parseInt(searchParams.get('anio') || String(new Date().getFullYear()))
-  // modo 'mensual' (default) o 'periodo' para académico
-  const modo   = searchParams.get('modo') || 'mensual'
+  const mes     = parseInt(searchParams.get('mes')  || String(new Date().getMonth() + 1))
+  const anio    = parseInt(searchParams.get('anio') || String(new Date().getFullYear()))
+  const modo    = searchParams.get('modo') || 'mensual'
   const periodo = parseInt(searchParams.get('periodo') || (new Date().getMonth() < 7 ? '1' : '2'))
 
   const sql = await getSQL()
@@ -23,8 +22,8 @@ export async function GET(request: NextRequest) {
     const ranking = CURSOS_DEFAULT.map(c => ({
       curso_id: c.id, curso_nombre: c.nombre, mes, anio,
       puntaje_total: 0, puntaje_resolutivo: 0, puntaje_formativo: 0,
-      puntaje_academico: 0, pct_var_resueltos: 0,
-      pct_aprobados: null, tiene_datos: false
+      puntaje_campo: 0, puntaje_academico: 0, pct_var_resueltos: 0,
+      campo_bonus: 0, tiene_datos: false
     }))
     return NextResponse.json({ ranking, mes, anio })
   }
@@ -33,29 +32,22 @@ export async function GET(request: NextRequest) {
     const cursosResult = await sql`SELECT * FROM cursos ORDER BY anio, division`
     const cursos = cursosResult.rows
 
+    // ── MODO PERÍODO ACADÉMICO ──
     if (modo === 'periodo') {
-      // ── TABLERO ACADÉMICO POR PERÍODO ──
       const meses = getMesPeriodo(periodo)
-
-      // Tomar el pct_aprobados más reciente cargado en ese período
       const indResult = await sql`
-        SELECT DISTINCT ON (curso_id)
-          curso_id, pct_aprobados
+        SELECT DISTINCT ON (curso_id) curso_id, pct_aprobados
         FROM indicadores
         WHERE anio = ${anio} AND mes = ANY(${meses}) AND pct_aprobados IS NOT NULL
         ORDER BY curso_id, mes DESC
       `
       const indMap = new Map(indResult.rows.map((r: any) => [r.curso_id, r]))
-
       const ranking = cursos.map((curso: any) => {
-        const indData: any = indMap.get(curso.id) || null
-        const pct = indData ? parseFloat(indData.pct_aprobados) : null
-        const pts = calcularPuntajeAcademico(pct)
+        const ind: any = indMap.get(curso.id) || null
+        const pct = ind ? parseFloat(ind.pct_aprobados) : null
         return {
-          curso_id: curso.id,
-          curso_nombre: curso.nombre,
-          pct_aprobados: pct,
-          puntaje_academico: pts,
+          curso_id: curso.id, curso_nombre: curso.nombre,
+          pct_aprobados: pct, puntaje_academico: calcularPuntajeAcademico(pct),
           tiene_datos: pct !== null,
         }
       }).sort((a: any, b: any) => {
@@ -64,14 +56,12 @@ export async function GET(request: NextRequest) {
         if (!b.tiene_datos) return -1
         return b.puntaje_academico - a.puntaje_academico
       })
-
       return NextResponse.json({ ranking, periodo, anio, modo: 'periodo' })
     }
 
-    // ── TABLERO MENSUAL (resolutivo + formativo) ──
+    // ── MODO MENSUAL ──
     const varResult = await sql`
-      SELECT
-        curso_id,
+      SELECT curso_id,
         COUNT(*)::int as var_total,
         SUM(CASE WHEN resuelto = true THEN 1 ELSE 0 END)::int as var_resueltos
       FROM var_registros
@@ -80,31 +70,42 @@ export async function GET(request: NextRequest) {
     `
     const varMap = new Map(varResult.rows.map((r: any) => [r.curso_id, r]))
 
-    const indResult = await sql`
-      SELECT * FROM indicadores WHERE mes = ${mes} AND anio = ${anio}
-    `
+    const indResult = await sql`SELECT * FROM indicadores WHERE mes = ${mes} AND anio = ${anio}`
     const indMap = new Map(indResult.rows.map((r: any) => [r.curso_id, r]))
 
-    const ranking = cursos.map((curso: any) => {
-      const varData: any = varMap.get(curso.id) || null
-      const indData: any = indMap.get(curso.id) || null
+    // Campo positivo: suma de puntos del mes por curso
+    const campoResult = await sql`
+      SELECT curso_id, SUM(puntos)::int as total_puntos, COUNT(*)::int as total_acciones
+      FROM campo_positivo
+      WHERE mes = ${mes} AND anio = ${anio}
+      GROUP BY curso_id
+    `
+    const campoMap = new Map(campoResult.rows.map((r: any) => [r.curso_id, r]))
 
-      return calcularPuntajeMensual({
-        curso_id: curso.id,
-        curso_nombre: curso.nombre,
-        mes, anio,
-        tiene_var: !!varData,
+    const ranking = cursos.map((curso: any) => {
+      const varData:   any = varMap.get(curso.id)   || null
+      const indData:   any = indMap.get(curso.id)   || null
+      const campoData: any = campoMap.get(curso.id) || null
+
+      const puntaje = calcularPuntajeMensual({
+        curso_id: curso.id, curso_nombre: curso.nombre, mes, anio,
+        tiene_var:         !!varData,
         tiene_indicadores: !!indData,
-        var_total: varData?.var_total ?? 0,
-        var_resueltos: varData?.var_resueltos ?? 0,
-        actas: indData?.actas ?? 0,
-        ice_puntos: indData?.ice_puntos ?? 0,
-        limpieza: indData?.limpieza ?? null,
-        uniforme: indData?.uniforme ?? null,
-        asistencia: indData?.asistencia !== null && indData?.asistencia !== undefined
-          ? parseFloat(indData.asistencia) : null,
-        pct_aprobados: null, // no se usa en mensual
+        var_total:    varData?.var_total    ?? 0,
+        var_resueltos:varData?.var_resueltos?? 0,
+        actas:        indData?.actas        ?? 0,
+        ice_puntos:   indData?.ice_puntos   ?? 0,
+        limpieza:     indData?.limpieza     ?? null,
+        uniforme:     indData?.uniforme     ?? null,
+        asistencia:   indData?.asistencia   !== null && indData?.asistencia !== undefined ? parseFloat(indData.asistencia) : null,
+        pct_aprobados: null,
+        campo_bonus:  campoData?.total_puntos ?? 0,
       })
+
+      return {
+        ...puntaje,
+        campo_acciones: campoData?.total_acciones ?? 0,
+      }
     })
 
     ranking.sort((a: any, b: any) => {
