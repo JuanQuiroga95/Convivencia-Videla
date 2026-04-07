@@ -181,5 +181,5 @@ export const TIPOS_REPARACION_POR_CATEGORIA: Record<string, string[]> = {
 }
 
 export const TIPOS_REPARACION = ['Disculpa explícita', 'Acción reparadora concreta', 'Reflexión guiada']
-export const INTERVINIENTES   = ['Preceptor/a', 'Docente', 'Orientación', 'Delegado/a', 'Equipo directivo']
+export const INTERVINIENTES = ['Preceptor/a', 'Docente', 'Orientación']
 export const TIPOS_SITUACION  = CATEGORIAS_VIR.flatMap(c => c.situaciones)
