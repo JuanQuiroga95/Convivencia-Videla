@@ -41,7 +41,7 @@ export default function LoginForm() {
           <img src="/escudo.jpg" alt="Escudo Videla"
             style={{ width: '115px', height: '115px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--orange)', display: 'block', margin: '0 auto 16px' }} />
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.9rem', color: 'white', letterSpacing: '0.05em', lineHeight: 1.1 }}>
-            CLIMA DE CONVIVENCIA<br/><span style={{ color: 'var(--orange)' }}>VIDELA</span>
+            CONVIVENCIA<br/><span style={{ color: 'var(--orange)' }}>VIDELIANA</span>
           </div>
           <div style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', letterSpacing: '0.14em', marginTop: '8px' }}>
             ESTADO INSTITUCIONAL · ABRIL 2026
