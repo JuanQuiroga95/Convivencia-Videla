@@ -183,3 +183,15 @@ export const TIPOS_REPARACION_POR_CATEGORIA: Record<string, string[]> = {
 export const TIPOS_REPARACION = ['Disculpa explícita', 'Acción reparadora concreta', 'Reflexión guiada']
 export const INTERVINIENTES = ['Preceptor/a', 'Docente', 'Orientación']
 export const TIPOS_SITUACION  = CATEGORIAS_VIR.flatMap(c => c.situaciones)
+
+// ── TURNOS ───────────────────────────────────────────────────────────────────
+export const TURNOS = [
+  { id: 'manana', label: 'Turno Mañana', emoji: '🌅', anios: [1, 2], sub: '1° y 2° año' },
+  { id: 'tarde',  label: 'Turno Tarde',  emoji: '🌇', anios: [3, 4, 5], sub: '3°, 4° y 5° año' },
+]
+
+export function getTurno(cursoNombre: string): 'manana' | 'tarde' {
+  // Curso nombre es tipo "1°1°", "3°2°" etc. — el primer número es el año
+  const anio = parseInt(cursoNombre.charAt(0))
+  return anio <= 2 ? 'manana' : 'tarde'
+}
