@@ -12,6 +12,17 @@ interface CampoRecord {
 const G = '#2D7A4F'; const O = '#E85D04'; const GOLD = '#B45309'
 const now = new Date()
 
+// ── Sub-componentes fuera del componente principal para evitar re-renders ──
+const SH = ({ text, color = G }: { text: string; color?: string }) => (
+  <div style={{ background: color, color: 'white', padding: '10px 16px', borderRadius: '10px 10px 0 0', fontFamily: 'var(--font-condensed)', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em' }}>{text}</div>
+)
+const SB = ({ children, bc }: any) => (
+  <div style={{ border: `2px solid ${bc || 'var(--green-border)'}`, borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '16px', background: 'white' }}>{children}</div>
+)
+const Lbl = ({ text, color = '#1A4D2E' }: any) => (
+  <label style={{ fontFamily: 'var(--font-condensed)', color, fontSize: '0.78rem', display: 'block', marginBottom: '6px', fontWeight: 700, letterSpacing: '0.08em' }}>{text}</label>
+)
+
 export default function CampoPage() {
   const [cursos, setCursos] = useState<{id: number, nombre: string}[]>([])
   const [tab, setTab] = useState<'registrar' | 'historial'>('registrar')
@@ -86,16 +97,6 @@ export default function CampoPage() {
   // descripcion solo necesita algo de texto, sin mínimo estricto
   const canStep2 = descLocal.trim().length >= 3
   const canSubmit = form.nombre_docente.trim().length >= 3 && Number(form.puntos) >= 1
-
-  const SH = ({ text, color = G }: { text: string; color?: string }) => (
-    <div style={{ background: color, color: 'white', padding: '10px 16px', borderRadius: '10px 10px 0 0', fontFamily: 'var(--font-condensed)', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em' }}>{text}</div>
-  )
-  const SB = ({ children, bc }: any) => (
-    <div style={{ border: `2px solid ${bc || 'var(--green-border)'}`, borderTop: 'none', borderRadius: '0 0 10px 10px', padding: '16px', background: 'white' }}>{children}</div>
-  )
-  const Lbl = ({ text, color = '#1A4D2E' }: any) => (
-    <label style={{ fontFamily: 'var(--font-condensed)', color, fontSize: '0.78rem', display: 'block', marginBottom: '6px', fontWeight: 700, letterSpacing: '0.08em' }}>{text}</label>
-  )
 
   return (
     <div style={{ background: '#F4F7F4', minHeight: '100vh' }}>
