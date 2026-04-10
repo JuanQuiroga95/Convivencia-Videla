@@ -10,6 +10,11 @@ export default function AdminPage() {
   const [tab, setTab] = useState<'usuarios' | 'setup' | 'var' | 'indicadores'>('usuarios')
   const [setupStatus, setSetupStatus] = useState<any>(null)
   const [setupLoading, setSetupLoading] = useState(false)
+  const [demoStatus, setDemoStatus] = useState<any>(null)
+  const [demoLoading, setDemoLoading] = useState(false)
+  const [demoDeleteLoading, setDemoDeleteLoading] = useState(false)
+  const [migrarStatus, setMigrarStatus] = useState<any>(null)
+  const [migrarLoading, setMigrarLoading] = useState(false)
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [varList, setVarList] = useState<any[]>([])
   const [indList, setIndList] = useState<any[]>([])
@@ -34,6 +39,32 @@ export default function AdminPage() {
     const res = await fetch('/api/setup')
     setSetupStatus(await res.json())
     setSetupLoading(false)
+  }
+
+  const handleDemo = async () => {
+    if (!confirm('Esto va a cargar datos de demo en Marzo y Abril 2026. ¿Continuás?')) return
+    setDemoLoading(true)
+    setDemoStatus(null)
+    const res = await fetch('/api/demo', { method: 'POST' })
+    setDemoStatus(await res.json())
+    setDemoLoading(false)
+  }
+
+  const handleBorrarDemo = async () => {
+    if (!confirm('¿Eliminar todos los datos demo de Marzo y Abril 2026?')) return
+    setDemoDeleteLoading(true)
+    setDemoStatus(null)
+    const res = await fetch('/api/demo', { method: 'DELETE' })
+    setDemoStatus(await res.json())
+    setDemoDeleteLoading(false)
+  }
+
+  const handleMigrarCursos = async () => {
+    setMigrarLoading(true)
+    setMigrarStatus(null)
+    const res = await fetch('/api/setup', { method: 'POST' })
+    setMigrarStatus(await res.json())
+    setMigrarLoading(false)
   }
 
   const handleCrearUsuario = async () => {
@@ -225,10 +256,12 @@ export default function AdminPage() {
           {/* SETUP TAB */}
           {tab === 'setup' && (
             <div className="space-y-4">
+
+              {/* ── Inicializar DB ── */}
               <div className="glass rounded-xl p-5">
                 <div style={{ fontFamily: 'var(--font-condensed)', color: '#C9A84C', letterSpacing: '0.05em', marginBottom: '8px' }}>CONFIGURAR BASE DE DATOS</div>
                 <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.9rem', marginBottom: '16px', lineHeight: 1.6 }}>
-                  Ejecutar si es la primera vez o para crear la tabla de usuarios.
+                  Ejecutar si es la primera vez o para crear las tablas necesarias.
                 </p>
                 {setupStatus?.ok && (
                   <div className="mb-4 p-3 rounded-lg flex items-center gap-2" style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)' }}>
@@ -247,6 +280,78 @@ export default function AdminPage() {
                   {setupLoading ? 'Configurando...' : 'Inicializar base de datos'}
                 </button>
               </div>
+
+              {/* ── Migrar cursos faltantes ── */}
+              <div className="glass rounded-xl p-5" style={{ border: '1px solid rgba(29,78,216,0.35)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.2rem' }}>📋</span>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: '#93C5FD', letterSpacing: '0.05em', fontSize: '1rem' }}>AGREGAR CURSOS FALTANTES</div>
+                </div>
+                <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.88rem', marginBottom: '10px', lineHeight: 1.6 }}>
+                  Si la base de datos ya existe con los 15 cursos originales, este botón agrega los 8 que faltan
+                  (<strong style={{ color: '#93C5FD' }}>1°4°, 1°5°, 2°4°, 2°5°, 3°4°, 3°5°, 4°4°, 5°4°</strong>)
+                  sin borrar ningún dato existente.
+                </p>
+                {migrarStatus?.ok && (
+                  <div className="mb-4 p-3 rounded-lg flex items-center gap-2" style={{ background: 'rgba(29,78,216,0.15)', border: '1px solid rgba(29,78,216,0.4)' }}>
+                    <CheckCircle size={16} style={{ color: '#93C5FD' }} />
+                    <span style={{ fontFamily: 'var(--font-condensed)', color: '#93C5FD', fontSize: '0.88rem' }}>{migrarStatus.message}</span>
+                  </div>
+                )}
+                {migrarStatus && !migrarStatus.ok && (
+                  <div className="mb-4 p-3 rounded-lg flex items-center gap-2" style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)' }}>
+                    <AlertCircle size={16} style={{ color: '#FCA5A5' }} />
+                    <span style={{ fontFamily: 'var(--font-body)', color: '#FCA5A5', fontSize: '0.85rem' }}>{migrarStatus.error}</span>
+                  </div>
+                )}
+                <button onClick={handleMigrarCursos} disabled={migrarLoading} style={{ background: '#1D4ED8', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: migrarLoading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', opacity: migrarLoading ? 0.7 : 1 }}>
+                  <Plus size={16} />
+                  {migrarLoading ? 'Agregando...' : 'Agregar cursos faltantes'}
+                </button>
+              </div>
+
+              {/* ── Demo ── */}
+              <div className="glass rounded-xl p-5" style={{ border: '1px solid rgba(180,83,9,0.45)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.3rem' }}>🎭</span>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: '#FCD34D', letterSpacing: '0.05em', fontSize: '1rem' }}>CARGAR DATOS DEMO</div>
+                </div>
+                <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.88rem', marginBottom: '10px', lineHeight: 1.6 }}>
+                  Carga datos de ejemplo en <strong style={{ color: '#FCD34D' }}>Marzo y Abril 2026</strong> para los 23 cursos.
+                  Incluye VIR con distintos niveles de resolución, indicadores mensuales y aportes a la convivencia.
+                  Ideal para ver el tablero, ranking e historial funcionando.
+                </p>
+                <div style={{ background: 'rgba(180,83,9,0.12)', border: '1px solid rgba(252,211,77,0.2)', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px' }}>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: '#FCD34D', fontSize: '0.75rem', letterSpacing: '0.08em', marginBottom: '5px' }}>QUÉ INCLUYE</div>
+                  <div style={{ fontFamily: 'var(--font-body)', color: '#D1D5DB', fontSize: '0.82rem', lineHeight: 1.7 }}>
+                    • ~120 VIR con variedad de categorías, resolución y tipo de reparación<br/>
+                    • 46 indicadores mensuales (limpieza, uniforme, asistencia, actas, ICE)<br/>
+                    • Aportes a la convivencia en cursos destacados (hasta 20 pts)<br/>
+                    • Datos académicos incluidos para el Período 1
+                  </div>
+                </div>
+                {demoStatus?.ok && (
+                  <div className="mb-4 p-3 rounded-lg flex items-center gap-2" style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)' }}>
+                    <CheckCircle size={16} style={{ color: '#6EE7B7' }} />
+                    <span style={{ fontFamily: 'var(--font-condensed)', color: '#6EE7B7', fontSize: '0.88rem' }}>{demoStatus.message}</span>
+                  </div>
+                )}
+                {demoStatus && !demoStatus.ok && (
+                  <div className="mb-4 p-3 rounded-lg flex items-center gap-2" style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)' }}>
+                    <AlertCircle size={16} style={{ color: '#FCA5A5' }} />
+                    <span style={{ fontFamily: 'var(--font-body)', color: '#FCA5A5', fontSize: '0.85rem' }}>{demoStatus.error}</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button onClick={handleDemo} disabled={demoLoading || demoDeleteLoading} style={{ background: '#B45309', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: demoLoading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', opacity: demoLoading ? 0.7 : 1 }}>
+                    🎭 {demoLoading ? 'Cargando demo...' : 'Crear demo'}
+                  </button>
+                  <button onClick={handleBorrarDemo} disabled={demoLoading || demoDeleteLoading} style={{ background: 'transparent', color: '#FCA5A5', border: '1px solid rgba(220,38,38,0.4)', borderRadius: '8px', padding: '10px 16px', cursor: demoDeleteLoading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', opacity: demoDeleteLoading ? 0.7 : 1 }}>
+                    <Trash2 size={14} /> {demoDeleteLoading ? 'Borrando...' : 'Borrar demo'}
+                  </button>
+                </div>
+              </div>
+
             </div>
           )}
 
