@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Nav from '@/components/Nav'
 import { Star, CheckCircle, AlertCircle, ChevronRight, Trash2, Trophy, Upload, X } from 'lucide-react'
 import { TIPOS_ACCION_CAMPO, PUNTOS_CAMPO_OPCIONES, MESES } from '@/lib/scoring'
@@ -25,6 +25,8 @@ export default function CampoPage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ok: boolean; message?: string; error?: string} | null>(null)
   const [step, setStep] = useState(1)
+  // Local state for description to avoid re-render lag on mobile
+  const [descLocal, setDescLocal] = useState('')
 
   const [registros, setRegistros] = useState<CampoRecord[]>([])
   const [loadingHist, setLoadingHist] = useState(false)
@@ -49,14 +51,15 @@ export default function CampoPage() {
   }
 
   const handleSubmit = async () => {
+    const formToSend = { ...form, descripcion: descLocal }
     setLoading(true)
     try {
       const res = await fetch('/api/campo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form,
-          curso_id: parseInt(form.curso_id),
+          ...formToSend,
+          curso_id: parseInt(formToSend.curso_id),
           evidencia_url: archivoNombre || null,
           evidencia_tipo: archivoNombre ? 'archivo' : null,
         }),
@@ -65,6 +68,7 @@ export default function CampoPage() {
       setResult(data)
       if (data.ok) {
         setForm({ curso_id: '', tipo_accion: '', descripcion: '', puntos: 5, fecha: now.toISOString().split('T')[0], nombre_docente: '' })
+        setDescLocal('')
         setArchivoNombre('')
         setStep(1)
       }
@@ -80,8 +84,8 @@ export default function CampoPage() {
 
   const canStep1 = form.curso_id && form.tipo_accion && form.fecha
   // descripcion solo necesita algo de texto, sin mínimo estricto
-  const canStep2 = form.descripcion.trim().length >= 3
-  const canSubmit = form.nombre_docente.trim().length >= 3 && form.puntos >= 1
+  const canStep2 = descLocal.trim().length >= 3
+  const canSubmit = form.nombre_docente.trim().length >= 3 && Number(form.puntos) >= 1
 
   const SH = ({ text, color = G }: { text: string; color?: string }) => (
     <div style={{ background: color, color: 'white', padding: '10px 16px', borderRadius: '10px 10px 0 0', fontFamily: 'var(--font-condensed)', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em' }}>{text}</div>
@@ -105,14 +109,14 @@ export default function CampoPage() {
               <Trophy size={24} style={{ color: '#FCD34D' }} />
             </div>
             <div>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'white' }}>CAMPO POSITIVO</h1>
-              <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>Acciones destacadas · Recuperación y bonificación de puntos</p>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'white' }}>APORTES A LA CONVIVENCIA</h1>
+              <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>Acciones destacadas · Reconocimiento institucional</p>
             </div>
           </div>
           <div style={{ background: 'rgba(180,83,9,0.25)', border: '1px solid rgba(252,211,77,0.4)', borderRadius: '10px', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
             <Star size={15} style={{ color: '#FCD34D', flexShrink: 0 }} />
             <span style={{ fontFamily: 'var(--font-condensed)', color: '#FEF3C7', fontSize: '0.82rem', lineHeight: 1.4 }}>
-              Los cursos pueden <strong>ganar hasta 20 puntos bonus por mes</strong>. El docente asigna el valor (1–10 pts).
+              Los cursos pueden <strong>ganar hasta 20 puntos por mes</strong>. El docente asigna el valor (1–10 pts).
             </span>
           </div>
           <div className="flex gap-2">
@@ -223,8 +227,8 @@ export default function CampoPage() {
                       type="text"
                       className="input-videla"
                       placeholder="Describí brevemente qué hizo el curso..."
-                      value={form.descripcion}
-                      onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))}
+                      value={descLocal}
+                      onChange={e => setDescLocal(e.target.value)}
                       style={{ fontSize: '16px' /* evita zoom en iOS */ }}
                     />
                   </SB>
@@ -271,7 +275,7 @@ export default function CampoPage() {
                   </SB>
                 </div>
 
-                <button onClick={() => setStep(3)} disabled={!canStep2} className="btn-gold w-full flex items-center justify-center gap-2">
+                <button onClick={() => { setForm(f => ({ ...f, descripcion: descLocal })); setStep(3) }} disabled={!canStep2} className="btn-gold w-full flex items-center justify-center gap-2">
                   Continuar <ChevronRight size={16}/>
                 </button>
                 <button onClick={() => setStep(1)} className="btn-outline w-full">Atrás</button>

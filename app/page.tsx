@@ -14,9 +14,10 @@ const ACCESOS = [
 ]
 
 const DIMS = [
-  { label: 'RESOLUTIVO', pts: '40 pts', color: '#991B1B', bg: '#FEE2E2', border: '#FCA5A5', desc: 'VIR, actas, ICE' },
-  { label: 'FORMATIVO',  pts: '40 pts', color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7', desc: 'Uniforme, asistencia, entorno' },
-  { label: 'ACADÉMICO',  pts: '20 pts', color: '#92400E', bg: '#FEF3C7', border: '#FCD34D', desc: 'Aprobados del período' },
+  { label: 'CONVIVENCIA',            pts: '40 pts',  color: '#991B1B', bg: '#FEE2E2', border: '#FCA5A5', desc: 'VIR, actas, ICE' },
+  { label: 'HÁBITOS INSTITUCIONALES',pts: '40 pts',  color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7', desc: 'Uniforme, asistencia, entorno' },
+  { label: 'DESEMPEÑO ACADÉMICO',    pts: '20 pts',  color: '#92400E', bg: '#FEF3C7', border: '#FCD34D', desc: 'Aprobados del período' },
+  { label: 'APORTES A LA CONVIVENCIA', pts: '+20 pts', color: '#78350F', bg: '#FEF3C7', border: '#F59E0B', desc: 'Acciones positivas' },
 ]
 
 export default function Home() {

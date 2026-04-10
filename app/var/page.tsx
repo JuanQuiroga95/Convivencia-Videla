@@ -247,7 +247,7 @@ export default function VIRPage() {
                           onChange={e => setForm(f => ({ ...f, resuelto: e.target.value }))}
                           style={{ accentColor: val === 'si' ? G : '#C1121F' }} />
                         <span style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontWeight: 500 }}>
-                          {val === 'si' ? '✓ Sí, se resolvió' : '✗ No, se escala'}
+                          {val === 'si' ? '✓ Sí' : '✗ No'}
                         </span>
                       </label>
                     ))}

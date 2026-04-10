@@ -64,8 +64,11 @@ export default function HistorialPage() {
 
   useEffect(() => {
     fetch('/api/cursos').then(r => r.json()).then(setCursos)
-    cargar(1)
   }, [])
+
+  useEffect(() => {
+    cargar(1)
+  }, [cargar])
 
   const limpiarFiltros = () => {
     setFiltros({ mes: '', anio: String(now.getFullYear()), curso_id: '', categoria: '', resuelto: '', intervino: '', busqueda: '' })
@@ -186,7 +189,7 @@ export default function HistorialPage() {
                   <select className="input-videla" value={filtros.resuelto} onChange={e => setFiltros(f => ({ ...f, resuelto: e.target.value }))}>
                     <option value="">Todos</option>
                     <option value="true">Resuelto</option>
-                    <option value="false">No resuelto / Escalado</option>
+                    <option value="false">No resuelto</option>
                   </select>
                 </div>
                 <div>
@@ -269,7 +272,7 @@ export default function HistorialPage() {
                       }}>
                         {r.resuelto
                           ? <><CheckCircle size={12} /> Resuelto</>
-                          : <><XCircle size={12} /> Escalado</>
+                          : <><XCircle size={12} /> No</>
                         }
                       </div>
                     </div>

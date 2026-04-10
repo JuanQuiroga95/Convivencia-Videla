@@ -135,9 +135,9 @@ export default function RankingPublicoPage() {
                   {/* Desglose */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                     {[
-                      { label: 'Resolutivo', val: r.puntaje_resolutivo, max: 40, color: R, bg: '#FEE2E2' },
-                      { label: 'Formativo',  val: r.puntaje_formativo,  max: 40, color: G, bg: '#D1FAE5' },
-                      { label: 'Campo ⭐',   val: r.puntaje_campo || 0, max: 20, color: GOLD, bg: '#FEF3C7' },
+                      { label: 'Convivencia', val: r.puntaje_resolutivo, max: 40, color: R, bg: '#FEE2E2' },
+                      { label: 'Hábitos',     val: r.puntaje_formativo,  max: 40, color: G, bg: '#D1FAE5' },
+                      { label: 'Aportes',     val: r.puntaje_campo || 0, max: 20, color: GOLD, bg: '#FEF3C7' },
                     ].map(({ label, val, max, color, bg }) => (
                       <div key={label} style={{ background: bg, borderRadius: '8px', padding: '8px 6px', textAlign: 'center' }}>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color, lineHeight: 1 }}>{val}</div>

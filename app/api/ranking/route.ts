@@ -6,8 +6,11 @@ import { getSQL } from '@/lib/db'
 import { calcularPuntajeMensual, calcularPuntajeAcademico, getMesPeriodo } from '@/lib/scoring'
 
 const CURSOS_DEFAULT = [
-  '1°1°','1°2°','1°3°','2°1°','2°2°','2°3°',
-  '3°1°','3°2°','3°3°','4°1°','4°2°','4°3°','5°1°','5°2°','5°3°'
+  '1°1°','1°2°','1°3°','1°4°','1°5°',
+  '2°1°','2°2°','2°3°','2°4°','2°5°',
+  '3°1°','3°2°','3°3°','3°4°','3°5°',
+  '4°1°','4°2°','4°3°','4°4°',
+  '5°1°','5°2°','5°3°','5°4°',
 ].map((nombre, i) => ({ id: i + 1, nombre }))
 
 export async function GET(request: NextRequest) {

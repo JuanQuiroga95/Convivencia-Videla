@@ -118,11 +118,11 @@ export default function IndicadoresPage() {
             </div>
             <div>
               <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'white' }}>INDICADORES</h1>
-              <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>Mensual (formativo/resolutivo) · Período (académico)</p>
+              <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>Mensual (Convivencia / Hábitos) · Período (Desempeño Académico)</p>
             </div>
           </div>
           <div className="flex gap-2">
-            {[{ id: 'mensual', label: '📅 Indicadores Mensuales' }, { id: 'academico', label: '📚 Académico por Período' }].map(({ id, label }) => (
+            {[{ id: 'mensual', label: '📅 Indicadores Mensuales' }, { id: 'academico', label: '📚 Desempeño Académico' }].map(({ id, label }) => (
               <button key={id} onClick={() => setTab(id as any)} style={{ background: tab === id ? 'white' : 'transparent', color: tab === id ? G : 'rgba(255,255,255,0.6)', border: `1.5px solid ${tab === id ? 'white' : 'rgba(255,255,255,0.25)'}`, borderRadius: '8px', padding: '7px 18px', cursor: 'pointer', fontFamily: 'var(--font-condensed)', fontSize: '0.88rem', fontWeight: 700, transition: 'all 0.2s' }}>
                 {label}
               </button>
@@ -235,7 +235,7 @@ export default function IndicadoresPage() {
 
             <div className="space-y-5">
               <div>
-                <SH text="📚 ACADÉMICO POR PERÍODO" sub="% aprobados al cierre" color={A} />
+                <SH text="📚 DESEMPEÑO ACADÉMICO POR PERÍODO" sub="% aprobados al cierre" color={A} />
                 <SB bc="#FCD34D">
                   <div className="space-y-4">
                     <div>
@@ -282,7 +282,7 @@ export default function IndicadoresPage() {
                 </SB>
               </div>
               <button onClick={handleSubmitAcad} disabled={!formAcad.curso_id || !formAcad.pct_aprobados || loadingA} className="btn-gold w-full" style={{ fontSize: '1.05rem', padding: '13px 24px' }}>
-                {loadingA ? 'Guardando...' : 'GUARDAR ACADÉMICO DEL PERÍODO'}
+                {loadingA ? 'Guardando...' : 'GUARDAR DESEMPEÑO ACADÉMICO DEL PERÍODO'}
               </button>
             </div>
           </div>

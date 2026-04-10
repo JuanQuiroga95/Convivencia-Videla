@@ -73,7 +73,7 @@ export default function TableroPage() {
   const sinDatosAc     = academTurno.filter(r => !r.tiene_datos)
 
   const chartData = conDatos.map(r => ({
-    name: r.curso_nombre, Resolutivo: r.puntaje_resolutivo, Formativo: r.puntaje_formativo, Campo: r.puntaje_campo || 0
+    name: r.curso_nombre, Convivencia: r.puntaje_resolutivo, Hábitos: r.puntaje_formativo, Aportes: r.puntaje_campo || 0
   }))
 
   const TurnoBtn = ({ t }: { t: typeof TURNOS[0] }) => (
@@ -124,9 +124,9 @@ export default function TableroPage() {
         {/* Dimensiones */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
           {[
-            { label: 'Resolutivo', val: r.puntaje_resolutivo, max: 40, color: R, bg: '#FEE2E2' },
-            { label: 'Formativo',  val: r.puntaje_formativo,  max: 40, color: G, bg: '#D1FAE5' },
-            { label: 'Campo ⭐',   val: r.puntaje_campo || 0, max: 20, color: GOLD, bg: '#FEF3C7' },
+            { label: 'Convivencia', val: r.puntaje_resolutivo, max: 40, color: R, bg: '#FEE2E2' },
+            { label: 'Hábitos',     val: r.puntaje_formativo,  max: 40, color: G, bg: '#D1FAE5' },
+            { label: 'Aportes',     val: r.puntaje_campo || 0, max: 20, color: GOLD, bg: '#FEF3C7' },
           ].map(({ label, val, max, color, bg }) => (
             <div key={label} style={{ background: bg, borderRadius: '8px', padding: '8px 6px', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color, lineHeight: 1 }}>{val}</div>
@@ -169,7 +169,7 @@ export default function TableroPage() {
             {/* Tabs secundarios */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <TabBtn label="📅 Mensual" active={tabPrincipal === 'mensual'} onClick={() => setTabPrincipal('mensual')} />
-              <TabBtn label="📚 Académico por Período" active={tabPrincipal === 'academico'} onClick={() => setTabPrincipal('academico')} />
+              <TabBtn label="📚 Desempeño Académico por Período" active={tabPrincipal === 'academico'} onClick={() => setTabPrincipal('academico')} />
             </div>
           </div>
         </div>
@@ -247,8 +247,8 @@ export default function TableroPage() {
                     <YAxis domain={[0, 100]} tick={{ fontFamily: 'var(--font-condensed)', fontSize: 11, fill: '#5A7A5C' }} />
                     <Tooltip contentStyle={{ fontFamily: 'var(--font-condensed)', border: '2px solid var(--green-border)', borderRadius: '8px', background: 'white', color: '#0F2010' }} />
                     <Legend wrapperStyle={{ fontFamily: 'var(--font-condensed)', fontSize: '12px', paddingTop: '8px' }} />
-                    <Bar dataKey="Resolutivo" fill={R}    radius={[4,4,0,0]} />
-                    <Bar dataKey="Formativo"  fill={G}    radius={[4,4,0,0]} />
+                    <Bar dataKey="Convivencia" fill={R}    radius={[4,4,0,0]} />
+                    <Bar dataKey="Hábitos"     fill={G}    radius={[4,4,0,0]} />
                     <Bar dataKey="Campo"      fill={GOLD} radius={[4,4,0,0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -257,7 +257,7 @@ export default function TableroPage() {
           </div>
         )}
 
-        {/* ═══ ACADÉMICO ═══ */}
+        {/* ═══ DESEMPEÑO ACADÉMICO ═══ */}
         {tabPrincipal === 'academico' && (
           <div className="px-4 py-5 max-w-2xl">
             {/* Controles período */}
@@ -318,12 +318,12 @@ export default function TableroPage() {
                 ))}
                 {conDatosAc.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#8A9E87', fontFamily: 'var(--font-body)' }}>
-                    No hay datos académicos para el {getPeriodoLabel(periodo)} en el {TURNOS.find(t => t.id === turno)?.label}.
+                    No hay datos de Desempeño Académico para el {getPeriodoLabel(periodo)} en el {TURNOS.find(t => t.id === turno)?.label}.
                   </div>
                 )}
                 {sinDatosAc.length > 0 && (
                   <div>
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#8A9E87', fontSize: '0.72rem', letterSpacing: '0.1em', marginBottom: '8px' }}>SIN DATOS ACADÉMICOS</div>
+                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#8A9E87', fontSize: '0.72rem', letterSpacing: '0.1em', marginBottom: '8px' }}>SIN DATOS DE DESEMPEÑO ACADÉMICO</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {sinDatosAc.map(r => (
                         <span key={r.curso_id} style={{ background: 'white', border: '1.5px solid #FCD34D', color: '#8A9E87', borderRadius: '6px', padding: '4px 10px', fontSize: '0.82rem', fontFamily: 'var(--font-condensed)' }}>{r.curso_nombre}</span>

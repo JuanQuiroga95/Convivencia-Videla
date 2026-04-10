@@ -49,10 +49,10 @@ export default function ReglasPage() {
             <SectionTitle text="DIMENSIONES DEL MODELO" color="var(--green-dark)" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
-                { title: 'RESOLUTIVA',  sub: 'VIR, actas, ICE',            pts: '40 pts',        color: R,    bg: '#FEE2E2', border: '#FCA5A5' },
-                { title: 'FORMATIVA',   sub: 'Uniforme, asistencia, entorno', pts: '40 pts',      color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7' },
-                { title: 'CAMPO ⭐',    sub: 'Acciones destacadas (bonus)',  pts: 'hasta +20 pts', color: GOLD, bg: '#FEF3C7', border: '#FCD34D' },
-                { title: 'ACADÉMICA',   sub: 'Aprobados por período',        pts: '20 pts',        color: '#78350F', bg: '#FEF3C7', border: '#FCD34D' },
+                { title: 'CONVIVENCIA',             sub: 'VIR, actas, ICE',              pts: '40 pts',        color: R,         bg: '#FEE2E2', border: '#FCA5A5' },
+                { title: 'HÁBITOS INSTITUCIONALES',  sub: 'Uniforme, asistencia, entorno', pts: '40 pts',        color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7' },
+                { title: 'APORTES A LA CONVIVENCIA', sub: 'Acciones destacadas',           pts: 'hasta +20 pts', color: GOLD,       bg: '#FEF3C7', border: '#FCD34D' },
+                { title: 'DESEMPEÑO ACADÉMICO',      sub: 'Aprobados por período',         pts: '20 pts',        color: '#78350F', bg: '#FEF3C7', border: '#FCD34D' },
               ].map(({ title, sub, pts, color, bg, border }) => (
                 <div key={title} style={{ background: bg, border: `2px solid ${border}`, borderRadius: '12px', padding: '16px' }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color, letterSpacing: '0.05em' }}>{title}</div>
@@ -63,7 +63,7 @@ export default function ReglasPage() {
             </div>
             <div style={{ background: '#E8F5EE', border: '2px solid var(--green-border)', borderRadius: '10px', padding: '12px 16px', marginTop: '12px' }}>
               <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontWeight: 700, fontSize: '0.85rem' }}>
-                📊 Total base: 80 pts (Resolutivo + Formativo) + hasta 20 bonus (Campo) = hasta 100 pts/mes
+                📊 Total base: 80 pts (Convivencia + Hábitos Institucionales) + hasta 20 pts de Aportes a la Convivencia = hasta 100 pts/mes
               </div>
               <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontSize: '0.8rem', marginTop: '2px', opacity: 0.8 }}>
                 + 20 pts académicos al cierre de cada período (julio y diciembre)
@@ -71,19 +71,18 @@ export default function ReglasPage() {
             </div>
           </section>
 
-          {/* Campo Positivo - explicación completa */}
+          {/* Aportes a la Convivencia - explicación completa */}
           <section>
-            <SectionTitle text="⭐ CAMPO POSITIVO — CÓMO FUNCIONA" color={GOLD} />
+            <SectionTitle text="⭐ APORTES A LA CONVIVENCIA — CÓMO FUNCIONA" color={GOLD} />
             <div style={{ background: '#FEF3C7', border: '2px solid #FCD34D', borderRadius: '12px', padding: '20px', marginBottom: '12px' }}>
               <div style={{ fontFamily: 'var(--font-body)', color: '#78350F', lineHeight: 1.7, fontSize: '0.92rem' }}>
-                El <strong>Campo Positivo</strong> es un sistema de <strong>recuperación y bonificación</strong>.
-                Los cursos que participan en acciones institucionales destacadas pueden ganar puntos extra
+                Los <strong>Aportes a la Convivencia</strong> reconocen a los cursos que participan en acciones institucionales destacadas con puntos extra
                 que se suman al puntaje mensual.
               </div>
               <div style={{ fontFamily: 'var(--font-body)', color: '#92400E', fontSize: '0.85rem', marginTop: '10px', lineHeight: 1.6 }}>
                 • El <strong>docente o preceptor</strong> que registra la acción asigna el valor (1 a 10 pts).<br />
-                • Se pueden acumular múltiples acciones por mes, con un <strong>tope de 20 pts bonus/mes</strong>.<br />
-                • Permite que cursos con penalizaciones puedan <strong>recuperar terreno</strong> en el ranking.
+                • Se pueden acumular múltiples acciones por mes, con un <strong>tope de 20 pts/mes</strong>.<br />
+                • Permite que cursos puedan <strong>recuperar terreno</strong> en el ranking.
               </div>
             </div>
 
@@ -136,14 +135,14 @@ export default function ReglasPage() {
                 <span>INDICADOR</span><span>DIM.</span><span>PTS</span>
               </div>
               {[
-                { indicador: 'VIR resueltos sin escalar (100%)', pts: '+20', dim: 'Resolutivo', color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'Sin actas disciplinarias',          pts: '+12', dim: 'Resolutivo', color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'Puntos ICE = 0',                    pts: '+8',  dim: 'Resolutivo', color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'Limpieza 5/5',                      pts: '+10', dim: 'Formativo',  color: '#064E3B', bg: '#D1FAE5' },
-                { indicador: 'Uniforme >95%',                     pts: '+10', dim: 'Formativo',  color: '#064E3B', bg: '#D1FAE5' },
-                { indicador: 'Asistencia ≥95%',                   pts: '+10', dim: 'Formativo',  color: '#064E3B', bg: '#D1FAE5' },
-                { indicador: 'Acción de campo (valor docente)',    pts: '+1 a +10', dim: 'Campo ⭐', color: '#78350F', bg: '#FEF3C7' },
-                { indicador: 'Materias aprobadas ≥90% (período)', pts: '+20', dim: 'Académico',  color: '#78350F', bg: '#FEF3C7' },
+                { indicador: 'VIR resueltos sin escalar (100%)', pts: '+20', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'Sin actas disciplinarias',          pts: '+12', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'Puntos ICE = 0',                    pts: '+8',  dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'Limpieza 5/5',                      pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
+                { indicador: 'Uniforme >95%',                     pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
+                { indicador: 'Asistencia ≥95%',                   pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
+                { indicador: 'Acción de campo (valor docente)',    pts: '+1 a +10', dim: 'Aportes', color: '#78350F', bg: '#FEF3C7' },
+                { indicador: 'Materias aprobadas ≥90% (período)', pts: '+20', dim: 'Desempeño Ac.',color: '#78350F', bg: '#FEF3C7' },
               ].map((r, i) => (
                 <div key={i} style={{ padding: '10px 16px', display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '16px', alignItems: 'center', background: i % 2 === 0 ? 'white' : '#F4F7F4', borderTop: '1px solid rgba(45,122,79,0.1)' }}>
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: '#0F2010', fontWeight: 500 }}>{r.indicador}</span>

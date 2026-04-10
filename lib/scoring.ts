@@ -33,7 +33,7 @@ export interface PuntajeDetalle {
   tiene_datos: boolean
 }
 
-// ── CÁLCULO MENSUAL (resolutivo + formativo + campo, sin académico) ──────────
+// ── CÁLCULO MENSUAL (convivencia + hábitos + aportes, sin académico) ──────────
 export function calcularPuntajeMensual(ind: IndicadorCurso): PuntajeDetalle {
   const tiene_datos = ind.tiene_var || ind.tiene_indicadores || ind.campo_bonus > 0
 
@@ -47,7 +47,7 @@ export function calcularPuntajeMensual(ind: IndicadorCurso): PuntajeDetalle {
     }
   }
 
-  // ---- RESOLUTIVA (40 pts) ----
+  // ---- CONVIVENCIA (40 pts) ----
   let resolutivo = 0
   let pct_var = 0
   if (ind.tiene_var) {
@@ -63,7 +63,7 @@ export function calcularPuntajeMensual(ind: IndicadorCurso): PuntajeDetalle {
     else if (ind.ice_puntos <= 10) resolutivo += 2
   }
 
-  // ---- FORMATIVA (40 pts) ----
+  // ---- HÁBITOS INSTITUCIONALES (40 pts) ----
   let formativo = 0
   if (ind.tiene_indicadores) {
     if (ind.limpieza !== null) formativo += Math.round(((ind.limpieza - 1) / 4) * 10)
@@ -78,10 +78,10 @@ export function calcularPuntajeMensual(ind: IndicadorCurso): PuntajeDetalle {
     }
   }
 
-  // ---- CAMPO POSITIVO (bonus, máx 20 pts por mes) ----
+  // ---- APORTES A LA CONVIVENCIA (máx 20 pts por mes) ----
   const campo = Math.min(ind.campo_bonus, 20)
 
-  // Total: 80 pts base + hasta 20 bonus = hasta 100
+  // Total: 80 pts base + hasta 20 aportes = hasta 100
   const total = Math.min(resolutivo + formativo + campo, 100)
 
   return {
@@ -181,7 +181,7 @@ export const TIPOS_REPARACION_POR_CATEGORIA: Record<string, string[]> = {
 }
 
 export const TIPOS_REPARACION = ['Disculpa explícita', 'Acción reparadora concreta', 'Reflexión guiada']
-export const INTERVINIENTES = ['Preceptor/a', 'Docente', 'Orientación']
+export const INTERVINIENTES = ['Preceptor/a', 'Docente', 'SOE']
 export const TIPOS_SITUACION  = CATEGORIAS_VIR.flatMap(c => c.situaciones)
 
 // ── TURNOS ───────────────────────────────────────────────────────────────────

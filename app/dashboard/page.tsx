@@ -253,7 +253,7 @@ export default function DashboardPage() {
                       </div>
                     </Link>
 
-                    {/* Info formativo/académico */}
+                    {/* Info hábitos/académico */}
                     <Link href="/indicadores" style={{ textDecoration: 'none' }}>
                       <div style={{ background: 'white', border: '1px solid #D1FAE5', borderRadius: '12px', padding: '12px 14px', cursor: 'pointer', transition: 'all 0.2s' }}
                         onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = G}
@@ -263,10 +263,10 @@ export default function DashboardPage() {
                           <span style={{ fontFamily: 'var(--font-condensed)', color: GD, fontWeight: 700, fontSize: '0.82rem' }}>Indicadores</span>
                         </div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: '0.74rem' }}>
-                          Formativo: <strong>{pFormativo} / 40 pts</strong>
+                          Hábitos Inst.: <strong>{pFormativo} / 40 pts</strong>
                         </div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#78350F', fontSize: '0.74rem' }}>
-                          Académico: <strong>por período</strong>
+                          Desempeño Acad.: <strong>por período</strong>
                         </div>
                       </div>
                     </Link>

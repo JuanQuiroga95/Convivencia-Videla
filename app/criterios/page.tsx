@@ -54,10 +54,10 @@ export default function CriteriosPage() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '14px' }}>
             {[
-              { title: 'RESOLUTIVA', pts: '40 pts', color: R, bg: '#FEE2E2', border: '#FCA5A5', desc: 'Gestión de VIR e ICE' },
-              { title: 'FORMATIVA',  pts: '40 pts', color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7', desc: 'Uniforme, asistencia, entorno' },
-              { title: 'CAMPO ⭐',   pts: '+20 pts', color: GOLD, bg: '#FEF3C7', border: '#FCD34D', desc: 'Acciones positivas (bonus)' },
-              { title: 'ACADÉMICA',  pts: '20 pts', color: '#78350F', bg: '#FEF3C7', border: '#FCD34D', desc: 'Aprobados por período' },
+              { title: 'CONVIVENCIA',             pts: '40 pts',  color: R,        bg: '#FEE2E2', border: '#FCA5A5', desc: 'Gestión de VIR e ICE' },
+              { title: 'HÁBITOS INSTITUCIONALES',  pts: '40 pts',  color: '#064E3B', bg: '#D1FAE5', border: '#6EE7B7', desc: 'Uniforme, asistencia, entorno' },
+              { title: 'APORTES A LA CONVIVENCIA', pts: '+20 pts', color: GOLD,      bg: '#FEF3C7', border: '#FCD34D', desc: 'Acciones positivas' },
+              { title: 'DESEMPEÑO ACADÉMICO',      pts: '20 pts',  color: '#78350F', bg: '#FEF3C7', border: '#FCD34D', desc: 'Aprobados por período' },
             ].map(({ title, pts, color, bg, border, desc }) => (
               <div key={title} style={{ background: bg, border: `2px solid ${border}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'var(--font-condensed)', color, fontSize: '0.72rem', letterSpacing: '0.1em', fontWeight: 700 }}>{title}</div>
@@ -68,7 +68,7 @@ export default function CriteriosPage() {
           </div>
           <div style={{ background: '#E8F5EE', border: '2px solid rgba(45,122,79,0.3)', borderRadius: '10px', padding: '12px 16px' }}>
             <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontWeight: 700, fontSize: '0.85rem' }}>
-              📊 Base mensual: 80 pts (Resolutivo + Formativo) + hasta 20 bonus de Campo = hasta 100 pts/mes
+              📊 Base mensual: 80 pts (Convivencia + Hábitos Institucionales) + hasta 20 pts de Aportes a la Convivencia = hasta 100 pts/mes
             </div>
             <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: '0.8rem', marginTop: '3px' }}>
               + 20 pts académicos al cierre de cada período (julio · diciembre)
@@ -76,16 +76,15 @@ export default function CriteriosPage() {
           </div>
         </section>
 
-        {/* ── CAMPO POSITIVO ── */}
+        {/* ── APORTES A LA CONVIVENCIA ── */}
         <section style={{ marginBottom: '28px' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: GOLD, letterSpacing: '0.06em', marginBottom: '14px', borderLeft: `4px solid ${GOLD}`, paddingLeft: '12px' }}>
-            ⭐ CAMPO POSITIVO — CÓMO GANAR PUNTOS
+            ⭐ APORTES A LA CONVIVENCIA — CÓMO GANAR PUNTOS
           </h2>
           <div style={{ background: '#FEF3C7', border: '2px solid #FCD34D', borderRadius: '12px', padding: '18px', marginBottom: '12px' }}>
             <p style={{ fontFamily: 'var(--font-body)', color: '#78350F', lineHeight: 1.7, fontSize: '0.92rem', margin: 0 }}>
-              El <strong>Campo Positivo</strong> es un sistema de <strong>recuperación y bonificación</strong>.
-              Los cursos que participan en acciones institucionales destacadas ganan puntos extra que se suman al puntaje mensual.
-              Permite que cursos con penalizaciones puedan <strong>recuperar terreno</strong> en el ranking.
+              Los <strong>Aportes a la Convivencia</strong> reconocen a los cursos que participan en acciones institucionales destacadas con puntos extra que se suman al puntaje mensual.
+              Permite que cursos puedan <strong>recuperar terreno</strong> en el ranking.
             </p>
           </div>
           <div style={{ borderRadius: '12px', overflow: 'hidden', border: '2px solid #FCD34D' }}>
