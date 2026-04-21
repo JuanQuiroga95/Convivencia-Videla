@@ -167,8 +167,9 @@ export default function AdminPage() {
                     <div>
                       <label style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', letterSpacing: '0.1em', display: 'block', marginBottom: '4px' }}>ROL</label>
                       <select className="input-videla" value={nuevoUser.rol} onChange={e => setNuevoUser(f => ({ ...f, rol: e.target.value }))}>
-                        <option value="operativo">Operativo (docente/preceptor)</option>
-                        <option value="admin">Admin (directivo/informático)</option>
+                        <option value="operativo">Operativo — carga VIR e Indicadores</option>
+                        <option value="visor">Visor — solo ver tableros (SOE / Vicedirector)</option>
+                        <option value="admin">Admin — acceso completo</option>
                       </select>
                     </div>
                   </div>
@@ -198,6 +199,7 @@ export default function AdminPage() {
                             <label style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', display: 'block', marginBottom: '4px' }}>ROL</label>
                             <select className="input-videla" value={editUser.rol} onChange={e => setEditUser({ ...editUser, rol: e.target.value })}>
                               <option value="operativo">Operativo</option>
+                              <option value="visor">Visor (SOE / Vicedirector)</option>
                               <option value="admin">Admin</option>
                             </select>
                           </div>
