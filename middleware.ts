@@ -14,8 +14,8 @@ export function middleware(request: NextRequest) {
   const session = getSession(request)
 
   const soloAdmin = ['/admin', '/qr']
-  // /var e /indicadores son públicas: solo piden nombre del profesor/preceptor, no login
-  const protegidas = ['/dashboard', '/campo', '/historial', '/tablero']
+  // /var, /indicadores y /campo son públicas: solo piden nombre, no login
+  const protegidas = ['/dashboard', '/historial', '/tablero']
 
   if (soloAdmin.some(r => pathname.startsWith(r))) {
     if (!session || session.rol !== 'admin')
@@ -29,5 +29,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/campo/:path*', '/historial/:path*', '/tablero/:path*', '/qr/:path*', '/admin/:path*'],
+  matcher: ['/dashboard/:path*', '/historial/:path*', '/tablero/:path*', '/qr/:path*', '/admin/:path*'],
 }
