@@ -62,14 +62,14 @@ export default function DashboardPage() {
   return (
     <div style={{ background: '#F5F5F0', minHeight: '100vh' }}>
       <Nav />
-      <main className="md:ml-56 pb-24 md:pb-4" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <main className="md:ml-56 pb-6 md:pb-4" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
         {/* ── TURNO SELECTOR (top bar) ── */}
         <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #E5E7EB' }}>
           {TURNOS.map(t => (
             <button key={t.id} onClick={() => setTurno(t.id as any)}
               style={{
-                flex: 1, padding: '14px 20px', border: 'none', cursor: 'pointer',
+                flex: 1, padding: 'clamp(10px,3vw,14px) clamp(12px,4vw,20px)', border: 'none', cursor: 'pointer',
                 background: turno === t.id ? O : 'white',
                 borderBottom: turno === t.id ? `3px solid ${GD}` : '3px solid transparent',
                 textAlign: 'left', transition: 'all 0.2s',
@@ -96,30 +96,30 @@ export default function DashboardPage() {
                 </div>
 
                 {/* 3 métricas */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '18px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '16px' }}>
                   {/* Promedio convivencia */}
-                  <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '12px', padding: 'clamp(8px,3vw,16px)' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      <div style={{ background: '#D1FAE5', borderRadius: '8px', padding: '8px', flexShrink: 0 }}>
-                        <TrendingUp size={18} style={{ color: G }} />
+                      <div style={{ background: '#D1FAE5', borderRadius: '8px', padding: '6px', flexShrink: 0 }}>
+                        <TrendingUp size={16} style={{ color: G }} />
                       </div>
                       <div>
-                        <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: '0.78rem', fontWeight: 600 }}>Promedio convivencia:</div>
-                        <div style={{ fontFamily: 'var(--font-display)', color: GD, fontSize: '1.8rem', lineHeight: 1.1 }}>{promedio} <span style={{ fontSize: '1rem', color: '#5A7A5C' }}>pts</span></div>
+                        <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: 'clamp(0.58rem,2vw,0.78rem)', fontWeight: 600, lineHeight: 1.3 }}>Promedio convivencia:</div>
+                        <div style={{ fontFamily: 'var(--font-display)', color: GD, fontSize: 'clamp(1.2rem,5vw,1.8rem)', lineHeight: 1.1 }}>{promedio} <span style={{ fontSize: '1rem', color: '#5A7A5C' }}>pts</span></div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#8A9E87', fontSize: '0.72rem', marginTop: '3px' }}>Cursos activos: {conDatos.length}</div>
                       </div>
                     </div>
                   </div>
 
                   {/* Incidencias activas */}
-                  <div style={{ background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: '12px', padding: 'clamp(8px,3vw,16px)' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      <div style={{ background: '#FEE2E2', borderRadius: '8px', padding: '8px', flexShrink: 0 }}>
-                        <AlertTriangle size={18} style={{ color: R }} />
+                      <div style={{ background: '#FEE2E2', borderRadius: '8px', padding: '6px', flexShrink: 0 }}>
+                        <AlertTriangle size={16} style={{ color: R }} />
                       </div>
                       <div>
-                        <div style={{ fontFamily: 'var(--font-body)', color: '#7F1D1D', fontSize: '0.78rem', fontWeight: 600 }}>Incidencias activas</div>
-                        <div style={{ fontFamily: 'var(--font-display)', color: R, fontSize: '1.8rem', lineHeight: 1.1 }}>{incidencias}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', color: '#7F1D1D', fontSize: 'clamp(0.58rem,2vw,0.78rem)', fontWeight: 600, lineHeight: 1.3 }}>Incidencias activas</div>
+                        <div style={{ fontFamily: 'var(--font-display)', color: R, fontSize: 'clamp(1.2rem,5vw,1.8rem)', lineHeight: 1.1 }}>{incidencias}</div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.72rem', marginTop: '3px' }}>
                           {incidencias === 0 ? 'Sin escaladas' : `incidencia${incidencias !== 1 ? 's' : ''}`}
                         </div>
@@ -128,14 +128,14 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Acciones positivas */}
-                  <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '12px', padding: 'clamp(8px,3vw,16px)' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      <div style={{ background: '#FEF3C7', borderRadius: '8px', padding: '8px', flexShrink: 0 }}>
+                      <div style={{ background: '#FEF3C7', borderRadius: '8px', padding: '6px', flexShrink: 0 }}>
                         <Star size={18} style={{ color: GOLD }} />
                       </div>
                       <div>
-                        <div style={{ fontFamily: 'var(--font-body)', color: '#78350F', fontSize: '0.78rem', fontWeight: 600 }}>Acciones positivas</div>
-                        <div style={{ fontFamily: 'var(--font-display)', color: GOLD, fontSize: '1.8rem', lineHeight: 1.1 }}>{accPositivas}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', color: '#78350F', fontSize: 'clamp(0.58rem,2vw,0.78rem)', fontWeight: 600, lineHeight: 1.3 }}>Acciones positivas</div>
+                        <div style={{ fontFamily: 'var(--font-display)', color: GOLD, fontSize: 'clamp(1.2rem,5vw,1.8rem)', lineHeight: 1.1 }}>{accPositivas}</div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.72rem', marginTop: '3px' }}>
                           {accPositivas === 0 ? 'este mes' : `accion${accPositivas !== 1 ? 'es' : ''}`}
                         </div>
@@ -205,7 +205,7 @@ export default function DashboardPage() {
               {/* ── PANEL DE CONVIVENCIA (acciones) ── */}
               <div>
                 <h3 style={{ fontFamily: 'var(--font-condensed)', fontSize: '1.1rem', color: GD, fontWeight: 700, margin: '0 0 12px' }}>Panel de convivencia</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '10px' }}>
 
                   {/* Activar VIR */}
                   <Link href="/var" style={{ textDecoration: 'none' }}>
