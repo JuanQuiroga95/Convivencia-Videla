@@ -65,7 +65,7 @@ export default function DashboardPage() {
       <main className="md:ml-56 pb-6 md:pb-4" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
         {/* ── TURNO SELECTOR (top bar) ── */}
-        <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #E5E7EB' }}>
+        <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #E5E7EB', width: '100%' }}>
           {TURNOS.map(t => (
             <button key={t.id} onClick={() => setTurno(t.id as any)}
               style={{
@@ -86,7 +86,7 @@ export default function DashboardPage() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#8A9E87', fontFamily: 'var(--font-condensed)', letterSpacing: '0.1em' }}>CARGANDO...</div>
           ) : (
-            <div style={{ maxWidth: '860px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
               {/* ── PANEL PRINCIPAL DEL TURNO ── */}
               <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '22px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
