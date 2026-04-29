@@ -1,5 +1,5 @@
 # Modelo Videla — Convivencia Activa 2026
-## Sistema Formativo · Preventivo · Resolutivo
+## Sistema Formativo · Preventivo · Resolutivo.
 ### Escuela N° 4-012 Ing. Ricardo Videla · Luján de Cuyo, Mendoza
 
 ---
