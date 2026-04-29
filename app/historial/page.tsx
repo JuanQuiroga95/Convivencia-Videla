@@ -98,7 +98,7 @@ export default function HistorialPage() {
       <Nav />
       <main className="main-with-sidebar-tall">
         {/* Header */}
-        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
           <div className="flex items-center gap-3 mb-1">
             <div className="p-2 rounded-lg" style={{ background: 'rgba(232,93,4,0.2)' }}>
               <History size={24} style={{ color: 'var(--orange)' }} />

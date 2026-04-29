@@ -84,8 +84,7 @@ export default function QRPage() {
 
         <div className="px-4 md:px-6 py-5 md:py-8" style={{
           background: 'linear-gradient(135deg, #0a0a1a, #1a0a3d, #0a0a1a)',
-          borderBottom: '1px solid rgba(124,58,237,0.2)',
-          position: 'sticky', top: 0, zIndex: 10
+          borderBottom: '1px solid rgba(124,58,237,0.2)'
         }}>
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">

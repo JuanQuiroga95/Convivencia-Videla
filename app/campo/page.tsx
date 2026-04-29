@@ -103,7 +103,7 @@ export default function CampoPage() {
       <main className="main-with-sidebar-tall">
 
         {/* Header */}
-        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 rounded-lg" style={{ background: 'rgba(180,83,9,0.3)', border: '1px solid rgba(180,83,9,0.5)' }}>
               <Trophy size={24} style={{ color: '#FCD34D' }} />
