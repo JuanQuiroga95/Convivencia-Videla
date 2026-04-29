@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Shield, Trophy, History, ClipboardList, BarChart3, BookOpen, QrCode, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Shield, Trophy, History, ClipboardList, BarChart3, BookOpen, QrCode, Settings, LogOut, MoreHorizontal, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface SessionData { autenticado: boolean; rol?: string; nombre?: string; usuario?: string }
@@ -23,10 +23,14 @@ const GD = '#1A4D2E'; const G = '#2D7A4F'; const O = '#E85D04'; const GOLD = '#B
 export default function Nav() {
   const pathname = usePathname()
   const [session, setSession] = useState<SessionData>({ autenticado: false })
+  const [moreOpen, setMoreOpen] = useState(false)
 
   useEffect(() => {
     fetch('/api/auth').then(r => r.json()).then(setSession)
   }, [])
+
+  // Close "more" drawer on route change
+  useEffect(() => { setMoreOpen(false) }, [pathname])
 
   const handleLogout = async () => {
     await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) })
@@ -34,7 +38,10 @@ export default function Nav() {
   }
 
   const itemsVisibles = navItems.filter(item => !session.rol || item.rol.includes(session.rol))
-  const mobileItems   = itemsVisibles.slice(0, 5)
+  // Show 4 primary items + "More" button
+  const mobileItems   = itemsVisibles.slice(0, 4)
+  const moreItems     = itemsVisibles.slice(4)
+  const hasMore       = moreItems.length > 0
 
   return (
     <>
@@ -99,12 +106,50 @@ export default function Nav() {
         </div>
       </nav>
 
+      {/* Mobile: "More" drawer overlay */}
+      {moreOpen && (
+        <div className="md:hidden" style={{ position: 'fixed', inset: 0, zIndex: 60 }} onClick={() => setMoreOpen(false)}>
+          <div style={{ position: 'absolute', bottom: '60px', left: 0, right: 0, background: GD, borderTop: `2px solid ${O}`, padding: '8px 0 4px' }}
+            onClick={e => e.stopPropagation()}>
+            {/* User info in drawer */}
+            {session.autenticado && (
+              <div style={{ padding: '8px 20px 10px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: O, fontSize: '0.82rem', fontWeight: 700 }}>{session.nombre || 'Usuario'}</div>
+                  <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem' }}>
+                    @{session.usuario} · {session.rol === 'admin' ? 'Admin' : 'Operativo'}
+                  </div>
+                </div>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-condensed)', fontSize: '0.75rem' }}>
+                  <LogOut size={13} /> Salir
+                </button>
+              </div>
+            )}
+            {moreItems.map(({ href, label, icon: Icon, accent, gold }: any) => {
+              const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'))
+              return (
+                <Link key={href} href={href} onClick={() => setMoreOpen(false)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 20px', textDecoration: 'none',
+                    fontFamily: 'var(--font-condensed)', fontSize: '0.9rem',
+                    color: active ? O : accent ? 'rgba(252,165,165,0.9)' : gold ? 'rgba(252,211,77,0.9)' : 'rgba(255,255,255,0.75)',
+                    background: active ? 'rgba(255,255,255,0.07)' : 'transparent',
+                    borderLeft: active ? `3px solid ${O}` : '3px solid transparent',
+                  }}>
+                  <Icon size={17} />
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50"
         style={{ background: GD, borderTop: `2px solid ${O}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-around', padding: '6px 0' }}>
           {mobileItems.map(({ href, label, icon: Icon, accent, gold }: any) => {
-            const active = pathname === href
+            const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'))
             return (
               <Link key={href} href={href}
                 style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '4px 8px', minWidth: '52px',
@@ -114,6 +159,14 @@ export default function Nav() {
               </Link>
             )
           })}
+          {hasMore && (
+            <button onClick={() => setMoreOpen(v => !v)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '4px 8px', minWidth: '52px',
+                color: moreOpen ? O : moreItems.some(i => pathname === i.href || (i.href !== '/dashboard' && pathname.startsWith(i.href + '/'))) ? O : 'rgba(255,255,255,0.5)' }}>
+              {moreOpen ? <X size={20} /> : <MoreHorizontal size={20} />}
+              <span style={{ fontFamily: 'var(--font-condensed)', fontSize: '9px', textAlign: 'center', lineHeight: 1.2 }}>Más</span>
+            </button>
+          )}
         </div>
       </nav>
     </>

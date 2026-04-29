@@ -107,25 +107,25 @@ export default function AdminPage() {
     <div style={{ background: '#0A1628', minHeight: '100vh' }}>
       <Nav />
       <main className="md:ml-56 pb-24 md:pb-8">
-        <div className="px-6 py-8" style={{ background: 'linear-gradient(135deg, #0a0a14, #141428, #0a0a14)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="px-4 md:px-6 py-5 md:py-8" style={{ background: 'linear-gradient(135deg, #0a0a14, #141428, #0a0a14)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
-              <Settings size={24} style={{ color: '#9CA3AF' }} />
+              <Settings size={22} style={{ color: '#9CA3AF' }} />
             </div>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'white' }}>ADMINISTRACIÓN</h1>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.3rem, 5vw, 1.8rem)', letterSpacing: '0.05em', color: 'white' }}>ADMINISTRACIÓN</h1>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          {/* Tabs: scroll horizontal en mobile para que no se corten */}
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
             {tabs.map(({ key, label, icon: Icon }) => (
               <button key={key} onClick={() => setTab(key as any)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
-                style={{ fontFamily: 'var(--font-condensed)', cursor: 'pointer', background: tab === key ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${tab === key ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`, color: tab === key ? 'white' : '#6B7280' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', fontSize: '0.82rem', whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer', fontFamily: 'var(--font-condensed)', transition: 'all 0.15s', background: tab === key ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${tab === key ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`, color: tab === key ? 'white' : '#6B7280' }}>
                 <Icon size={14} />{label}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="px-6 py-6 max-w-2xl">
+        <div className="px-4 md:px-6 py-5 md:py-6 w-full max-w-2xl">
 
           {/* USUARIOS TAB */}
           {tab === 'usuarios' && (
@@ -138,11 +138,11 @@ export default function AdminPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between">
-                <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.8rem', letterSpacing: '0.1em' }}>
+              <div className="flex items-center justify-between gap-3">
+                <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.78rem', letterSpacing: '0.08em' }}>
                   {usuarios.length} USUARIOS REGISTRADOS
                 </div>
-                <button onClick={() => { setShowForm(!showForm); setEditUser(null) }} className="btn-gold flex items-center gap-2" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                <button onClick={() => { setShowForm(!showForm); setEditUser(null) }} className="btn-gold flex items-center gap-2" style={{ padding: '8px 14px', fontSize: '0.82rem', flexShrink: 0 }}>
                   <Plus size={14} /> Nuevo usuario
                 </button>
               </div>
@@ -151,7 +151,7 @@ export default function AdminPage() {
               {showForm && (
                 <div className="rounded-xl p-5 space-y-3 slide-in" style={{ background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.2)' }}>
                   <div style={{ fontFamily: 'var(--font-condensed)', color: '#C9A84C', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '4px' }}>NUEVO USUARIO</div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', letterSpacing: '0.1em', display: 'block', marginBottom: '4px' }}>NOMBRE COMPLETO</label>
                       <input type="text" className="input-videla" placeholder="ej: María González" value={nuevoUser.nombre} onChange={e => setNuevoUser(f => ({ ...f, nombre: e.target.value }))} />
@@ -167,9 +167,8 @@ export default function AdminPage() {
                     <div>
                       <label style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', letterSpacing: '0.1em', display: 'block', marginBottom: '4px' }}>ROL</label>
                       <select className="input-videla" value={nuevoUser.rol} onChange={e => setNuevoUser(f => ({ ...f, rol: e.target.value }))}>
-                        <option value="operativo">Operativo — carga VIR e Indicadores</option>
-                        <option value="visor">Visor — solo ver tableros (SOE / Vicedirector)</option>
-                        <option value="admin">Admin — acceso completo</option>
+                        <option value="operativo">Operativo (docente/preceptor)</option>
+                        <option value="admin">Admin (directivo/informático)</option>
                       </select>
                     </div>
                   </div>
@@ -186,7 +185,7 @@ export default function AdminPage() {
                   <div key={u.id} className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${u.activo ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'}`, opacity: u.activo ? 1 : 0.5 }}>
                     {editUser?.id === u.id ? (
                       <div className="space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', display: 'block', marginBottom: '4px' }}>NOMBRE</label>
                             <input type="text" className="input-videla" value={editUser.nombre} onChange={e => setEditUser({ ...editUser, nombre: e.target.value })} />
@@ -199,7 +198,6 @@ export default function AdminPage() {
                             <label style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', display: 'block', marginBottom: '4px' }}>ROL</label>
                             <select className="input-videla" value={editUser.rol} onChange={e => setEditUser({ ...editUser, rol: e.target.value })}>
                               <option value="operativo">Operativo</option>
-                              <option value="visor">Visor (SOE / Vicedirector)</option>
                               <option value="admin">Admin</option>
                             </select>
                           </div>
@@ -210,10 +208,10 @@ export default function AdminPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', fontSize: '0.95rem' }}>{u.nombre}</div>
-                          <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.8rem' }}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.nombre}</div>
+                          <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.78rem', marginTop: '2px' }}>
                             @{u.usuario} ·{' '}
                             <span style={{ color: u.rol === 'admin' ? '#FCD34D' : '#93C5FD' }}>
                               {u.rol === 'admin' ? 'Admin' : 'Operativo'}
@@ -221,16 +219,16 @@ export default function AdminPage() {
                             {!u.activo && <span style={{ color: '#374151', marginLeft: '6px' }}>· Inactivo</span>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                           <button onClick={() => handleToggleActivo(u)} title={u.activo ? 'Desactivar' : 'Activar'}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '6px', color: u.activo ? '#6EE7B7' : '#374151' }}>
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', borderRadius: '6px', color: u.activo ? '#6EE7B7' : '#374151', fontSize: '1rem', lineHeight: 1 }}>
                             {u.activo ? '✓' : '○'}
                           </button>
-                          <button onClick={() => setEditUser(u)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '6px', color: '#6B7280' }}>
-                            <Edit2 size={14} />
+                          <button onClick={() => setEditUser(u)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', borderRadius: '6px', color: '#6B7280' }}>
+                            <Edit2 size={15} />
                           </button>
-                          <button onClick={() => handleEliminar(u.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '6px', color: '#374151' }}>
-                            <Trash2 size={14} />
+                          <button onClick={() => handleEliminar(u.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', borderRadius: '6px', color: '#374151' }}>
+                            <Trash2 size={15} />
                           </button>
                         </div>
                       </div>
@@ -371,19 +369,19 @@ export default function AdminPage() {
               ) : (
                 <div className="space-y-2">
                   {varList.map((v: any) => (
-                    <div key={v.id} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span style={{ fontFamily: 'var(--font-display)', color: '#C9A84C', fontSize: '1.1rem' }}>{v.curso_nombre}</span>
-                          <span className="ml-3 px-2 py-0.5 rounded text-xs" style={{ fontFamily: 'var(--font-condensed)', background: v.resuelto ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.2)', color: v.resuelto ? '#6EE7B7' : '#FCA5A5' }}>
+                    <div key={v.id} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
+                          <span style={{ fontFamily: 'var(--font-display)', color: '#C9A84C', fontSize: '1rem' }}>{v.curso_nombre}</span>
+                          <span style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '0.72rem', fontFamily: 'var(--font-condensed)', background: v.resuelto ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.2)', color: v.resuelto ? '#6EE7B7' : '#FCA5A5', whiteSpace: 'nowrap' }}>
                             {v.resuelto ? 'RESUELTO' : 'SIN RESOLVER'}
                           </span>
                         </div>
-                        <span style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.8rem' }}>
+                        <span style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
                           {new Date(v.created_at).toLocaleDateString('es-AR')}
                         </span>
                       </div>
-                      <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.85rem', marginTop: '4px' }}>
+                      <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.82rem', marginTop: '4px' }}>
                         {v.tipo_situacion} · {v.intervino}{v.tipo_reparacion && ` · ${v.tipo_reparacion}`}
                       </div>
                     </div>
