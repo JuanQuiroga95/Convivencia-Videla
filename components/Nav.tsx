@@ -76,7 +76,7 @@ export default function Nav() {
   return (
     <>
       {/* ── Desktop sidebar (igual que antes) ── */}
-      <nav className="hidden md:flex fixed left-0 top-0 h-full w-56 flex-col z-50"
+      <nav className="sidebar-desktop fixed left-0 top-0 h-full flex-col z-50" style={{ width: '224px' }}
         style={{ background: GD, borderRight: `3px solid ${O}` }}>
         <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
@@ -106,7 +106,7 @@ export default function Nav() {
       </nav>
 
       {/* ── Mobile: top bar con hamburguesa ── */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-50" style={{ background: GD, borderBottom: `3px solid ${O}`, height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+      <header className="mobile-topbar fixed top-0 left-0 right-0 z-50" style={{ background: GD, borderBottom: `3px solid ${O}`, height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/escudo.jpg" alt="Escudo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${O}` }} />
           <div>
@@ -120,16 +120,16 @@ export default function Nav() {
       </header>
 
       {/* ── Mobile: offset para el top bar ── */}
-      <div className="md:hidden" style={{ height: '52px' }} />
+      <div className="mobile-offset" />
 
       {/* ── Mobile: overlay oscuro ── */}
       {drawerOpen && (
-        <div className="md:hidden" onClick={() => setDrawerOpen(false)}
+        <div className="mobile-topbar" onClick={() => setDrawerOpen(false)}
           style={{ position: 'fixed', inset: 0, zIndex: 55, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }} />
       )}
 
       {/* ── Mobile: drawer lateral izquierdo ── */}
-      <nav className="md:hidden fixed top-0 left-0 h-full flex flex-col z-60"
+      <nav className="mobile-topbar fixed top-0 left-0 h-full flex flex-col"
         style={{
           width: '240px', background: GD, borderRight: `3px solid ${O}`,
           transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',

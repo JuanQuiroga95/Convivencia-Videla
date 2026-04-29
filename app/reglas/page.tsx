@@ -24,7 +24,7 @@ export default function ReglasPage() {
   return (
     <div style={{ background: '#F4F7F4', minHeight: '100vh' }}>
       <Nav />
-      <main className="md:ml-56 pb-24 md:pb-8">
+      <main className="main-content-tall">
 
         <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
           <div className="flex items-center gap-3">
