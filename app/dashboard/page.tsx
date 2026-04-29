@@ -69,7 +69,7 @@ export default function DashboardPage() {
           {TURNOS.map(t => (
             <button key={t.id} onClick={() => setTurno(t.id as any)}
               style={{
-                flex: 1, padding: 'clamp(10px,3vw,14px) clamp(12px,4vw,20px)', border: 'none', cursor: 'pointer',
+                flex: 1, padding: '12px 20px', border: 'none', cursor: 'pointer',
                 background: turno === t.id ? O : 'white',
                 borderBottom: turno === t.id ? `3px solid ${GD}` : '3px solid transparent',
                 textAlign: 'left', transition: 'all 0.2s',
@@ -82,7 +82,7 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="px-5 py-5" style={{ flex: 1 }}>
+        <div style={{ flex: 1, padding: '20px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#8A9E87', fontFamily: 'var(--font-condensed)', letterSpacing: '0.1em' }}>CARGANDO...</div>
           ) : (
