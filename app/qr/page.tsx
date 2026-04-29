@@ -80,7 +80,7 @@ export default function QRPage() {
   return (
     <div style={{ background: '#0A1628', minHeight: '100vh' }}>
       <Nav />
-      <main className="md:ml-56 pb-24 md:pb-8">
+      <main className="main-with-sidebar-tall">
 
         <div className="px-4 md:px-6 py-5 md:py-8" style={{
           background: 'linear-gradient(135deg, #0a0a1a, #1a0a3d, #0a0a1a)',

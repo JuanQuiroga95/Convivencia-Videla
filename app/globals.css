@@ -66,3 +66,32 @@ body { min-height: 100vh; background: var(--bg); }
 }
 .input-videla option { background: white; color: var(--text-primary); }
 
+
+/* ── RESPONSIVE LAYOUT FIX ── */
+@media (min-width: 768px) {
+  .sidebar-nav-desktop {
+    display: flex !important;
+  }
+  .mobile-header-top,
+  .mobile-spacer,
+  .mobile-drawer-nav {
+    display: none !important;
+  }
+  .main-with-sidebar {
+    margin-left: 224px !important;
+    padding-bottom: 16px !important;
+  }
+  .main-with-sidebar-tall {
+    margin-left: 224px !important;
+    padding-bottom: 32px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .sidebar-nav-desktop {
+    display: none !important;
+  }
+  .mobile-header-top {
+    display: flex !important;
+  }
+}

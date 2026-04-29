@@ -100,7 +100,7 @@ export default function CampoPage() {
   return (
     <div style={{ background: '#F4F7F4', minHeight: '100vh' }}>
       <Nav />
-      <main className="md:ml-56 pb-24 md:pb-8">
+      <main className="main-with-sidebar-tall">
 
         {/* Header */}
         <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>

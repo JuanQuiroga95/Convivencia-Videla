@@ -62,7 +62,7 @@ export default function DashboardPage() {
   return (
     <div style={{ background: '#F5F5F0', minHeight: '100vh' }}>
       <Nav />
-      <main className="md:ml-56 pb-6 md:pb-4" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <main style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', marginLeft: '0', paddingBottom: '24px' }} className="main-with-sidebar">
 
         {/* ── TURNO SELECTOR (top bar) ── */}
         <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #E5E7EB', width: '100%' }}>
