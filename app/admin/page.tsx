@@ -107,7 +107,7 @@ export default function AdminPage() {
     <div style={{ background: '#0A1628', minHeight: '100vh' }}>
       <Nav />
       <main className="main-with-sidebar-tall">
-        <div className="px-4 md:px-6 py-5 md:py-8" style={{ background: 'linear-gradient(135deg, #0a0a14, #141428, #0a0a14)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="px-4 md:px-6 py-5 md:py-8" style={{ background: 'linear-gradient(135deg, #0a0a14, #141428, #0a0a14)', borderBottom: '1px solid rgba(255,255,255,0.1)', position: 'sticky', top: 0, zIndex: 10 }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
               <Settings size={22} style={{ color: '#9CA3AF' }} />

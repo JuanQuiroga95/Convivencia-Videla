@@ -65,7 +65,7 @@ export default function DashboardPage() {
       <main style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', marginLeft: '0', paddingBottom: '24px' }} className="main-with-sidebar">
 
         {/* ── TURNO SELECTOR (top bar) ── */}
-        <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #E5E7EB', width: '100%' }}>
+        <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #E5E7EB', width: '100%', position: 'sticky', top: 0, zIndex: 10 }}>
           {TURNOS.map(t => (
             <button key={t.id} onClick={() => setTurno(t.id as any)}
               style={{
