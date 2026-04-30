@@ -31,5 +31,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // /docentes y /alumnos son páginas públicas — NO se incluyen en el matcher
   matcher: ['/dashboard/:path*', '/historial/:path*', '/tablero/:path*', '/qr/:path*', '/admin/:path*', '/var/:path*', '/campo/:path*', '/indicadores/:path*'],
 }
