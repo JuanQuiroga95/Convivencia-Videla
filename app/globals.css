@@ -80,10 +80,12 @@ body { min-height: 100vh; background: var(--bg); }
   .main-with-sidebar {
     margin-left: 224px !important;
     padding-bottom: 16px !important;
+    padding-top: 0 !important;
   }
   .main-with-sidebar-tall {
     margin-left: 224px !important;
     padding-bottom: 32px !important;
+    padding-top: 0 !important;
   }
 }
 
@@ -94,10 +96,9 @@ body { min-height: 100vh; background: var(--bg); }
   .mobile-header-top {
     display: flex !important;
   }
-  /* El mobile-spacer compensa el header fijo de 56px */
-  .mobile-spacer {
-    display: block !important;
-    height: 56px !important;
-    flex-shrink: 0;
+  /* Evitar que el top-bar sticky quede detrás del header mobile */
+  .main-with-sidebar [style*="position: sticky"],
+  .main-with-sidebar-tall [style*="position: sticky"] {
+    top: 0 !important;
   }
 }

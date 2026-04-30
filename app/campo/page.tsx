@@ -103,7 +103,7 @@ export default function CampoPage() {
       <main className="main-with-sidebar-tall">
 
         {/* Header */}
-        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
+        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)', position: 'sticky', top: 0, zIndex: 10 }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 rounded-lg" style={{ background: 'rgba(180,83,9,0.3)', border: '1px solid rgba(180,83,9,0.5)' }}>
               <Trophy size={24} style={{ color: '#FCD34D' }} />
@@ -304,7 +304,7 @@ export default function CampoPage() {
                           <span style={{ fontFamily: 'var(--font-condensed)', color: '#78350F', fontSize: '0.78rem' }}>Valor personalizado:</span>
                           <input type="number" min={1} max={10} value={form.puntos}
                             onChange={e => setForm(f => ({ ...f, puntos: Math.min(10, Math.max(1, parseInt(e.target.value) || 1)) }))}
-                            style={{ width: '64px', height: '40px', borderRadius: '8px', border: `2px solid ${GOLD}`, fontFamily: 'var(--font-display)', fontSize: '16px', textAlign: 'center', color: GOLD, fontWeight: 700 }} />
+                            style={{ width: '64px', height: '40px', borderRadius: '8px', border: `2px solid ${GOLD}`, fontFamily: 'var(--font-display)', fontSize: '1.2rem', textAlign: 'center', color: GOLD, fontWeight: 700, fontSize: '16px' }} />
                         </div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#92400E', fontSize: '0.76rem', marginTop: '6px' }}>
                           ⚠ El docente es responsable de asignar un valor justo. Máx. 10 pts por acción.
@@ -335,12 +335,12 @@ export default function CampoPage() {
                       ['Puntos',   `+${form.puntos} pts`],
                       ['Docente',  form.nombre_docente],
                       archivoNombre ? ['Archivo', archivoNombre] : null,
-                    ].filter(Boolean).map((item) => { const [k, v] = item as [string, string]; return (
+                    ].filter(Boolean).map(([k, v]) => (
                       <>
                         <span key={`k-${k}`} style={{ color: '#92400E', fontFamily: 'var(--font-condensed)', fontSize: '0.75rem' }}>{k}</span>
                         <span key={`v-${k}`} style={{ color: '#78350F', fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
                       </>
-                    ); })}
+                    ))}
                   </div>
                 </div>
 

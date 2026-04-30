@@ -26,7 +26,7 @@ export default function ReglasPage() {
       <Nav />
       <main className="main-with-sidebar-tall">
 
-        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)' }}>
+        <div className="px-6 py-6" style={{ background: 'var(--green-dark)', borderBottom: '3px solid var(--orange)', position: 'sticky', top: 0, zIndex: 10 }}>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg" style={{ background: 'rgba(232,93,4,0.25)', border: '1px solid rgba(232,93,4,0.4)' }}>
               <BookOpen size={24} style={{ color: 'var(--orange)' }} />

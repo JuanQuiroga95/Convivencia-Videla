@@ -1,47 +1,82 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
-import { QrCode, Printer, Users, GraduationCap } from 'lucide-react'
+import { QrCode, Printer } from 'lucide-react'
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://videla-convivencia.vercel.app'
-
-const QR_MAESTROS = [
+const QR_ITEMS = [
   {
-    key: 'docentes',
-    label: 'QR DOCENTES',
-    sublabel: 'Acceso maestro para docentes, preceptoras y SOE',
-    desc: 'Da acceso a todas las secciones: VIR, Indicadores, Acciones Positivas, Reglas y Ranking. Solo para personal institucional.',
-    path: '/docentes',
-    color: '#22D3EE',
-    colorLight: 'rgba(34,211,238,0.10)',
-    border: 'rgba(34,211,238,0.35)',
-    qrColor: '22D3EE',
+    key: 'var',
+    label: 'ACTIVAR VIR',
+    desc: 'Registrar un conflicto',
+    path: '/var',
+    color: '#C1121F',
+    colorLight: 'rgba(193,18,31,0.15)',
+    border: 'rgba(193,18,31,0.4)',
+    qrColor: 'C1121F',
     qrBg: '0A1628',
-    icon: 'Users',
-    secciones: ['🔴 Activar VIR', '🟢 Indicadores', '🟡 Acciones Positivas', '🔵 Reglas', '🟣 Ranking'],
   },
   {
-    key: 'alumnos',
-    label: 'QR ALUMNOS',
-    sublabel: 'Acceso público para estudiantes',
-    desc: 'Solo muestra Ranking y Reglas. No permite cargar ni modificar datos institucionales.',
-    path: '/alumnos',
-    color: '#C9A84C',
-    colorLight: 'rgba(201,168,76,0.10)',
-    border: 'rgba(201,168,76,0.35)',
+    key: 'indicadores',
+    label: 'INDICADORES',
+    desc: 'Cargar indicadores del mes',
+    path: '/indicadores',
+    color: '#2D7A4F',
+    colorLight: 'rgba(45,122,79,0.15)',
+    border: 'rgba(45,122,79,0.4)',
+    qrColor: '2D7A4F',
+    qrBg: '0A1628',
+  },
+  {
+    key: 'campo',
+    label: 'ACCIONES POSITIVAS',
+    desc: 'Registrar una acción destacada',
+    path: '/campo',
+    color: '#B45309',
+    colorLight: 'rgba(180,83,9,0.15)',
+    border: 'rgba(180,83,9,0.4)',
     qrColor: 'C9A84C',
     qrBg: '0A1628',
-    icon: 'GraduationCap',
-    secciones: ['🟣 Ranking General', '🔵 Reglas'],
+  },
+  {
+    key: 'reglas',
+    label: 'REGLAS',
+    desc: 'Ver las reglas del Modelo Videla',
+    path: '/reglas',
+    color: '#0E7490',
+    colorLight: 'rgba(14,116,144,0.15)',
+    border: 'rgba(14,116,144,0.4)',
+    qrColor: '22D3EE',
+    qrBg: '0A1628',
+  },
+  {
+    key: 'ranking',
+    label: 'RANKING GENERAL',
+    desc: 'Ver el ranking público',
+    path: '/ranking-publico',
+    color: '#7C3AED',
+    colorLight: 'rgba(124,58,237,0.15)',
+    border: 'rgba(124,58,237,0.4)',
+    qrColor: 'A78BFA',
+    qrBg: '0A1628',
   },
 ]
 
-function getQrUrl(path: string, qrColor: string, qrBg: string) {
-  const url = encodeURIComponent(`${BASE_URL}${path}`)
-  return `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${url}&bgcolor=${qrBg}&color=${qrColor}&format=png&margin=16`
-}
-
 export default function QRPage() {
+  const [baseUrl, setBaseUrl] = useState('')
+  const [generated, setGenerated] = useState(false)
+  const [selected, setSelected] = useState<Record<string, boolean>>(
+    Object.fromEntries(QR_ITEMS.map(q => [q.key, true]))
+  )
+
+  useEffect(() => { setBaseUrl(window.location.origin) }, [])
+
+  const getQrUrl = (item: typeof QR_ITEMS[0]) => {
+    const url = encodeURIComponent(`${baseUrl}${item.path}`)
+    return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${url}&bgcolor=${item.qrBg}&color=${item.qrColor}&format=png&margin=10`
+  }
+
+  const visibles = QR_ITEMS.filter(q => selected[q.key])
+
   return (
     <div style={{ background: '#0A1628', minHeight: '100vh' }}>
       <Nav />
@@ -49,7 +84,8 @@ export default function QRPage() {
 
         <div className="px-4 md:px-6 py-5 md:py-8" style={{
           background: 'linear-gradient(135deg, #0a0a1a, #1a0a3d, #0a0a1a)',
-          borderBottom: '1px solid rgba(124,58,237,0.2)'
+          borderBottom: '1px solid rgba(124,58,237,0.2)',
+          position: 'sticky', top: 0, zIndex: 10
         }}>
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
@@ -58,115 +94,125 @@ export default function QRPage() {
               </div>
               <div>
                 <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.3rem,5vw,1.8rem)', letterSpacing: '0.05em', color: 'white' }}>
-                  QR MAESTROS
+                  CÓDIGOS QR
                 </h1>
                 <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.82rem' }}>
-                  2 QR institucionales · Sin login · Listos para imprimir
+                  5 QR institucionales · Al escanear, el formulario permite elegir el curso
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => window.print()}
-              className="btn-outline flex items-center gap-2"
-              style={{ padding: '10px 18px', fontSize: '0.9rem' }}
-            >
-              <Printer size={16} /> Imprimir
-            </button>
-          </div>
-        </div>
-
-        <div className="px-4 md:px-6 pt-5 pb-2 print:hidden">
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
-            {[
-              { n: '1', t: 'Imprimí esta página', d: 'Botón "Imprimir" arriba a la derecha.' },
-              { n: '2', t: 'Pegá los QR donde corresponde', d: 'QR Docentes: sala de profes. QR Alumnos: pasillos o aulas.' },
-              { n: '3', t: 'Escaneá y usá directo', d: 'Sin login. Se abre la sección correspondiente.' },
-            ].map(({ n, t, d }) => (
-              <div key={n} style={{ display: 'flex', gap: '12px', padding: '12px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', flex: '1 1 200px' }}>
-                <div style={{ width: '28px', height: '28px', flexShrink: 0, background: 'linear-gradient(135deg, #C9A84C, #E8C96E)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: '#0A1628' }}>{n}</div>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', fontSize: '0.85rem' }}>{t}</div>
-                  <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.75rem' }}>{d}</div>
-                </div>
-              </div>
-            ))}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {!generated && baseUrl && (
+                <button onClick={() => setGenerated(true)} className="btn-gold flex items-center gap-2" style={{ padding: '10px 18px', fontSize: '0.9rem' }}>
+                  <QrCode size={16} /> Generar QRs
+                </button>
+              )}
+              {generated && (
+                <button onClick={() => window.print()} className="btn-outline flex items-center gap-2" style={{ padding: '10px 18px', fontSize: '0.9rem' }}>
+                  <Printer size={16} /> Imprimir
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="px-4 md:px-6 py-5">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', maxWidth: '760px' }}>
-            {QR_MAESTROS.map(item => (
-              <div
-                key={item.key}
-                className="rounded-2xl overflow-hidden"
-                style={{ background: '#0f172a', border: `2px solid ${item.border}` }}
-              >
-                <div style={{ padding: '18px 20px', background: item.colorLight, borderBottom: `1px solid ${item.border}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${item.color}22`, border: `1.5px solid ${item.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {item.key === 'docentes'
-                        ? <Users size={20} style={{ color: item.color }} />
-                        : <GraduationCap size={20} style={{ color: item.color }} />
-                      }
-                    </div>
+
+          {!generated && (
+            <div style={{ maxWidth: '520px' }}>
+              <div className="glass rounded-xl p-5" style={{ marginBottom: '20px' }}>
+                <QrCode size={40} style={{ color: '#374151', marginBottom: '12px' }} />
+                <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', marginBottom: '6px', fontSize: '0.95rem' }}>
+                  5 CÓDIGOS QR INSTITUCIONALES
+                </div>
+                <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.84rem', lineHeight: 1.6, marginBottom: '16px' }}>
+                  Un QR por función. Al escanearlo el docente elige el curso en el formulario — no hace falta un QR por aula.
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                  {QR_ITEMS.map(item => (
+                    <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', background: item.colorLight, border: `1px solid ${item.border}`, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={selected[item.key]}
+                        onChange={e => setSelected(s => ({ ...s, [item.key]: e.target.checked }))}
+                        style={{ accentColor: item.color, width: '16px', height: '16px', flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-condensed)', color: item.color, fontSize: '0.85rem', fontWeight: 700 }}>{item.label}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.73rem' }}>{item.desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <button onClick={() => setGenerated(true)} disabled={!baseUrl || visibles.length === 0}
+                  className="btn-gold" style={{ width: '100%' }}>
+                  Generar {visibles.length} QR{visibles.length !== 1 ? 's' : ''}
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {[
+                  { paso: '1', titulo: 'Generá los QR', desc: 'Presioná el botón para generar los 5 códigos QR institucionales.' },
+                  { paso: '2', titulo: 'Imprimí y pegálos', desc: 'Colocálos en sala de profesores, dirección o en cada aula.' },
+                  { paso: '3', titulo: 'Escanear y elegir curso', desc: 'El formulario pregunta el curso — sin necesidad de un QR por aula.' },
+                ].map(({ paso, titulo, desc }) => (
+                  <div key={paso} style={{ display: 'flex', gap: '14px', padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ width: '30px', height: '30px', flexShrink: 0, background: 'linear-gradient(135deg, #C9A84C, #E8C96E)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '1rem', color: '#0A1628' }}>{paso}</div>
                     <div>
+                      <div style={{ fontFamily: 'var(--font-condensed)', color: 'white', marginBottom: '2px' }}>{titulo}</div>
+                      <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.84rem' }}>{desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {generated && (
+            <div>
+              <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                <span style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.82rem', letterSpacing: '0.08em' }}>
+                  {visibles.length} CÓDIGOS GENERADOS
+                </span>
+                <button onClick={() => setGenerated(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-condensed)', color: '#6B7280', fontSize: '0.82rem' }}>
+                  ← Volver
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 print:grid-cols-3" style={{ maxWidth: '900px' }}>
+                {visibles.map(item => (
+                  <div key={item.key} className="rounded-xl overflow-hidden" style={{ background: '#0A1628', border: `1px solid ${item.border}` }}>
+                    <div style={{ padding: '14px 16px', background: item.colorLight, borderBottom: `1px solid ${item.border}`, textAlign: 'center' }}>
                       <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', color: item.color, letterSpacing: '0.05em' }}>
                         {item.label}
                       </div>
-                      <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.68rem', letterSpacing: '0.08em' }}>
-                        {item.sublabel}
+                      <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', letterSpacing: '0.1em', marginTop: '2px' }}>
+                        {item.desc}
                       </div>
                     </div>
-                  </div>
-                  <p style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.5)', fontSize: '0.78rem', lineHeight: 1.5, margin: '0' }}>
-                    {item.desc}
-                  </p>
-                </div>
 
-                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ borderRadius: '16px', overflow: 'hidden', background: '#0A1628', padding: '12px', border: `2px solid ${item.border}`, boxShadow: `0 0 24px ${item.colorLight}` }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={getQrUrl(item.path, item.qrColor, item.qrBg)}
-                      alt={`QR ${item.label}`}
-                      style={{ width: '200px', height: '200px', display: 'block' }}
-                    />
-                  </div>
-
-                  <div style={{ width: '100%' }}>
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#6B7280', fontSize: '0.65rem', letterSpacing: '0.12em', marginBottom: '8px', textAlign: 'center' }}>
-                      DA ACCESO A
+                    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ borderRadius: '10px', overflow: 'hidden', background: 'white', padding: '8px' }}>
+                        <img src={getQrUrl(item)} alt={`QR ${item.label}`} style={{ width: '144px', height: '144px', display: 'block' }} />
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-body)', color: '#4B5563', fontSize: '0.6rem', textAlign: 'center', wordBreak: 'break-all' }}>
+                        {baseUrl}{item.path}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      {item.secciones.map(s => (
-                        <div key={s} style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.55)', fontSize: '0.78rem', padding: '5px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                          {s}
-                        </div>
-                      ))}
+
+                    <div style={{ padding: '0 16px 12px', textAlign: 'center', fontFamily: 'var(--font-body)', color: '#374151', fontSize: '0.65rem' }}>
+                      Esc. N° 4-012 Ing. Ricardo Videla · 2026
                     </div>
                   </div>
-
-                  <div style={{ fontFamily: 'var(--font-body)', color: '#374151', fontSize: '0.58rem', textAlign: 'center', wordBreak: 'break-all' }}>
-                    {BASE_URL}{item.path}
-                  </div>
-                </div>
-
-                <div style={{ padding: '0 16px 14px', textAlign: 'center', fontFamily: 'var(--font-body)', color: '#374151', fontSize: '0.62rem' }}>
-                  Esc. N° 4-012 Ing. Ricardo Videla · 2026
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </main>
 
       <style jsx global>{`
         @media print {
           nav { display: none !important; }
-          .main-with-sidebar-tall { margin-left: 0 !important; padding-bottom: 0 !important; }
-          .print\\:hidden { display: none !important; }
-          body { background: #0A1628 !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .md\\:ml-56 { margin-left: 0 !important; }
+          .pb-24 { padding-bottom: 0 !important; }
         }
       `}</style>
     </div>

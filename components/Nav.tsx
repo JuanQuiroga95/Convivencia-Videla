@@ -29,10 +29,16 @@ export default function Nav() {
     fetch('/api/auth').then(r => r.json()).then(setSession)
   }, [])
 
+  // Cerrar drawer al cambiar de ruta
   useEffect(() => { setDrawerOpen(false) }, [pathname])
 
+  // Bloquear scroll del body cuando el drawer está abierto
   useEffect(() => {
-    document.body.style.overflow = drawerOpen ? 'hidden' : ''
+    if (drawerOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
     return () => { document.body.style.overflow = '' }
   }, [drawerOpen])
 
@@ -100,8 +106,7 @@ export default function Nav() {
       </nav>
 
       {/* ── Mobile: top bar con hamburguesa ── */}
-      <header className="mobile-header-top fixed top-0 left-0 right-0 z-50"
-        style={{ background: GD, borderBottom: `3px solid ${O}`, height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+      <header className="mobile-header-top fixed top-0 left-0 right-0 z-50" style={{ background: GD, borderBottom: `3px solid ${O}`, height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/escudo.jpg" alt="Escudo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${O}` }} />
           <div>
@@ -109,14 +114,13 @@ export default function Nav() {
             <div style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.35)', fontSize: '0.55rem', letterSpacing: '0.1em' }}>SISTEMA VIR · 2026</div>
           </div>
         </div>
-        <button onClick={() => setDrawerOpen(v => !v)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: 'rgba(255,255,255,0.9)', borderRadius: '8px' }}>
+        <button onClick={() => setDrawerOpen(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: 'rgba(255,255,255,0.8)' }}>
           {drawerOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </header>
 
-      {/* ── Mobile: offset para el top bar (56px) ── */}
-      <div className="mobile-spacer" style={{ height: '56px' }} />
+      {/* ── Mobile: offset para el top bar ── */}
+      <div className="mobile-spacer" style={{ height: '52px' }} />
 
       {/* ── Mobile: overlay oscuro ── */}
       {drawerOpen && (
@@ -124,18 +128,16 @@ export default function Nav() {
           style={{ position: 'fixed', inset: 0, zIndex: 55, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }} />
       )}
 
-      {/* ── Mobile: drawer lateral izquierdo — COMPLETO con todos los items ── */}
+      {/* ── Mobile: drawer lateral izquierdo ── */}
       <nav className="mobile-drawer-nav fixed top-0 left-0 h-full flex flex-col"
         style={{
-          width: '260px', background: GD, borderRight: `3px solid ${O}`,
+          width: '240px', background: GD, borderRight: `3px solid ${O}`,
           transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 0.25s ease',
           zIndex: 60,
-          overflowY: 'auto',
         }}>
-
         {/* Header del drawer */}
-        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '56px', flexShrink: 0 }}>
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '52px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src="/escudo.jpg" alt="Escudo" style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${O}` }} />
             <div>
@@ -148,13 +150,13 @@ export default function Nav() {
           </button>
         </div>
 
-        {/* Nav links — todos visibles según rol */}
-        <div style={{ flex: 1, padding: '8px 0' }}>
+        {/* Nav links */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
           <NavLinks />
         </div>
 
         {/* User info + logout */}
-        <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>
+        <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           {session.autenticado && (
             <>
               <div style={{ fontFamily: 'var(--font-condensed)', color: O, fontSize: '0.85rem', fontWeight: 700, marginBottom: '1px' }}>{session.nombre || 'Usuario'}</div>
