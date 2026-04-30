@@ -335,12 +335,12 @@ export default function CampoPage() {
                       ['Puntos',   `+${form.puntos} pts`],
                       ['Docente',  form.nombre_docente],
                       archivoNombre ? ['Archivo', archivoNombre] : null,
-                    ].filter(Boolean).map(([k, v]) => (
+                    ].filter(Boolean).map((item) => { const [k, v] = item as [string, string]; return (
                       <>
                         <span key={`k-${k}`} style={{ color: '#92400E', fontFamily: 'var(--font-condensed)', fontSize: '0.75rem' }}>{k}</span>
                         <span key={`v-${k}`} style={{ color: '#78350F', fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
                       </>
-                    ))}
+                    ); })}
                   </div>
                 </div>
 
