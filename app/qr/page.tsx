@@ -7,7 +7,7 @@ const QR_ITEMS = [
     key: 'var',
     label: 'ACTIVAR VIR',
     desc: 'Registrar un conflicto',
-    path: '/var',
+    path: '/var?qr=1',
     color: '#C1121F',
     colorLight: 'rgba(193,18,31,0.15)',
     border: 'rgba(193,18,31,0.4)',
@@ -18,7 +18,7 @@ const QR_ITEMS = [
     key: 'indicadores',
     label: 'INDICADORES',
     desc: 'Cargar indicadores del mes',
-    path: '/indicadores',
+    path: '/indicadores?qr=1',
     color: '#2D7A4F',
     colorLight: 'rgba(45,122,79,0.15)',
     border: 'rgba(45,122,79,0.4)',
@@ -29,7 +29,7 @@ const QR_ITEMS = [
     key: 'campo',
     label: 'ACCIONES POSITIVAS',
     desc: 'Registrar una acción destacada',
-    path: '/campo',
+    path: '/campo?qr=1',
     color: '#B45309',
     colorLight: 'rgba(180,83,9,0.15)',
     border: 'rgba(180,83,9,0.4)',
@@ -40,7 +40,7 @@ const QR_ITEMS = [
     key: 'reglas',
     label: 'REGLAS',
     desc: 'Ver las reglas del Modelo Videla',
-    path: '/reglas',
+    path: '/reglas?qr=1',
     color: '#0E7490',
     colorLight: 'rgba(14,116,144,0.15)',
     border: 'rgba(14,116,144,0.4)',
@@ -51,7 +51,7 @@ const QR_ITEMS = [
     key: 'ranking',
     label: 'RANKING GENERAL',
     desc: 'Ver el ranking público',
-    path: '/ranking-publico',
+    path: '/ranking-publico?qr=1',
     color: '#7C3AED',
     colorLight: 'rgba(124,58,237,0.15)',
     border: 'rgba(124,58,237,0.4)',
@@ -60,9 +60,6 @@ const QR_ITEMS = [
   },
 ]
 
-// URL fija de producción.
-// Seteá NEXT_PUBLIC_APP_URL en Vercel → Settings → Environment Variables
-// Ejemplo: https://videla-convivencia.vercel.app
 const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || 'https://videla-convivencia.vercel.app'
 
@@ -77,7 +74,6 @@ export default function QRPage() {
       <Nav />
       <main className="main-with-sidebar-tall">
 
-        {/* Header */}
         <div className="px-4 md:px-6 py-5 md:py-8" style={{
           background: 'linear-gradient(135deg, #0a0a1a, #1a0a3d, #0a0a1a)',
           borderBottom: '1px solid rgba(124,58,237,0.2)'
@@ -106,13 +102,12 @@ export default function QRPage() {
           </div>
         </div>
 
-        {/* Instrucciones */}
         <div className="px-4 md:px-6 pt-5 pb-2 print:hidden">
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
             {[
               { n: '1', t: 'Imprimí esta página', d: 'Botón "Imprimir todos" arriba a la derecha.' },
               { n: '2', t: 'Recortá y pegálos', d: 'Sala de profesores, dirección o pasillos.' },
-              { n: '3', t: 'Escaneá y completá', d: 'El formulario pregunta el curso al abrir.' },
+              { n: '3', t: 'Escaneá y completá', d: 'El formulario se abre directo, sin login.' },
             ].map(({ n, t, d }) => (
               <div key={n} style={{ display: 'flex', gap: '12px', padding: '12px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', flex: '1 1 200px' }}>
                 <div style={{ width: '28px', height: '28px', flexShrink: 0, background: 'linear-gradient(135deg, #C9A84C, #E8C96E)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: '#0A1628' }}>{n}</div>
@@ -125,7 +120,6 @@ export default function QRPage() {
           </div>
         </div>
 
-        {/* QR Cards */}
         <div className="px-4 md:px-6 py-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 print:grid-cols-3" style={{ maxWidth: '960px' }}>
             {QR_ITEMS.map(item => (
