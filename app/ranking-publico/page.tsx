@@ -74,7 +74,7 @@ export default function RankingPublicoPage() {
         <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
           {TURNOS.map(t => (
             <button key={t.id} onClick={() => setTurno(t.id as any)} style={{
-              flex: 1, padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', border: 'none',
+              flex: 1, padding: '10px 14px', borderRadius: '10px', cursor: 'pointer',
               background: turno === t.id ? GD : 'white',
               border: `2px solid ${turno === t.id ? GD : 'var(--green-border)'}`,
               textAlign: 'left', transition: 'all 0.2s',
