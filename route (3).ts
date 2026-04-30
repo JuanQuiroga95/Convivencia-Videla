@@ -1,83 +1,103 @@
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getSQL } from '@/lib/db'
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-export async function POST(request: NextRequest) {
-  const sql = await getSQL()
-  if (!sql) return NextResponse.json({ ok: false, error: 'Base de datos no configurada.' }, { status: 503 })
-  try {
-    const body = await request.json()
-    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador } = body
-    if (!nombre_activador || nombre_activador.trim().length < 3) {
-      return NextResponse.json({ ok: false, error: 'El nombre del activador es obligatorio.' }, { status: 400 })
-    }
-    const now = new Date()
-    await sql`INSERT INTO var_registros
-      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, mes, anio)
-      VALUES (
-        ${curso_id},
-        ${categoria_id || null},
-        ${tipo_situacion},
-        ${resuelto},
-        ${tipo_reparacion || null},
-        ${intervino},
-        ${nombre_activador.trim()},
-        ${now.getMonth() + 1},
-        ${now.getFullYear()}
-      )`
-    return NextResponse.json({ ok: true, message: 'VIR registrado exitosamente' })
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e.message }, { status: 500 })
+:root {
+  --bg:           #FFFFFF;
+  --bg-alt:       #F4F7F4;
+  --bg-card:      #FFFFFF;
+  --green-dark:   #1A4D2E;
+  --green:        #2D7A4F;
+  --green-mid:    #3D9B6A;
+  --green-light:  #E8F5EE;
+  --green-border: rgba(45,122,79,0.3);
+  --orange:       #E85D04;
+  --orange-light: #FF6B1A;
+  --red:          #C1121F;
+  --red-light:    #E63946;
+  --text-primary:   #0F2010;
+  --text-secondary: #2D5A30;
+  --text-muted:     #5A7A5C;
+  --success:  #2D7A4F;
+  --warning:  #E85D04;
+  --danger:   #C1121F;
+  --font-display:   'Bebas Neue', sans-serif;
+  --font-condensed: 'Barlow Condensed', sans-serif;
+  --font-body:      'Barlow', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { font-family: var(--font-body); background: var(--bg); color: var(--text-primary); }
+body { min-height: 100vh; background: var(--bg); }
+
+.font-display   { font-family: var(--font-display); }
+.font-condensed { font-family: var(--font-condensed); }
+.font-body      { font-family: var(--font-body); }
+
+/* ─── Nav active state ─── */
+.nav-active {
+  background: var(--green-light) !important;
+  color: var(--green-dark) !important;
+  border-left: 3px solid var(--orange) !important;
+  font-weight: 700;
+}
+
+/* ─── Inputs ─── */
+.input-videla {
+  background: #FFFFFF;
+  border: 2px solid rgba(45,122,79,0.35);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-videla::placeholder { color: #94A3B8; }
+.input-videla:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(45,122,79,0.15);
+}
+.input-videla option { background: white; color: var(--text-primary); }
+
+
+/* ── RESPONSIVE LAYOUT FIX ── */
+@media (min-width: 768px) {
+  .sidebar-nav-desktop {
+    display: flex !important;
+  }
+  .mobile-header-top,
+  .mobile-spacer,
+  .mobile-drawer-nav {
+    display: none !important;
+  }
+  .main-with-sidebar {
+    margin-left: 224px !important;
+    padding-bottom: 16px !important;
+  }
+  .main-with-sidebar-tall {
+    margin-left: 224px !important;
+    padding-bottom: 32px !important;
   }
 }
 
-export async function GET(request: NextRequest) {
-  const sql = await getSQL()
-  if (!sql) return NextResponse.json([])
-  try {
-    const { searchParams } = new URL(request.url)
-    const mes = searchParams.get('mes')
-    const anio = searchParams.get('anio') || new Date().getFullYear()
-    const curso_id = searchParams.get('curso_id')
-    const categoria = searchParams.get('categoria')
-    const resuelto = searchParams.get('resuelto')
-    const intervino = searchParams.get('intervino')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = (page - 1) * limit
-
-    let result
-    if (mes) {
-      result = await sql`
-        SELECT v.*, c.nombre as curso_nombre
-        FROM var_registros v
-        JOIN cursos c ON c.id = v.curso_id
-        WHERE v.mes = ${mes} AND v.anio = ${anio}
-        ${curso_id ? sql`AND v.curso_id = ${curso_id}` : sql``}
-        ${categoria ? sql`AND v.categoria_id = ${categoria}` : sql``}
-        ${resuelto !== null && resuelto !== '' ? sql`AND v.resuelto = ${resuelto === 'true'}` : sql``}
-        ${intervino ? sql`AND v.intervino = ${intervino}` : sql``}
-        ORDER BY v.created_at DESC
-        LIMIT ${limit} OFFSET ${offset}
-      `
-    } else {
-      result = await sql`
-        SELECT v.*, c.nombre as curso_nombre
-        FROM var_registros v
-        JOIN cursos c ON c.id = v.curso_id
-        WHERE v.anio = ${anio}
-        ${curso_id ? sql`AND v.curso_id = ${curso_id}` : sql``}
-        ${categoria ? sql`AND v.categoria_id = ${categoria}` : sql``}
-        ${resuelto !== null && resuelto !== '' ? sql`AND v.resuelto = ${resuelto === 'true'}` : sql``}
-        ${intervino ? sql`AND v.intervino = ${intervino}` : sql``}
-        ORDER BY v.created_at DESC
-        LIMIT ${limit} OFFSET ${offset}
-      `
-    }
-    return NextResponse.json(result.rows)
-  } catch {
-    return NextResponse.json([])
+@media (max-width: 767px) {
+  .sidebar-nav-desktop {
+    display: none !important;
+  }
+  .mobile-header-top {
+    display: flex !important;
+  }
+  /* El mobile-spacer compensa el header fijo de 56px */
+  .mobile-spacer {
+    display: block !important;
+    height: 56px !important;
+    flex-shrink: 0;
   }
 }

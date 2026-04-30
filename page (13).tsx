@@ -1,82 +1,67 @@
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getSQL } from '@/lib/db'
 
-export async function POST(request: NextRequest) {
-  const sql = await getSQL()
-  if (!sql) return NextResponse.json({ ok: false, error: 'Base de datos no configurada.' }, { status: 503 })
+// Solo admin puede gestionar usuarios
+async function verificarAdmin(request: NextRequest) {
+  const cookie = request.cookies.get('videla_session')
+  if (!cookie?.value) return false
   try {
-    const body = await request.json()
-    const { curso_id, mes, anio, es_cierre_academico } = body
-
-    if (es_cierre_academico) {
-      // Solo actualizar pct_aprobados sin tocar los otros campos mensuales
-      await sql`
-        INSERT INTO indicadores (curso_id, mes, anio, pct_aprobados, updated_at)
-        VALUES (${curso_id}, ${mes}, ${anio}, ${body.pct_aprobados}, NOW())
-        ON CONFLICT (curso_id, mes, anio) DO UPDATE SET
-          pct_aprobados = EXCLUDED.pct_aprobados,
-          updated_at    = NOW()
-      `
-    } else {
-      // Carga mensual normal (sin tocar pct_aprobados si ya existe)
-      const {
-        limpieza, uniforme, asistencia,
-        actas, ice_puntos, interv_tempranas, situaciones_previas
-      } = body
-
-      await sql`
-        INSERT INTO indicadores
-          (curso_id, mes, anio, limpieza, uniforme, asistencia,
-           actas, ice_puntos, interv_tempranas, situaciones_previas, updated_at)
-        VALUES
-          (${curso_id}, ${mes}, ${anio}, ${limpieza}, ${uniforme || null}, ${asistencia},
-           ${actas}, ${ice_puntos}, ${interv_tempranas ?? 0}, ${situaciones_previas ?? 0}, NOW())
-        ON CONFLICT (curso_id, mes, anio) DO UPDATE SET
-          limpieza            = EXCLUDED.limpieza,
-          uniforme            = EXCLUDED.uniforme,
-          asistencia          = EXCLUDED.asistencia,
-          actas               = EXCLUDED.actas,
-          ice_puntos          = EXCLUDED.ice_puntos,
-          interv_tempranas    = EXCLUDED.interv_tempranas,
-          situaciones_previas = EXCLUDED.situaciones_previas,
-          updated_at          = NOW()
-      `
-    }
-
-    return NextResponse.json({ ok: true, message: 'Guardado exitosamente' })
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e.message }, { status: 500 })
-  }
+    const data = JSON.parse(Buffer.from(cookie.value, 'base64').toString())
+    return data.rol === 'admin'
+  } catch { return false }
 }
 
 export async function GET(request: NextRequest) {
+  if (!await verificarAdmin(request)) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
   const sql = await getSQL()
   if (!sql) return NextResponse.json([])
   try {
-    const { searchParams } = new URL(request.url)
-    const mes  = searchParams.get('mes')
-    const anio = searchParams.get('anio') || new Date().getFullYear()
-    let result
-    if (mes) {
-      result = await sql`
-        SELECT i.*, c.nombre as curso_nombre FROM indicadores i
-        JOIN cursos c ON c.id = i.curso_id
-        WHERE i.mes = ${mes} AND i.anio = ${anio}
-        ORDER BY c.anio, c.division
-      `
-    } else {
-      result = await sql`
-        SELECT i.*, c.nombre as curso_nombre FROM indicadores i
-        JOIN cursos c ON c.id = i.curso_id
-        WHERE i.anio = ${anio}
-        ORDER BY i.mes DESC, c.anio, c.division
-      `
-    }
+    const result = await sql`SELECT id, nombre, usuario, rol, activo, created_at FROM usuarios ORDER BY created_at DESC`
     return NextResponse.json(result.rows)
-  } catch {
-    return NextResponse.json([])
+  } catch { return NextResponse.json([]) }
+}
+
+export async function POST(request: NextRequest) {
+  if (!await verificarAdmin(request)) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
+  const sql = await getSQL()
+  if (!sql) return NextResponse.json({ ok: false, error: 'DB no disponible' }, { status: 503 })
+  try {
+    const { nombre, usuario, password, rol } = await request.json()
+    await sql`INSERT INTO usuarios (nombre, usuario, password, rol) VALUES (${nombre}, ${usuario}, ${password}, ${rol || 'operativo'})`
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e.message.includes('unique') ? 'Ese usuario ya existe' : e.message }, { status: 400 })
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  if (!await verificarAdmin(request)) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
+  const sql = await getSQL()
+  if (!sql) return NextResponse.json({ ok: false, error: 'DB no disponible' }, { status: 503 })
+  try {
+    const { id, nombre, usuario, password, rol, activo } = await request.json()
+    if (password) {
+      await sql`UPDATE usuarios SET nombre=${nombre}, usuario=${usuario}, password=${password}, rol=${rol}, activo=${activo} WHERE id=${id}`
+    } else {
+      await sql`UPDATE usuarios SET nombre=${nombre}, usuario=${usuario}, rol=${rol}, activo=${activo} WHERE id=${id}`
+    }
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e.message }, { status: 400 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  if (!await verificarAdmin(request)) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
+  const sql = await getSQL()
+  if (!sql) return NextResponse.json({ ok: false }, { status: 503 })
+  try {
+    const { id } = await request.json()
+    await sql`DELETE FROM usuarios WHERE id=${id}`
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e.message }, { status: 400 })
   }
 }
