@@ -304,7 +304,7 @@ export default function CampoPage() {
                           <span style={{ fontFamily: 'var(--font-condensed)', color: '#78350F', fontSize: '0.78rem' }}>Valor personalizado:</span>
                           <input type="number" min={1} max={10} value={form.puntos}
                             onChange={e => setForm(f => ({ ...f, puntos: Math.min(10, Math.max(1, parseInt(e.target.value) || 1)) }))}
-                            style={{ width: '64px', height: '40px', borderRadius: '8px', border: `2px solid ${GOLD}`, fontFamily: 'var(--font-display)', fontSize: '1.2rem', textAlign: 'center', color: GOLD, fontWeight: 700, fontSize: '16px' }} />
+                            style={{ width: '64px', height: '40px', borderRadius: '8px', border: `2px solid ${GOLD}`, fontFamily: 'var(--font-display)', fontSize: '16px', textAlign: 'center', color: GOLD, fontWeight: 700 }} />
                         </div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#92400E', fontSize: '0.76rem', marginTop: '6px' }}>
                           ⚠ El docente es responsable de asignar un valor justo. Máx. 10 pts por acción.
