@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const COOKIE = 'videla_session'
 
+// Rutas accesibles desde QR sin necesidad de login
+const RUTAS_QR = ['/var', '/campo', '/indicadores', '/reglas', '/ranking-publico']
+
 function getSession(request: NextRequest) {
   const cookie = request.cookies.get(COOKIE)
   if (!cookie?.value) return null
@@ -10,8 +13,13 @@ function getSession(request: NextRequest) {
 }
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
   const session = getSession(request)
+
+  // Si viene con ?qr=1 y la ruta es una de las permitidas por QR → dejar pasar sin login
+  if (searchParams.get('qr') === '1' && RUTAS_QR.some(r => pathname.startsWith(r))) {
+    return NextResponse.next()
+  }
 
   const soloAdmin = ['/admin', '/qr']
   const protegidas = ['/dashboard', '/var', '/campo', '/indicadores', '/historial', '/tablero']
