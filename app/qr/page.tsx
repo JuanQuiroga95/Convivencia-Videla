@@ -1,7 +1,36 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
-import { QrCode, Printer } from 'lucide-react'
+import { QrCode, Printer, Users, GraduationCap } from 'lucide-react'
+
+const QR_ACCESO = [
+  {
+    key: 'maestro',
+    label: 'ACCESO MAESTRO',
+    desc: 'Docentes, preceptoras y SOE',
+    badge: 'TODAS LAS FUNCIONES',
+    path: '/acceso-maestro',
+    color: '#22D3EE',
+    colorLight: 'rgba(22,211,253,0.1)',
+    border: 'rgba(22,211,253,0.3)',
+    qrColor: '22D3EE',
+    qrBg: '0A1628',
+    icon: Users,
+  },
+  {
+    key: 'alumnos',
+    label: 'ACCESO ALUMNOS',
+    desc: 'Ranking y Reglas del modelo',
+    badge: 'SIN LOGIN',
+    path: '/acceso-alumnos',
+    color: '#A78BFA',
+    colorLight: 'rgba(124,58,237,0.1)',
+    border: 'rgba(124,58,237,0.3)',
+    qrColor: 'A78BFA',
+    qrBg: '0A1628',
+    icon: GraduationCap,
+  },
+]
 
 const QR_ITEMS = [
   {
@@ -174,6 +203,60 @@ export default function QRPage() {
                 <button onClick={() => setGenerated(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-condensed)', color: '#6B7280', fontSize: '0.82rem' }}>
                   ← Volver
                 </button>
+              </div>
+
+              {/* ── QRs de acceso especial ── */}
+              <div style={{ marginBottom: '28px' }}>
+                <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.72rem', letterSpacing: '0.15em', marginBottom: '12px', paddingLeft: '2px' }}>
+                  QR DE ACCESO DIRECTO
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 print:grid-cols-2" style={{ maxWidth: '600px' }}>
+                  {QR_ACCESO.map(item => {
+                    const IconComp = item.icon
+                    const url = encodeURIComponent(`${baseUrl}${item.path}`)
+                    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${url}&bgcolor=${item.qrBg}&color=${item.qrColor}&format=png&margin=10`
+                    return (
+                      <div key={item.key} className="rounded-xl overflow-hidden" style={{ background: '#0A1628', border: `1px solid ${item.border}` }}>
+                        {/* header */}
+                        <div style={{ padding: '14px 16px', background: item.colorLight, borderBottom: `1px solid ${item.border}`, textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '4px' }}>
+                            <IconComp size={18} style={{ color: item.color }} />
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', color: item.color, letterSpacing: '0.05em' }}>
+                              {item.label}
+                            </span>
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+                            {item.desc}
+                          </div>
+                          <div style={{ display: 'inline-block', marginTop: '6px', background: `${item.color}22`, border: `1px solid ${item.border}`, borderRadius: '20px', padding: '2px 10px' }}>
+                            <span style={{ fontFamily: 'var(--font-condensed)', color: item.color, fontSize: '0.65rem', letterSpacing: '0.12em', fontWeight: 700 }}>
+                              {item.badge}
+                            </span>
+                          </div>
+                        </div>
+                        {/* QR */}
+                        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ borderRadius: '10px', overflow: 'hidden', background: 'white', padding: '8px' }}>
+                            <img src={qrSrc} alt={`QR ${item.label}`} style={{ width: '144px', height: '144px', display: 'block' }} />
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-body)', color: '#4B5563', fontSize: '0.6rem', textAlign: 'center', wordBreak: 'break-all' }}>
+                            {baseUrl}{item.path}
+                          </div>
+                        </div>
+                        <div style={{ padding: '0 16px 12px', textAlign: 'center', fontFamily: 'var(--font-body)', color: '#374151', fontSize: '0.65rem' }}>
+                          Esc. N° 4-012 Ing. Ricardo Videla · 2026
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* ── Divisor ── */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', maxWidth: '900px' }}>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+                <span style={{ fontFamily: 'var(--font-condensed)', color: '#4B5563', fontSize: '0.7rem', letterSpacing: '0.15em' }}>QR INDIVIDUALES POR FUNCIÓN</span>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 print:grid-cols-3" style={{ maxWidth: '900px' }}>
