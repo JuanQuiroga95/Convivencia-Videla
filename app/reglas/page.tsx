@@ -135,7 +135,8 @@ export default function ReglasPage() {
                 <span>INDICADOR</span><span>DIM.</span><span>PTS</span>
               </div>
               {[
-                { indicador: 'VIR resueltos sin escalar (100%)', pts: '+20', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: '0 VIRs activados (Premio a la Paz)', pts: '+20', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'VIRs activados y resueltos (100%)',  pts: '+15', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
                 { indicador: 'Sin actas disciplinarias',          pts: '+12', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
                 { indicador: 'Puntos ICE = 0',                    pts: '+8',  dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
                 { indicador: 'Limpieza 5/5',                      pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },

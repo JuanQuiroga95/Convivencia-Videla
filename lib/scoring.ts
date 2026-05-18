@@ -51,8 +51,13 @@ export function calcularPuntajeMensual(ind: IndicadorCurso): PuntajeDetalle {
   let resolutivo = 0
   let pct_var = 0
   if (ind.tiene_var) {
-    pct_var = ind.var_total > 0 ? Math.round((ind.var_resueltos / ind.var_total) * 100) : 0
-    resolutivo += Math.round((pct_var / 100) * 20)
+    if (ind.var_total === 0) {
+      resolutivo += 20 // Premio a la Paz
+      pct_var = 0 
+    } else {
+      pct_var = Math.round((ind.var_resueltos / ind.var_total) * 100)
+      resolutivo += Math.round((pct_var / 100) * 15) // Resolución exitosa da hasta 15
+    }
   }
   if (ind.tiene_indicadores) {
     if (ind.actas === 0) resolutivo += 12
