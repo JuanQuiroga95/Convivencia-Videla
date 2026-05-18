@@ -5,6 +5,7 @@ import { getSQL } from '@/lib/db'
 
 const COOKIE = 'videla_session'
 const ADMIN = { usuario: 'Videla.4012', password: 'VirVidela4012', rol: 'admin', nombre: 'Administrador' }
+const PRECE = { usuario: 'precevidela', password: 'virprece2026', rol: 'preceptora', nombre: 'Preceptoras' }
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
@@ -42,10 +43,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Fallback hardcoded admin (always works even without DB)
-  if (!user && usuario === ADMIN.usuario && password === ADMIN.password) {
-    user = ADMIN
-  }
+  // Fallback hardcoded credentials (always work even without DB)
+  if (!user && usuario === ADMIN.usuario && password === ADMIN.password) user = ADMIN
+  if (!user && usuario === PRECE.usuario && password === PRECE.password) user = PRECE
 
   if (!user) {
     return NextResponse.json({ ok: false, error: 'Usuario o contraseña incorrectos.' }, { status: 401 })

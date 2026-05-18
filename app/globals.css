@@ -102,3 +102,28 @@ body { min-height: 100vh; background: var(--bg); }
     top: 0 !important;
   }
 }
+
+/* ── Print / PDF export ── */
+@media print {
+  .no-print,
+  .sidebar-nav-desktop,
+  .mobile-header-top,
+  .mobile-spacer,
+  .mobile-drawer-nav {
+    display: none !important;
+  }
+  .main-with-sidebar,
+  .main-with-sidebar-tall {
+    margin-left: 0 !important;
+    padding: 16px !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

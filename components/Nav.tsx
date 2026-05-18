@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Shield, Trophy, History, ClipboardList, BarChart3, BookOpen, QrCode, Settings, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Shield, Trophy, History, ClipboardList, BarChart3, BookOpen, QrCode, Settings, LogOut, Menu, X, ClipboardCheck, TrendingUp } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface SessionData { autenticado: boolean; rol?: string; nombre?: string; usuario?: string }
@@ -12,10 +12,12 @@ const navItems = [
   { href: '/var',         label: 'Activar VIR',         icon: Shield,          rol: ['admin', 'operativo'], accent: true },
   { href: '/campo',       label: 'Acciones positivas',  icon: Trophy,          rol: ['admin', 'operativo'], gold: true },
   { href: '/historial',   label: 'Historial VIR',       icon: History,         rol: ['admin', 'operativo'] },
-  { href: '/indicadores', label: 'Indicadores',         icon: ClipboardList,   rol: ['admin', 'operativo'] },
-  { href: '/reglas',      label: 'Criterios',           icon: BookOpen,        rol: ['admin', 'operativo'] },
-  { href: '/qr',          label: 'Códigos QR',          icon: QrCode,          rol: ['admin'] },
-  { href: '/admin',       label: 'Admin',               icon: Settings,        rol: ['admin'] },
+  { href: '/indicadores',  label: 'Indicadores',        icon: ClipboardList,   rol: ['admin', 'operativo'] },
+  { href: '/preceptoras',  label: 'Carga Mensual',      icon: ClipboardCheck,  rol: ['admin', 'preceptora'] },
+  { href: '/estadisticas', label: 'Estadísticas',       icon: TrendingUp,      rol: ['admin'] },
+  { href: '/reglas',       label: 'Criterios',          icon: BookOpen,        rol: ['admin', 'operativo'] },
+  { href: '/qr',           label: 'Códigos QR',         icon: QrCode,          rol: ['admin'] },
+  { href: '/admin',        label: 'Admin',              icon: Settings,        rol: ['admin'] },
 ]
 
 const GD = '#1A4D2E'; const O = '#E85D04'
@@ -96,7 +98,7 @@ export default function Nav() {
             <>
               <div style={{ fontFamily: 'var(--font-condensed)', color: O, fontSize: '0.82rem', fontWeight: 700, marginBottom: '1px' }}>{session.nombre || 'Usuario'}</div>
               <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', marginBottom: '2px' }}>•{session.usuario}</div>
-              <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '0.65rem', marginBottom: '10px' }}>{session.rol === 'admin' ? 'Administrador' : 'Operativo'}</div>
+              <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '0.65rem', marginBottom: '10px' }}>{session.rol === 'admin' ? 'Administrador' : session.rol === 'preceptora' ? 'Preceptora' : 'Operativo'}</div>
               <button onClick={handleLogout} style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.04em', padding: 0, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
                 <LogOut size={13} /> CERRAR SESIÓN
               </button>
@@ -161,7 +163,7 @@ export default function Nav() {
             <>
               <div style={{ fontFamily: 'var(--font-condensed)', color: O, fontSize: '0.85rem', fontWeight: 700, marginBottom: '1px' }}>{session.nombre || 'Usuario'}</div>
               <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', marginBottom: '2px' }}>•{session.usuario}</div>
-              <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '0.68rem', marginBottom: '12px' }}>{session.rol === 'admin' ? 'Administrador' : 'Operativo'}</div>
+              <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '0.68rem', marginBottom: '12px' }}>{session.rol === 'admin' ? 'Administrador' : session.rol === 'preceptora' ? 'Preceptora' : 'Operativo'}</div>
               <button onClick={handleLogout} style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.04em', padding: 0, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem' }}>
                 <LogOut size={13} /> CERRAR SESIÓN
               </button>
