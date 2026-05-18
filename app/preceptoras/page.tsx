@@ -137,6 +137,20 @@ export default function PreceptorasPage() {
             </p>
           </div>
 
+          {/* Guía Rápida */}
+          <div style={{ background: '#E8F5EE', border: '1px solid #86EFAC', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+            <h3 style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.9rem', color: '#166534', margin: '0 0 10px 0', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <AlertCircle size={16} /> GUÍA PARA PRECEPTORAS
+            </h3>
+            <ul style={{ margin: 0, paddingLeft: '18px', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: '#1A4D2E', lineHeight: '1.6' }}>
+              <li style={{ marginBottom: '6px' }}><strong>CONVIVENCIA (pts):</strong> Puntos descontados por actas o faltas leves. Si no hubo actas, dejar en <strong>0</strong>.</li>
+              <li style={{ marginBottom: '6px' }}><strong>VIR (pts):</strong> Puntos que no se sumaron por no resolver conflictos (VIR no resueltos). Si no hubo VIR o se resolvieron todos, dejar en <strong>0</strong>.</li>
+              <li style={{ marginBottom: '6px' }}><strong>% ASISTENCIA / UNIFORME:</strong> Colocar el promedio mensual. Ej: Si vinieron casi todos, poner <strong>95.5</strong>. No poner el signo %.</li>
+              <li style={{ marginBottom: '6px' }}><strong>DERIVADOS CONSEJO:</strong> Cantidad exacta de alumnos del curso derivados al Consejo Escolar en este mes.</li>
+              <li><strong>ACCIONES POSITIVAS:</strong> Puntos extra ganados por buena conducta, ayudar en actos, etc. (Puede sumar de 1 a 10).</li>
+            </ul>
+          </div>
+
           {/* Selectores */}
           <div style={{
             background: 'white', border: '2px solid rgba(45,122,79,0.18)',
@@ -183,7 +197,7 @@ export default function PreceptorasPage() {
                   <input type="number" min="0" style={inputStyle} value={form.quita_convivencia} onChange={set('quita_convivencia')} placeholder="0" />
                 </div>
                 <div>
-                  <FieldLabel label="VAR" hint="(pts)" />
+                  <FieldLabel label="VIR" hint="(pts)" />
                   <input type="number" min="0" style={inputStyle} value={form.quita_var} onChange={set('quita_var')} placeholder="0" />
                 </div>
               </InputRow>
