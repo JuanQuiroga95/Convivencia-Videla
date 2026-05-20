@@ -4,7 +4,7 @@ import { BarChart3, BookOpen, LogIn, Shield, History } from 'lucide-react'
 
 const NAV_CARDS = [
   { href: '/ranking-publico', icon: BarChart3, label: 'RANKING', sub: 'Ver ranking de cursos', bg: '#1A4D2E', border: '#E85D04' },
-  { href: '/criterios', icon: BookOpen, label: 'CRITERIOS', sub: 'Reglas y sistema de puntos', bg: '#1D4ED8', border: '#93C5FD' },
+  { href: '/reglas', icon: BookOpen, label: 'CRITERIOS', sub: 'Reglas y sistema de puntos', bg: '#1D4ED8', border: '#93C5FD' },
 ]
 
 const ACCESOS = [
