@@ -13,9 +13,15 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const session = getSession(request)
 
+  // Solo admin necesita login (panel, QR interno, estadísticas, dashboard, historial, tablero)
   const soloAdmin   = ['/admin', '/qr', '/estadisticas']
-  const protegidas  = ['/dashboard', '/historial', '/tablero', '/var', '/indicadores', '/campo']
+  const protegidas  = ['/dashboard', '/historial', '/tablero']
+
+  // Preceptoras también necesitan login
   const preceRoutes = ['/preceptoras']
+
+  // /var, /indicadores, /campo son accesibles vía QR Maestro sin login
+  // /ranking-publico y /reglas son públicas para alumnos y maestros
 
   if (soloAdmin.some(r => pathname.startsWith(r))) {
     if (!session || session.rol !== 'admin')
@@ -37,8 +43,5 @@ export const config = {
     '/dashboard/:path*', '/historial/:path*', '/tablero/:path*',
     '/qr/:path*', '/admin/:path*',
     '/preceptoras/:path*', '/estadisticas/:path*',
-    '/var', '/var/:path*',
-    '/indicadores', '/indicadores/:path*',
-    '/campo', '/campo/:path*',
   ],
 }
