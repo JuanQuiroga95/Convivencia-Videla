@@ -8,9 +8,9 @@ const NAV_CARDS = [
 ]
 
 const ACCESOS = [
-  { href: '/var',      icon: Shield,   label: 'Activar VIR',   color: '#E85D04' },
-  { href: '/historial',icon: History,  label: 'Historial VIR', color: '#2D7A4F' },
-  { href: '/tablero',  icon: BarChart3, label: 'Tablero',       color: '#1D4ED8' },
+  { href: '/login?from=/var',      icon: Shield,   label: 'Activar VIR',   color: '#E85D04' },
+  { href: '/login?from=/historial',icon: History,  label: 'Historial VIR', color: '#2D7A4F' },
+  { href: '/login?from=/tablero',  icon: BarChart3, label: 'Tablero',       color: '#1D4ED8' },
 ]
 
 const DIMS = [
