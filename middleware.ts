@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   const session = getSession(request)
 
   const soloAdmin   = ['/admin', '/qr', '/estadisticas']
-  const protegidas  = ['/dashboard', '/historial', '/tablero']
+  const protegidas  = ['/dashboard', '/historial', '/tablero', '/var', '/indicadores', '/campo']
   const preceRoutes = ['/preceptoras']
 
   if (soloAdmin.some(r => pathname.startsWith(r))) {
@@ -37,5 +37,8 @@ export const config = {
     '/dashboard/:path*', '/historial/:path*', '/tablero/:path*',
     '/qr/:path*', '/admin/:path*',
     '/preceptoras/:path*', '/estadisticas/:path*',
+    '/var', '/var/:path*',
+    '/indicadores', '/indicadores/:path*',
+    '/campo', '/campo/:path*',
   ],
 }
