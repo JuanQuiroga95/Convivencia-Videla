@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getSQL } from '@/lib/db'
+import { getSQL, getDB } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   const sql = await getSQL()
