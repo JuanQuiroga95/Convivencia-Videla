@@ -6,6 +6,14 @@ export async function getSQL(): Promise<any | null> {
   } catch { return null }
 }
 
+export async function getDB(): Promise<any | null> {
+  if (!process.env.POSTGRES_URL) return null
+  try {
+    const mod = await import('@vercel/postgres')
+    return mod.db
+  } catch { return null }
+}
+
 export async function setupDatabase() {
   const sql = await getSQL()
   if (!sql) throw new Error('POSTGRES_URL no configurada.')

@@ -34,50 +34,62 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const sql = await getSQL()
-  if (!sql) return NextResponse.json([])
+  const db = await getDB()
+  if (!db) return NextResponse.json([])
   try {
     const { searchParams } = new URL(request.url)
     const mes = searchParams.get('mes')
     const anio = searchParams.get('anio') || new Date().getFullYear()
     const curso_id = searchParams.get('curso_id')
     const categoria = searchParams.get('categoria')
-    const resuelto = searchParams.get('resuelto')
+    const resueltoStr = searchParams.get('resuelto')
     const intervino = searchParams.get('intervino')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = (page - 1) * limit
 
-    let result
+    let q = `
+      SELECT v.*, c.nombre as curso_nombre
+      FROM var_registros v
+      JOIN cursos c ON c.id = v.curso_id
+      WHERE v.anio = $1
+    `
+    const values: any[] = [anio]
+    let pCount = 1
+
     if (mes) {
-      result = await sql`
-        SELECT v.*, c.nombre as curso_nombre
-        FROM var_registros v
-        JOIN cursos c ON c.id = v.curso_id
-        WHERE v.mes = ${mes} AND v.anio = ${anio}
-        ${curso_id ? sql`AND v.curso_id = ${curso_id}` : sql``}
-        ${categoria ? sql`AND v.categoria_id = ${categoria}` : sql``}
-        ${resuelto !== null && resuelto !== '' ? sql`AND v.resuelto = ${resuelto === 'true'}` : sql``}
-        ${intervino ? sql`AND v.intervino = ${intervino}` : sql``}
-        ORDER BY v.created_at DESC
-        LIMIT ${limit} OFFSET ${offset}
-      `
-    } else {
-      result = await sql`
-        SELECT v.*, c.nombre as curso_nombre
-        FROM var_registros v
-        JOIN cursos c ON c.id = v.curso_id
-        WHERE v.anio = ${anio}
-        ${curso_id ? sql`AND v.curso_id = ${curso_id}` : sql``}
-        ${categoria ? sql`AND v.categoria_id = ${categoria}` : sql``}
-        ${resuelto !== null && resuelto !== '' ? sql`AND v.resuelto = ${resuelto === 'true'}` : sql``}
-        ${intervino ? sql`AND v.intervino = ${intervino}` : sql``}
-        ORDER BY v.created_at DESC
-        LIMIT ${limit} OFFSET ${offset}
-      `
+      pCount++
+      q += ` AND v.mes = $${pCount}`
+      values.push(mes)
     }
+    if (curso_id) {
+      pCount++
+      q += ` AND v.curso_id = $${pCount}`
+      values.push(curso_id)
+    }
+    if (categoria) {
+      pCount++
+      q += ` AND v.categoria_id = $${pCount}`
+      values.push(categoria)
+    }
+    if (resueltoStr === 'true' || resueltoStr === 'false') {
+      pCount++
+      q += ` AND v.resuelto = $${pCount}`
+      values.push(resueltoStr === 'true')
+    }
+    if (intervino) {
+      pCount++
+      q += ` AND v.intervino = $${pCount}`
+      values.push(intervino)
+    }
+
+    q += ` ORDER BY v.created_at DESC LIMIT $${pCount + 1} OFFSET $${pCount + 2}`
+    values.push(limit, offset)
+
+    const result = await db.query(q, values)
     return NextResponse.json(result.rows)
-  } catch {
+  } catch (e: any) {
+    console.error('Error fetching VIR:', e)
     return NextResponse.json([])
   }
 }
