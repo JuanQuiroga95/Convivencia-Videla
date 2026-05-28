@@ -67,6 +67,12 @@ export async function GET(request: NextRequest) {
       q += ` AND v.curso_id = $${pCount}`
       values.push(curso_id)
     }
+    const curso_nombre = searchParams.get('curso_nombre')
+    if (curso_nombre) {
+      pCount++
+      q += ` AND c.nombre = $${pCount}`
+      values.push(curso_nombre)
+    }
     if (categoria) {
       pCount++
       q += ` AND v.categoria_id = $${pCount}`

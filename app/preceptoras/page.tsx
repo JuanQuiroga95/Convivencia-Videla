@@ -67,6 +67,7 @@ export default function PreceptorasPage() {
   const [saving,   setSaving]   = useState(false)
   const [status,   setStatus]   = useState<'idle' | 'ok' | 'err'>('idle')
   const [msg,      setMsg]      = useState('')
+  const [virStats, setVirStats] = useState({ total: 0, unresolved: 0 })
 
   useEffect(() => {
     fetch('/api/auth').then(r => r.json()).then(setSession)
@@ -75,6 +76,21 @@ export default function PreceptorasPage() {
       .then((d: any[]) => { if (d.length) setCursos(d.map(c => c.nombre || c)) })
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    fetch(`/api/var?curso_nombre=${encodeURIComponent(curso)}&mes=${mes}`)
+      .then(r => r.json())
+      .then((data: any[]) => {
+        if (Array.isArray(data)) {
+          const total = data.length
+          const unresolved = data.filter(v => !v.resuelto).length
+          setVirStats({ total, unresolved })
+        } else {
+          setVirStats({ total: 0, unresolved: 0 })
+        }
+      })
+      .catch(() => setVirStats({ total: 0, unresolved: 0 }))
+  }, [curso, mes])
 
   const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(prev => ({ ...prev, [key]: e.target.value }))
@@ -89,7 +105,7 @@ export default function PreceptorasPage() {
         body: JSON.stringify({
           curso, mes, anio: new Date().getFullYear(),
           quita_convivencia:  Number(form.quita_convivencia)  || 0,
-          quita_var:          Number(form.quita_var)          || 0,
+          quita_var:          virStats.unresolved,
           derivados_consejo:  Number(form.derivados_consejo)  || 0,
           asistencia_pct:     Number(form.asistencia_pct)     || 0,
           uniforme_pct:       Number(form.uniforme_pct)       || 0,
@@ -143,8 +159,8 @@ export default function PreceptorasPage() {
               <AlertCircle size={16} /> GUÍA PARA PRECEPTORAS
             </h3>
             <ul style={{ margin: 0, paddingLeft: '18px', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: '#1A4D2E', lineHeight: '1.6' }}>
-              <li style={{ marginBottom: '6px' }}><strong>CONVIVENCIA (pts):</strong> Puntos descontados por actas o faltas leves. Si no hubo actas, dejar en <strong>0</strong>.</li>
-              <li style={{ marginBottom: '6px' }}><strong>VIR (pts):</strong> Puntos que no se sumaron por no resolver conflictos (VIR no resueltos). Si no hubo VIR o se resolvieron todos, dejar en <strong>0</strong>.</li>
+              <li style={{ marginBottom: '6px' }}><strong>ICE (Alumnos):</strong> Cantidad de alumnos que tuvieron quita de puntos en este mes. Si no hubo, dejar en <strong>0</strong>.</li>
+              <li style={{ marginBottom: '6px' }}><strong>VIR:</strong> Muestra la cantidad de VIR registrados y cuántos faltan resolver. (Calculado por el sistema, no editable).</li>
               <li style={{ marginBottom: '6px' }}><strong>% ASISTENCIA / UNIFORME:</strong> Colocar el promedio mensual. Ej: Si vinieron casi todos, poner <strong>95.5</strong>. No poner el signo %.</li>
               <li style={{ marginBottom: '6px' }}><strong>DERIVADOS CONSEJO:</strong> Cantidad exacta de alumnos del curso derivados al Consejo Escolar en este mes.</li>
               <li><strong>ACCIONES POSITIVAS:</strong> Puntos extra ganados por buena conducta, ayudar en actos, etc. (Puede sumar de 1 a 10).</li>
@@ -193,12 +209,15 @@ export default function PreceptorasPage() {
             <SectionBlock title="QUITA DE PUNTOS" color="#991B1B" bg="#FEF2F2" border="rgba(193,18,31,0.18)">
               <InputRow>
                 <div>
-                  <FieldLabel label="CONVIVENCIA" hint="(pts)" />
-                  <input type="number" min="0" style={inputStyle} value={form.quita_convivencia} onChange={set('quita_convivencia')} placeholder="0" />
+                  <FieldLabel label="ICE" hint="(alumnos)" />
+                  <input type="number" min="0" style={inputStyle} value={form.quita_convivencia} onChange={set('quita_convivencia')} placeholder="0" onWheel={(e) => e.currentTarget.blur()} />
                 </div>
                 <div>
-                  <FieldLabel label="VIR" hint="(pts)" />
-                  <input type="number" min="0" style={inputStyle} value={form.quita_var} onChange={set('quita_var')} placeholder="0" />
+                  <FieldLabel label="VIR" hint="(Sistema)" />
+                  <div style={{ ...inputStyle, display: 'flex', justifyContent: 'space-between', background: '#F9FAFB', color: '#6B7280' }}>
+                    <span>Total: <strong>{virStats.total}</strong></span>
+                    <span>No resueltos: <strong style={{ color: virStats.unresolved > 0 ? '#991B1B' : 'inherit' }}>{virStats.unresolved}</strong></span>
+                  </div>
                 </div>
               </InputRow>
             </SectionBlock>
@@ -208,11 +227,11 @@ export default function PreceptorasPage() {
               <InputRow>
                 <div>
                   <FieldLabel label="% ASISTENCIA PROM." />
-                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.asistencia_pct} onChange={set('asistencia_pct')} placeholder="0.0" />
+                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.asistencia_pct} onChange={set('asistencia_pct')} placeholder="0.0" onWheel={(e) => e.currentTarget.blur()} />
                 </div>
                 <div>
                   <FieldLabel label="% UNIFORME" />
-                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.uniforme_pct} onChange={set('uniforme_pct')} placeholder="0.0" />
+                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.uniforme_pct} onChange={set('uniforme_pct')} placeholder="0.0" onWheel={(e) => e.currentTarget.blur()} />
                 </div>
               </InputRow>
             </SectionBlock>
@@ -222,11 +241,11 @@ export default function PreceptorasPage() {
               <InputRow>
                 <div>
                   <FieldLabel label="DERIVADOS CONSEJO" hint="(alumnos)" />
-                  <input type="number" min="0" style={inputStyle} value={form.derivados_consejo} onChange={set('derivados_consejo')} placeholder="0" />
+                  <input type="number" min="0" style={inputStyle} value={form.derivados_consejo} onChange={set('derivados_consejo')} placeholder="0" onWheel={(e) => e.currentTarget.blur()} />
                 </div>
                 <div>
                   <FieldLabel label="ACCIONES POSITIVAS" />
-                  <input type="number" min="0" style={inputStyle} value={form.acciones_positivas} onChange={set('acciones_positivas')} placeholder="0" />
+                  <input type="number" min="0" style={inputStyle} value={form.acciones_positivas} onChange={set('acciones_positivas')} placeholder="0" onWheel={(e) => e.currentTarget.blur()} />
                 </div>
               </InputRow>
             </SectionBlock>
