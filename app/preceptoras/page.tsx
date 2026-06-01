@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
-import { Save, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { Save, CheckCircle, AlertCircle, RefreshCw, Star } from 'lucide-react'
+const UNIFORME_OPCIONES = ['>95%', '85-95%', '<85%']
 
 const MESES = [
   'Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -16,16 +17,16 @@ const CURSOS_DEFAULT = [
 ]
 
 interface FormData {
+  actas: string
   quita_convivencia: string
-  quita_var: string
   derivados_consejo: string
+  limpieza: string
   asistencia_pct: string
   uniforme_pct: string
-  acciones_positivas: string
 }
 const EMPTY: FormData = {
-  quita_convivencia: '', quita_var: '', derivados_consejo: '',
-  asistencia_pct: '', uniforme_pct: '', acciones_positivas: '',
+  actas: '0', quita_convivencia: '0', derivados_consejo: '0',
+  limpieza: '3', asistencia_pct: '', uniforme_pct: '',
 }
 
 // Defined at module scope — prevents React focus-loss bug
@@ -95,36 +96,78 @@ export default function PreceptorasPage() {
   const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(prev => ({ ...prev, [key]: e.target.value }))
 
+  const limpiezaLabels: Record<string, string> = {
+    '1': 'Incumplimiento reiterado', '2': 'Desorden visible',
+    '3': 'Detalles menores', '4': 'Orden general correcto', '5': 'Aula impecable',
+  }
+
   const handleSave = async () => {
     setSaving(true)
     setStatus('idle')
     try {
-      const res = await fetch('/api/indicadores-mensuales', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          curso, mes, anio: new Date().getFullYear(),
-          quita_convivencia:  Number(form.quita_convivencia)  || 0,
-          quita_var:          virStats.unresolved,
-          derivados_consejo:  Number(form.derivados_consejo)  || 0,
-          asistencia_pct:     Number(form.asistencia_pct)     || 0,
-          uniforme_pct:       Number(form.uniforme_pct)       || 0,
-          acciones_positivas: Number(form.acciones_positivas) || 0,
-          registrado_por: session?.usuario ?? 'preceptora',
+      // 1. Guardar en API para estadísticas
+      let numUniforme = 0
+      if (form.uniforme_pct === '>95%') numUniforme = 98
+      else if (form.uniforme_pct === '85-95%') numUniforme = 90
+      else if (form.uniforme_pct === '<85%') numUniforme = 80
+
+      const statsPayload = {
+        curso, mes, anio: new Date().getFullYear(),
+        quita_convivencia:  Number(form.quita_convivencia)  || 0,
+        quita_var:          virStats.unresolved,
+        derivados_consejo:  Number(form.derivados_consejo)  || 0,
+        asistencia_pct:     Number(form.asistencia_pct)     || 0,
+        uniforme_pct:       numUniforme,
+        acciones_positivas: 0, // Ya no lo cargan preceptoras
+        registrado_por: session?.usuario ?? 'preceptora',
+      }
+
+      // 2. Guardar en API de indicadores (para Ranking)
+      // Buscamos el curso_id buscando el curso en la lista de Cursos (asumiendo que la ruta /api/cursos devuelve array de objs)
+      // Pero no tenemos el curso_id a mano. Haremos un fetch a /api/cursos para obtener el ID real.
+      const cursosRes = await fetch('/api/cursos')
+      const cursosList = await cursosRes.json()
+      const cursoObj = cursosList.find((c: any) => c.nombre === curso)
+      
+      if (!cursoObj) throw new Error('Curso no encontrado')
+
+      const rankingPayload = {
+        curso_id: cursoObj.id, mes, anio: new Date().getFullYear(),
+        limpieza: Number(form.limpieza),
+        ice_puntos: Number(form.quita_convivencia) || 0,
+        actas: Number(form.actas) || 0,
+        asistencia: Number(form.asistencia_pct) || null,
+        uniforme: form.uniforme_pct || null,
+        pct_aprobados: null,
+      }
+
+      const [resStats, resRanking] = await Promise.all([
+        fetch('/api/indicadores-mensuales', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(statsPayload)
         }),
-      })
-      const data = await res.json()
-      if (data.ok) {
+        fetch('/api/indicadores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rankingPayload)
+        })
+      ])
+
+      const dataStats = await resStats.json()
+      const dataRanking = await resRanking.json()
+
+      if (dataStats.ok && dataRanking.ok) {
         setStatus('ok')
         setMsg(`Registro guardado: ${curso} — ${MESES[mes - 1]}`)
         setForm(EMPTY)
       } else {
         setStatus('err')
-        setMsg(data.error || 'Error al guardar.')
+        setMsg(dataStats.error || dataRanking.error || 'Error al guardar.')
       }
-    } catch {
+    } catch (e: any) {
       setStatus('err')
-      setMsg('Error de conexión. Verificá tu conexión e intentá de nuevo.')
+      setMsg(e.message || 'Error de conexión. Verificá tu conexión e intentá de nuevo.')
     } finally {
       setSaving(false)
     }
@@ -158,13 +201,10 @@ export default function PreceptorasPage() {
             <h3 style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.9rem', color: '#166534', margin: '0 0 10px 0', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <AlertCircle size={16} /> GUÍA PARA PRECEPTORAS
             </h3>
-            <ul style={{ margin: 0, paddingLeft: '18px', fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: '#1A4D2E', lineHeight: '1.6' }}>
-              <li style={{ marginBottom: '6px' }}><strong>ICE (Alumnos):</strong> Cantidad de alumnos que tuvieron quita de puntos en este mes. Si no hubo, dejar en <strong>0</strong>.</li>
+              <li style={{ marginBottom: '6px' }}><strong>ACTAS E ICE:</strong> Cantidad de actas labradas y alumnos con quita de puntos en el mes. No afectan el ranking, solo estadística.</li>
               <li style={{ marginBottom: '6px' }}><strong>VIR:</strong> Muestra la cantidad de VIR registrados y cuántos faltan resolver. (Calculado por el sistema, no editable).</li>
-              <li style={{ marginBottom: '6px' }}><strong>% ASISTENCIA / UNIFORME:</strong> Colocar el promedio mensual. Ej: Si vinieron casi todos, poner <strong>95.5</strong>. No poner el signo %.</li>
-              <li style={{ marginBottom: '6px' }}><strong>DERIVADOS CONSEJO:</strong> Cantidad exacta de alumnos del curso derivados al Consejo Escolar en este mes.</li>
-              <li><strong>ACCIONES POSITIVAS:</strong> Puntos extra ganados por buena conducta, ayudar en actos, etc. (Puede sumar de 1 a 10).</li>
-            </ul>
+              <li style={{ marginBottom: '6px' }}><strong>HÁBITOS:</strong> Calificar limpieza de 1 a 5, marcar rango de uniforme y colocar % exacto de asistencia (ej: 95.5). Estas variables <strong>SÍ</strong> afectan el ranking.</li>
+              <li><strong>DERIVADOS CONSEJO:</strong> Cantidad exacta de alumnos derivados al Consejo Escolar en este mes.</li>
           </div>
 
           {/* Selectores */}
@@ -205,49 +245,68 @@ export default function PreceptorasPage() {
               INDICADORES — {MESES[mes - 1].toUpperCase()} · {curso}
             </div>
 
-            {/* Quita de puntos */}
-            <SectionBlock title="QUITA DE PUNTOS" color="#991B1B" bg="#FEF2F2" border="rgba(193,18,31,0.18)">
-              <InputRow>
+            {/* Dimensión Formativa */}
+            <SectionBlock title="DIMENSIÓN FORMATIVA (Afecta Ranking)" color="#166534" bg="#F0FDF4" border="rgba(45,122,79,0.2)">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <FieldLabel label="ICE" hint="(alumnos)" />
-                  <input type="number" min="0" style={inputStyle} value={form.quita_convivencia} onChange={set('quita_convivencia')} placeholder="0" onWheel={(e) => e.currentTarget.blur()} />
+                  <FieldLabel label="CUIDADO DEL ENTORNO" />
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
+                    {[1,2,3,4,5].map(n => (
+                      <button key={n} type="button" onClick={() => setForm(f => ({ ...f, limpieza: String(n) }))}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
+                        <Star size={30} fill={parseInt(form.limpieza) >= n ? '#2D7A4F' : 'none'} style={{ color: parseInt(form.limpieza) >= n ? '#2D7A4F' : '#CBD5E1' }} />
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-body)', color: '#4A6741', fontSize: '0.82rem', fontWeight: 500 }}>{limpiezaLabels[form.limpieza]}</div>
                 </div>
+
                 <div>
-                  <FieldLabel label="VIR" hint="(Sistema)" />
-                  <div style={{ ...inputStyle, display: 'flex', justifyContent: 'space-between', background: '#F9FAFB', color: '#6B7280' }}>
-                    <span>Total: <strong>{virStats.total}</strong></span>
-                    <span>No resueltos: <strong style={{ color: virStats.unresolved > 0 ? '#991B1B' : 'inherit' }}>{virStats.unresolved}</strong></span>
+                  <FieldLabel label="CUMPLIMIENTO DE UNIFORME" />
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {UNIFORME_OPCIONES.map(op => (
+                      <label key={op} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '8px', cursor: 'pointer', background: form.uniforme_pct === op ? '#2D7A4F' : 'white', border: `2px solid ${form.uniforme_pct === op ? '#2D7A4F' : '#BBF7D0'}`, transition: 'all 0.2s' }}>
+                        <input type="radio" name="uniforme" value={op} checked={form.uniforme_pct === op} onChange={set('uniforme_pct')} style={{ accentColor: '#2D7A4F', cursor: 'pointer' }} />
+                        <span style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.85rem', color: form.uniforme_pct === op ? 'white' : '#1A4D2E', fontWeight: 700 }}>{op}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
-              </InputRow>
+
+                <div>
+                  <FieldLabel label="ASISTENCIA (%)" />
+                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.asistencia_pct} onChange={set('asistencia_pct')} placeholder="0–100" />
+                </div>
+              </div>
             </SectionBlock>
 
-            {/* Hábitos institucionales */}
-            <SectionBlock title="HÁBITOS INSTITUCIONALES" color="#166534" bg="#F0FDF4" border="rgba(45,122,79,0.2)">
+            {/* Dimensión Resolutiva */}
+            <SectionBlock title="DIMENSIÓN RESOLUTIVA Actas e ICE (Solo estadístico)" color="#991B1B" bg="#FEF2F2" border="rgba(193,18,31,0.18)">
               <InputRow>
                 <div>
-                  <FieldLabel label="% ASISTENCIA PROM." />
-                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.asistencia_pct} onChange={set('asistencia_pct')} placeholder="0.0" onWheel={(e) => e.currentTarget.blur()} />
+                  <FieldLabel label="CANTIDAD DE ACTAS" />
+                  <input type="number" min="0" style={inputStyle} value={form.actas} onChange={set('actas')} placeholder="0" />
                 </div>
                 <div>
-                  <FieldLabel label="% UNIFORME" />
-                  <input type="number" min="0" max="100" step="0.1" style={inputStyle} value={form.uniforme_pct} onChange={set('uniforme_pct')} placeholder="0.0" onWheel={(e) => e.currentTarget.blur()} />
+                  <FieldLabel label="PUNTOS ICE QUITADOS" />
+                  <input type="number" min="0" style={inputStyle} value={form.quita_convivencia} onChange={set('quita_convivencia')} placeholder="0" />
                 </div>
               </InputRow>
+              <div style={{ marginTop: '16px' }}>
+                <FieldLabel label="VIR" hint="(Sistema)" />
+                <div style={{ ...inputStyle, display: 'flex', justifyContent: 'space-between', background: '#F9FAFB', color: '#6B7280' }}>
+                  <span>Total: <strong>{virStats.total}</strong></span>
+                  <span>No resueltos: <strong style={{ color: virStats.unresolved > 0 ? '#991B1B' : 'inherit' }}>{virStats.unresolved}</strong></span>
+                </div>
+              </div>
             </SectionBlock>
 
             {/* Gestión institucional */}
-            <SectionBlock title="GESTIÓN INSTITUCIONAL" color="#92400E" bg="#FFFBEB" border="rgba(180,83,9,0.18)">
-              <InputRow>
-                <div>
-                  <FieldLabel label="DERIVADOS CONSEJO" hint="(alumnos)" />
-                  <input type="number" min="0" style={inputStyle} value={form.derivados_consejo} onChange={set('derivados_consejo')} placeholder="0" onWheel={(e) => e.currentTarget.blur()} />
-                </div>
-                <div>
-                  <FieldLabel label="ACCIONES POSITIVAS" />
-                  <input type="number" min="0" style={inputStyle} value={form.acciones_positivas} onChange={set('acciones_positivas')} placeholder="0" onWheel={(e) => e.currentTarget.blur()} />
-                </div>
-              </InputRow>
+            <SectionBlock title="GESTIÓN INSTITUCIONAL (Solo estadístico)" color="#92400E" bg="#FFFBEB" border="rgba(180,83,9,0.18)">
+              <div>
+                <FieldLabel label="DERIVADOS CONSEJO" hint="(alumnos)" />
+                <input type="number" min="0" style={inputStyle} value={form.derivados_consejo} onChange={set('derivados_consejo')} placeholder="0" />
+              </div>
             </SectionBlock>
           </div>
 
