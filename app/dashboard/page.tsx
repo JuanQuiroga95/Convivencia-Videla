@@ -183,7 +183,7 @@ export default function DashboardPage() {
                           <span style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.9rem', minWidth: '18px', fontWeight: 600 }}>{i+1}°</span>
                           <span style={{ fontSize: '1.3rem' }}>{i < 3 ? MEDAL_ICON[i] : '  '}</span>
                           <span style={{ fontFamily: 'var(--font-condensed)', color: GD, fontSize: '1.05rem', fontWeight: 700, flex: 1 }}>{r.curso_nombre}</span>
-                          {i === 2 && conDatos.length > 3 && (
+                          {i === 2 && rankTurno.length > 3 && (
                             <span style={{ fontFamily: 'var(--font-body)', color: G, fontSize: '0.78rem', fontWeight: 600 }}>Ver ranking completo</span>
                           )}
                           <span style={{ fontFamily: 'var(--font-display)', color: GD, fontSize: '1.2rem', minWidth: '70px', textAlign: 'right' }}>
