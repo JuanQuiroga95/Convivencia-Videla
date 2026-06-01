@@ -272,8 +272,8 @@ export default function EstadisticasPage() {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
                 gap: '12px', marginBottom: '28px',
               }}>
-                <KpiCard label="QUITA CONVIVENCIA" value={cur.quita_convivencia} prev={prev?.quita_convivencia ?? null} unit=" pts" />
-                <KpiCard label="QUITA VAR"          value={cur.quita_var}          prev={prev?.quita_var          ?? null} unit=" pts" />
+                <KpiCard label="ICE (ALUMNOS)" value={cur.quita_convivencia} prev={prev?.quita_convivencia ?? null} unit="" />
+                <KpiCard label="VIR (NO RESUELTOS)" value={cur.quita_var} prev={prev?.quita_var ?? null} unit="" />
                 <KpiCard label="DERIVADOS CONSEJO"  value={cur.derivados_consejo}  prev={prev?.derivados_consejo  ?? null} />
                 <KpiCard label="% ASISTENCIA"       value={cur.asistencia_pct}     prev={prev?.asistencia_pct     ?? null} unit="%" />
                 <KpiCard label="% UNIFORME"         value={cur.uniforme_pct}       prev={prev?.uniforme_pct       ?? null} unit="%" />
@@ -291,8 +291,8 @@ export default function EstadisticasPage() {
                       <YAxis tick={TICK_STYLE} />
                       <Tooltip contentStyle={TOOLTIP_STYLE} />
                       <Legend wrapperStyle={LEGEND_STYLE} />
-                      <Bar dataKey="quita_convivencia" name="Convivencia" fill="#991B1B" radius={[4,4,0,0]} />
-                      <Bar dataKey="quita_var"          name="VAR"        fill="#E85D04" radius={[4,4,0,0]} />
+                      <Bar dataKey="quita_convivencia" name="ICE (Alumnos)" fill="#991B1B" radius={[4,4,0,0]} />
+                      <Bar dataKey="quita_var"          name="VIR"        fill="#E85D04" radius={[4,4,0,0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartCard>

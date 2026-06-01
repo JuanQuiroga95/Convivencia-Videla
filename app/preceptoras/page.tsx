@@ -288,7 +288,7 @@ export default function PreceptorasPage() {
                   <input type="number" min="0" style={inputStyle} value={form.actas} onChange={set('actas')} placeholder="0" />
                 </div>
                 <div>
-                  <FieldLabel label="PUNTOS ICE QUITADOS" />
+                  <FieldLabel label="ICE (Cantidad de alumnos)" hint="" />
                   <input type="number" min="0" style={inputStyle} value={form.quita_convivencia} onChange={set('quita_convivencia')} placeholder="0" />
                 </div>
               </InputRow>
