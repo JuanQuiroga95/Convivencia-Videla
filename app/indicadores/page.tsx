@@ -30,7 +30,7 @@ export default function IndicadoresPage() {
   // Form mensual
   const [form, setForm] = useState({
     curso_id: '', mes: String(now.getMonth() + 1), anio: String(now.getFullYear()),
-    limpieza: '3', uniforme: '', asistencia: '', ice_puntos: '0',
+    limpieza: '3', uniforme: '', asistencia: '', ice_puntos: '0', actas: '0',
   })
   const [loadingM, setLoadingM] = useState(false)
   const [resultM, setResultM] = useState<{ ok: boolean; message?: string } | null>(null)
@@ -57,7 +57,7 @@ export default function IndicadoresPage() {
         ...form,
         curso_id: parseInt(form.curso_id), mes: parseInt(form.mes), anio: parseInt(form.anio),
         limpieza: parseInt(form.limpieza), ice_puntos: parseInt(form.ice_puntos),
-        actas: 0, // ya no se usa
+        actas: parseInt(form.actas),
         asistencia: form.asistencia ? parseFloat(form.asistencia) : null,
         pct_aprobados: null,
       }
@@ -201,13 +201,22 @@ export default function IndicadoresPage() {
                 </SB>
               </div>
 
-              {/* Resolutiva — solo ICE */}
+              {/* Resolutiva — Actas e ICE (solo estadística) */}
               <div>
-                <SH text="🔴 DIMENSIÓN RESOLUTIVA" sub="Puntos ICE" color={R} />
+                <SH text="🔴 DIMENSIÓN RESOLUTIVA" sub="Actas e ICE (solo estadística)" color={R} />
                 <SB bc="#FCA5A5">
-                  <Lbl text="PUNTOS ICE QUITADOS" color="#7F1D1D" />
-                  <input type="number" min={0} max={100} className="input-videla"
-                    value={form.ice_puntos} onChange={e => setForm(f => ({ ...f, ice_puntos: e.target.value }))} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Lbl text="CANTIDAD DE ACTAS" color="#7F1D1D" />
+                      <input type="number" min={0} className="input-videla"
+                        value={form.actas} onChange={e => setForm(f => ({ ...f, actas: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Lbl text="PUNTOS ICE QUITADOS" color="#7F1D1D" />
+                      <input type="number" min={0} max={100} className="input-videla"
+                        value={form.ice_puntos} onChange={e => setForm(f => ({ ...f, ice_puntos: e.target.value }))} />
+                    </div>
+                  </div>
                 </SB>
               </div>
 
