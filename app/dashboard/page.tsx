@@ -51,12 +51,11 @@ export default function DashboardPage() {
 
   const turnoInfo    = TURNOS.find(t => t.id === turno)!
   const rankTurno    = ranking.filter(r => getTurno(r.curso_nombre) === turno)
-  const conDatos     = rankTurno.filter(r => r.tiene_datos)
-  const top1         = conDatos[0]
-  const promedio     = conDatos.length > 0 ? Math.round(conDatos.reduce((s, r) => s + r.puntaje_total, 0) / conDatos.length) : 0
+  const top1         = rankTurno[0]
+  const promedio     = rankTurno.length > 0 ? Math.round(rankTurno.reduce((s, r) => s + r.puntaje_total, 0) / rankTurno.length) : 0
   const incidencias  = virMes.filter(v => !v.resuelto && getTurno(v.curso_nombre) === turno).length
   const accPositivas = campoList.filter(c => getTurno(c.curso_nombre) === turno).length
-  const pFormativo   = conDatos.length > 0 ? Math.round(conDatos.reduce((s,r) => s + r.puntaje_formativo, 0) / conDatos.length) : 0
+  const pFormativo   = rankTurno.length > 0 ? Math.round(rankTurno.reduce((s,r) => s + r.puntaje_formativo, 0) / rankTurno.length) : 0
   const pAcademico   = 0 // por período, no mensual
 
   return (
@@ -106,7 +105,7 @@ export default function DashboardPage() {
                       <div>
                         <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: 'clamp(0.58rem,2vw,0.78rem)', fontWeight: 600, lineHeight: 1.3 }}>Promedio convivencia:</div>
                         <div style={{ fontFamily: 'var(--font-display)', color: GD, fontSize: 'clamp(1.2rem,5vw,1.8rem)', lineHeight: 1.1 }}>{promedio} <span style={{ fontSize: '1rem', color: '#5A7A5C' }}>pts</span></div>
-                        <div style={{ fontFamily: 'var(--font-body)', color: '#8A9E87', fontSize: '0.72rem', marginTop: '3px' }}>Cursos activos: {conDatos.length}</div>
+                        <div style={{ fontFamily: 'var(--font-body)', color: '#8A9E87', fontSize: '0.72rem', marginTop: '3px' }}>Cursos activos: {rankTurno.length}</div>
                       </div>
                     </div>
                   </div>
@@ -145,7 +144,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Curso destacado */}
-                {top1 && (
+                {top1 && top1.puntaje_total > 40 && (
                   <Link href="/tablero" style={{ textDecoration: 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', background: '#FAFAFA', cursor: 'pointer', transition: 'all 0.2s' }}
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = GOLD}
@@ -160,11 +159,7 @@ export default function DashboardPage() {
                     </div>
                   </Link>
                 )}
-                {conDatos.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '16px', color: '#9CA3AF', fontFamily: 'var(--font-body)', fontSize: '0.85rem' }}>
-                    No hay datos cargados para {MES_LABEL} en el {turnoInfo.label}.
-                  </div>
-                )}
+
               </div>
 
               {/* ── RANKING DEL MES ── */}
@@ -174,13 +169,13 @@ export default function DashboardPage() {
                   <span style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.82rem' }}>{MES_LABEL} {ANIO_ACTUAL}</span>
                 </div>
 
-                {conDatos.length === 0 ? (
+                {rankTurno.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '20px', color: '#9CA3AF', fontFamily: 'var(--font-body)', fontSize: '0.85rem' }}>
-                    Sin datos para este mes.
+                    Sin cursos para este turno.
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {conDatos.slice(0, 5).map((r, i) => (
+                    {rankTurno.slice(0, 5).map((r, i) => (
                       <Link key={r.curso_id} href="/tablero" style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 14px', borderRadius: '10px', border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.15s' }}
                           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F9FAFB'; (e.currentTarget as HTMLElement).style.borderColor = '#E5E7EB' }}

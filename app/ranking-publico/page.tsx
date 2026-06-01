@@ -38,8 +38,7 @@ export default function RankingPublicoPage() {
   useEffect(() => { cargar() }, [mes])
 
   const turnoInfo = TURNOS.find(t => t.id === turno)!
-  const conDatos  = ranking.filter(r => r.tiene_datos && getTurno(r.curso_nombre) === turno)
-  const sinDatos  = ranking.filter(r => !r.tiene_datos && getTurno(r.curso_nombre) === turno)
+  const rankTurno = ranking.filter(r => getTurno(r.curso_nombre) === turno)
 
   return (
     <div style={{ background: '#F4F7F4', minHeight: '100vh' }}>
@@ -96,23 +95,22 @@ export default function RankingPublicoPage() {
           <button onClick={cargar} style={{ background: 'white', border: `1.5px solid ${G}`, borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', color: G, display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: '0.82rem' }}>
             <RefreshCw size={14}/> Actualizar
           </button>
-          {conDatos.length > 0 && (
+          {rankTurno.length > 0 && (
             <span style={{ fontFamily: 'var(--font-condensed)', color: G, fontSize: '0.8rem', fontWeight: 700, background: '#D1FAE5', border: '1.5px solid #6EE7B7', borderRadius: '8px', padding: '5px 12px' }}>
-              {conDatos.length} cursos con datos
+              {rankTurno.length} cursos
             </span>
           )}
         </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#5A7A5C', fontFamily: 'var(--font-condensed)', letterSpacing: '0.1em' }}>CARGANDO...</div>
-        ) : conDatos.length === 0 ? (
+        ) : rankTurno.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#8A9E87', fontFamily: 'var(--font-body)', fontSize: '0.9rem' }}>
-            Aún no hay datos publicados para {MESES[mes]} en el {turnoInfo.label}.<br/>
-            <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>Los resultados se actualizan cuando los docentes cargan los indicadores del mes.</span>
+            No hay cursos para el {turnoInfo.label}.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {conDatos.map((r, i) => (
+            {rankTurno.map((r, i) => (
               <div key={r.curso_id} style={{ background: 'white', border: `2px solid ${i === 0 ? GOLD : 'var(--green-border)'}`, borderRadius: '14px', overflow: 'hidden', boxShadow: i === 0 ? `0 2px 12px rgba(180,83,9,0.15)` : '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <div style={{ height: '4px', background: `linear-gradient(90deg, ${getColor(r.puntaje_total)}, ${O})` }} />
                 <div style={{ padding: '16px 18px' }}>
@@ -148,19 +146,6 @@ export default function RankingPublicoPage() {
                 </div>
               </div>
             ))}
-
-            {sinDatos.length > 0 && (
-              <div style={{ marginTop: '8px' }}>
-                <div style={{ fontFamily: 'var(--font-condensed)', color: '#8A9E87', fontSize: '0.72rem', letterSpacing: '0.1em', marginBottom: '8px' }}>SIN DATOS ESTE MES</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {sinDatos.map(r => (
-                    <span key={r.curso_id} style={{ fontFamily: 'var(--font-condensed)', background: 'white', border: '1.5px solid var(--green-border)', color: '#8A9E87', borderRadius: '6px', padding: '4px 10px', fontSize: '0.82rem' }}>
-                      {r.curso_nombre}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
 

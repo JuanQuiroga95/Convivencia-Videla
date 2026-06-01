@@ -135,20 +135,19 @@ export default function ReglasPage() {
                 <span>INDICADOR</span><span>DIM.</span><span>PTS</span>
               </div>
               {[
-                { indicador: '0 VIRs activados (Premio a la Paz)', pts: '+20', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'VIRs activados y resueltos (100%)',  pts: '+15', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'Sin actas disciplinarias',          pts: '+12', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'Puntos ICE = 0',                    pts: '+8',  dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
-                { indicador: 'Limpieza 5/5',                      pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
-                { indicador: 'Uniforme >95%',                     pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
-                { indicador: 'Asistencia ≥95%',                   pts: '+10', dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
+                { indicador: 'Base Convivencia (todos arrancan)',   pts: '40',    dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'VIR activado y resuelto',            pts: '−2 c/u', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'VIR no resuelto (escalado)',         pts: '−5 c/u', dim: 'Convivencia',  color: '#991B1B', bg: '#FEE2E2' },
+                { indicador: 'Limpieza 5/5',                      pts: '+14',   dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
+                { indicador: 'Uniforme >95%',                     pts: '+14',   dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
+                { indicador: 'Asistencia ≥95%',                   pts: '+12',   dim: 'Hábitos',      color: '#064E3B', bg: '#D1FAE5' },
                 { indicador: 'Acción de campo (valor docente)',    pts: '+1 a +10', dim: 'Aportes', color: '#78350F', bg: '#FEF3C7' },
                 { indicador: 'Materias aprobadas ≥90% (período)', pts: '+20', dim: 'Desempeño Ac.',color: '#78350F', bg: '#FEF3C7' },
               ].map((r, i) => (
                 <div key={i} style={{ padding: '10px 16px', display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '16px', alignItems: 'center', background: i % 2 === 0 ? 'white' : '#F4F7F4', borderTop: '1px solid rgba(45,122,79,0.1)' }}>
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: '#0F2010', fontWeight: 500 }}>{r.indicador}</span>
                   <span style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.72rem', background: r.bg, color: r.color, padding: '3px 8px', borderRadius: '20px', fontWeight: 700, whiteSpace: 'nowrap' as const }}>{r.dim}</span>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: G, textAlign: 'right' as const }}>{r.pts}</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: r.pts.startsWith('−') ? R : G, textAlign: 'right' as const }}>{r.pts}</span>
                 </div>
               ))}
             </div>

@@ -35,58 +35,47 @@ export interface PuntajeDetalle {
 
 // ── CÁLCULO MENSUAL (convivencia + hábitos + aportes, sin académico) ──────────
 export function calcularPuntajeMensual(ind: IndicadorCurso): PuntajeDetalle {
-  const tiene_datos = ind.tiene_var || ind.tiene_indicadores || ind.campo_bonus > 0
+  // Todos los cursos arrancan con 40 pts de convivencia → siempre tienen datos
+  const tiene_datos = true
 
-  if (!tiene_datos) {
-    return {
-      curso_id: ind.curso_id, curso_nombre: ind.curso_nombre,
-      mes: ind.mes, anio: ind.anio,
-      puntaje_resolutivo: 0, puntaje_formativo: 0,
-      puntaje_campo: 0, puntaje_academico: 0,
-      puntaje_total: 0, pct_var_resueltos: 0, tiene_datos: false,
-    }
-  }
-
-  // ---- CONVIVENCIA (40 pts) ----
-  let resolutivo = 0
+  // ---- CONVIVENCIA (40 pts BASE, VIRs restan) ----
+  // Todos arrancan con 40. Cada VIR resta: -2 si resuelto, -5 si no resuelto.
+  // Actas e ICE NO influyen en este sistema, van por afuera.
+  let resolutivo = 40
   let pct_var = 0
-  if (ind.tiene_var) {
-    if (ind.var_total === 0) {
-      resolutivo += 20 // Premio a la Paz
-      pct_var = 0 
-    } else {
-      pct_var = Math.round((ind.var_resueltos / ind.var_total) * 100)
-      resolutivo += Math.round((pct_var / 100) * 15) // Resolución exitosa da hasta 15
-    }
-  }
-  if (ind.tiene_indicadores) {
-    if (ind.actas === 0) resolutivo += 12
-    else if (ind.actas === 1) resolutivo += 8
-    else if (ind.actas === 2) resolutivo += 4
-    if (ind.ice_puntos === 0) resolutivo += 8
-    else if (ind.ice_puntos <= 5) resolutivo += 5
-    else if (ind.ice_puntos <= 10) resolutivo += 2
+  if (ind.tiene_var && ind.var_total > 0) {
+    const noResueltos = ind.var_total - ind.var_resueltos
+    pct_var = Math.round((ind.var_resueltos / ind.var_total) * 100)
+
+    // -2 pts por cada VIR resuelto
+    resolutivo -= ind.var_resueltos * 2
+
+    // -5 pts por cada VIR no resuelto (escalado)
+    resolutivo -= noResueltos * 5
+
+    resolutivo = Math.max(resolutivo, 0) // no puede ser negativo
   }
 
-  // ---- HÁBITOS INSTITUCIONALES (40 pts) ----
+  // ---- HÁBITOS INSTITUCIONALES (40 pts, cargados por preceptoras a fin de mes) ----
+  // Limpieza hasta 14 + Uniforme hasta 14 + Asistencia hasta 12 = 40
   let formativo = 0
   if (ind.tiene_indicadores) {
-    if (ind.limpieza !== null) formativo += Math.round(((ind.limpieza - 1) / 4) * 10)
-    if (ind.uniforme === '>95%') formativo += 10
-    else if (ind.uniforme === '85-95%') formativo += 6
-    else if (ind.uniforme === '<85%') formativo += 2
+    if (ind.limpieza !== null) formativo += Math.round(((ind.limpieza - 1) / 4) * 14)
+    if (ind.uniforme === '>95%') formativo += 14
+    else if (ind.uniforme === '85-95%') formativo += 8
+    else if (ind.uniforme === '<85%') formativo += 3
     if (ind.asistencia !== null) {
-      if (ind.asistencia >= 95) formativo += 10
-      else if (ind.asistencia >= 85) formativo += 7
-      else if (ind.asistencia >= 75) formativo += 4
-      else formativo += 1
+      if (ind.asistencia >= 95) formativo += 12
+      else if (ind.asistencia >= 85) formativo += 8
+      else if (ind.asistencia >= 75) formativo += 5
+      else formativo += 2
     }
   }
 
   // ---- APORTES A LA CONVIVENCIA (máx 20 pts por mes) ----
   const campo = Math.min(ind.campo_bonus, 20)
 
-  // Total: 80 pts base + hasta 20 aportes = hasta 100
+  // Total: convivencia (40 base - deducciones) + hábitos (hasta 40) + aportes (hasta 20) = hasta 100
   const total = Math.min(resolutivo + formativo + campo, 100)
 
   return {

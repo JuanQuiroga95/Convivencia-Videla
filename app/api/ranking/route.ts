@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
   if (!sql) {
     const ranking = CURSOS_DEFAULT.map(c => ({
       curso_id: c.id, curso_nombre: c.nombre, mes, anio,
-      puntaje_total: 0, puntaje_resolutivo: 0, puntaje_formativo: 0,
+      puntaje_total: 40, puntaje_resolutivo: 40, puntaje_formativo: 0,
       puntaje_campo: 0, puntaje_academico: 0, pct_var_resueltos: 0,
-      campo_bonus: 0, tiene_datos: false
+      campo_bonus: 0, tiene_datos: true
     }))
     return NextResponse.json({ ranking, mes, anio })
   }
@@ -111,12 +111,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    ranking.sort((a: any, b: any) => {
-      if (!a.tiene_datos && !b.tiene_datos) return 0
-      if (!a.tiene_datos) return 1
-      if (!b.tiene_datos) return -1
-      return b.puntaje_total - a.puntaje_total
-    })
+    ranking.sort((a: any, b: any) => b.puntaje_total - a.puntaje_total)
 
     return NextResponse.json({ ranking, mes, anio, modo: 'mensual' })
   } catch (e: any) {

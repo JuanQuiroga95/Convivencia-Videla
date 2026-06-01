@@ -67,12 +67,9 @@ export default function TableroPage() {
 
   const mensualTurno   = filterTurno(rankingMensual)
   const academTurno    = filterTurno(rankingAcad)
-  const conDatos       = mensualTurno.filter(r => r.tiene_datos)
-  const sinDatos       = mensualTurno.filter(r => !r.tiene_datos)
-  const conDatosAc     = academTurno.filter(r => r.tiene_datos)
-  const sinDatosAc     = academTurno.filter(r => !r.tiene_datos)
 
-  const chartData = conDatos.map(r => ({
+
+  const chartData = mensualTurno.map(r => ({
     name: r.curso_nombre, Convivencia: r.puntaje_resolutivo, Hábitos: r.puntaje_formativo, Aportes: r.puntaje_campo || 0
   }))
 
@@ -206,7 +203,7 @@ export default function TableroPage() {
               <span style={{ fontSize: '1.4rem' }}>{TURNOS.find(t => t.id === turno)?.emoji}</span>
               <div>
                 <div style={{ fontFamily: 'var(--font-condensed)', color: 'var(--green-dark)', fontWeight: 700, fontSize: '0.95rem' }}>{TURNOS.find(t => t.id === turno)?.label}</div>
-                <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: '0.75rem' }}>{TURNOS.find(t => t.id === turno)?.sub} · {conDatos.length} curso{conDatos.length !== 1 ? 's' : ''} con datos</div>
+                <div style={{ fontFamily: 'var(--font-body)', color: '#5A7A5C', fontSize: '0.75rem' }}>{TURNOS.find(t => t.id === turno)?.sub} · {mensualTurno.length} curso{mensualTurno.length !== 1 ? 's' : ''}</div>
               </div>
             </div>
 
@@ -214,22 +211,10 @@ export default function TableroPage() {
 
             {!loadingM && tabVista === 'ranking' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} className="stagger">
-                {conDatos.map((r, i) => <RankingCard key={r.curso_id} r={r} i={i} />)}
-                {conDatos.length === 0 && (
+                {mensualTurno.map((r, i) => <RankingCard key={r.curso_id} r={r} i={i} />)}
+                {mensualTurno.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#8A9E87', fontFamily: 'var(--font-body)' }}>
-                    No hay datos para {MESES[mes]} en el {TURNOS.find(t => t.id === turno)?.label}.
-                  </div>
-                )}
-                {sinDatos.length > 0 && (
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#8A9E87', fontSize: '0.72rem', letterSpacing: '0.1em', marginBottom: '8px' }}>SIN DATOS EN {MESES[mes].toUpperCase()}</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {sinDatos.map(r => (
-                        <span key={r.curso_id} style={{ fontFamily: 'var(--font-condensed)', background: 'white', border: '1.5px solid var(--green-border)', color: '#8A9E87', borderRadius: '6px', padding: '4px 10px', fontSize: '0.82rem' }}>
-                          {r.curso_nombre}
-                        </span>
-                      ))}
-                    </div>
+                    No hay cursos para el {TURNOS.find(t => t.id === turno)?.label}.
                   </div>
                 )}
               </div>
@@ -296,7 +281,7 @@ export default function TableroPage() {
 
             {!loadingA && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} className="stagger">
-                {conDatosAc.map((r, i) => (
+                {academTurno.map((r, i) => (
                   <div key={r.curso_id} style={{ background: 'white', border: `2px solid ${i === 0 ? GOLD : '#FCD34D'}`, borderRadius: '14px', overflow: 'hidden' }} className="card-hover">
                     <div style={{ height: '4px', background: `linear-gradient(90deg, #78350F, ${O})` }} />
                     <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -316,21 +301,12 @@ export default function TableroPage() {
                     </div>
                   </div>
                 ))}
-                {conDatosAc.length === 0 && (
+                {academTurno.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#8A9E87', fontFamily: 'var(--font-body)' }}>
                     No hay datos de Desempeño Académico para el {getPeriodoLabel(periodo)} en el {TURNOS.find(t => t.id === turno)?.label}.
                   </div>
                 )}
-                {sinDatosAc.length > 0 && (
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#8A9E87', fontSize: '0.72rem', letterSpacing: '0.1em', marginBottom: '8px' }}>SIN DATOS DE DESEMPEÑO ACADÉMICO</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {sinDatosAc.map(r => (
-                        <span key={r.curso_id} style={{ background: 'white', border: '1.5px solid #FCD34D', color: '#8A9E87', borderRadius: '6px', padding: '4px 10px', fontSize: '0.82rem', fontFamily: 'var(--font-condensed)' }}>{r.curso_nombre}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
               </div>
             )}
           </div>
