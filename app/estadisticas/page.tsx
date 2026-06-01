@@ -113,18 +113,30 @@ export default function EstadisticasPage() {
   useEffect(() => {
     if (meses.length === 0) { setData([]); return }
     setLoading(true)
-    Promise.all(
-      meses.map(m =>
+    Promise.all([
+      fetch('/api/campo').then(r => r.json()),
+      ...meses.map(m =>
         fetch(`/api/indicadores-mensuales?mes=${m}&anio=${YEAR}${curso !== 'todos' ? `&curso=${encodeURIComponent(curso)}` : ''}`)
           .then(r => r.json())
       )
-    ).then((results: any[][]) => {
+    ]).then((results: any[]) => {
+      const campoData = Array.isArray(results[0]) ? results[0] : []
+      const mensResults = results.slice(1)
+
       const aggregated: MonthData[] = meses.map((mes, i) => {
-        const rows = results[i]
+        const rows = mensResults[i]
+        
+        // Calcular acciones positivas reales desde la API de campo
+        const accPositivas = campoData.filter((c: any) => 
+          c.mes === mes && 
+          c.anio === YEAR && 
+          (curso === 'todos' || c.curso_nombre === curso)
+        ).length
+
         if (!rows.length) return {
           mes, nombre: MESES[mes - 1], corto: MESES_CORTO[mes - 1],
           quita_convivencia: 0, quita_var: 0, derivados_consejo: 0,
-          asistencia_pct: 0, uniforme_pct: 0, acciones_positivas: 0,
+          asistencia_pct: 0, uniforme_pct: 0, acciones_positivas: accPositivas,
         }
         const sum = (k: string) => rows.reduce((s: number, r: any) => s + (r[k] || 0), 0)
         const avg = (k: string) => parseFloat((sum(k) / rows.length).toFixed(1))
@@ -135,7 +147,7 @@ export default function EstadisticasPage() {
           derivados_consejo:  sum('derivados_consejo'),
           asistencia_pct:     avg('asistencia_pct'),
           uniforme_pct:       avg('uniforme_pct'),
-          acciones_positivas: sum('acciones_positivas'),
+          acciones_positivas: accPositivas,
         }
       })
       setData(aggregated)
