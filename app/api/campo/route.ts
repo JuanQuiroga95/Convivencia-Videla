@@ -45,14 +45,30 @@ export async function GET(request: NextRequest) {
     const curso_id = searchParams.get('curso_id')
 
     let result
-    if (mes) {
+    if (mes && curso_id) {
+      result = await sql`
+        SELECT cp.*, c.nombre as curso_nombre
+        FROM campo_positivo cp
+        JOIN cursos c ON c.id = cp.curso_id
+        WHERE cp.mes = ${mes} AND cp.anio = ${anio} AND cp.curso_id = ${curso_id}
+        ORDER BY cp.created_at DESC
+      `
+    } else if (mes) {
       result = await sql`
         SELECT cp.*, c.nombre as curso_nombre
         FROM campo_positivo cp
         JOIN cursos c ON c.id = cp.curso_id
         WHERE cp.mes = ${mes} AND cp.anio = ${anio}
-        ${curso_id ? sql`AND cp.curso_id = ${curso_id}` : sql``}
         ORDER BY cp.created_at DESC
+      `
+    } else if (curso_id) {
+      result = await sql`
+        SELECT cp.*, c.nombre as curso_nombre
+        FROM campo_positivo cp
+        JOIN cursos c ON c.id = cp.curso_id
+        WHERE cp.anio = ${anio} AND cp.curso_id = ${curso_id}
+        ORDER BY cp.created_at DESC
+        LIMIT 100
       `
     } else {
       result = await sql`
@@ -60,7 +76,6 @@ export async function GET(request: NextRequest) {
         FROM campo_positivo cp
         JOIN cursos c ON c.id = cp.curso_id
         WHERE cp.anio = ${anio}
-        ${curso_id ? sql`AND cp.curso_id = ${curso_id}` : sql``}
         ORDER BY cp.created_at DESC
         LIMIT 100
       `
