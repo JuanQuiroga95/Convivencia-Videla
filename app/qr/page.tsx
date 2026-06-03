@@ -45,17 +45,6 @@ const QR_ITEMS = [
     qrBg: '0A1628',
   },
   {
-    key: 'indicadores',
-    label: 'INDICADORES',
-    desc: 'Cargar indicadores del mes',
-    path: '/indicadores',
-    color: '#2D7A4F',
-    colorLight: 'rgba(45,122,79,0.15)',
-    border: 'rgba(45,122,79,0.4)',
-    qrColor: '2D7A4F',
-    qrBg: '0A1628',
-  },
-  {
     key: 'campo',
     label: 'ACCIONES POSITIVAS',
     desc: 'Registrar una acción destacada',
@@ -126,7 +115,7 @@ export default function QRPage() {
                   CÓDIGOS QR
                 </h1>
                 <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.82rem' }}>
-                  5 QR institucionales · Al escanear, el formulario permite elegir el curso
+                  4 QR institucionales · Al escanear, el formulario permite elegir el curso
                 </p>
               </div>
             </div>
@@ -204,7 +193,7 @@ export default function QRPage() {
               <div className="glass rounded-xl p-5" style={{ marginBottom: '20px' }}>
                 <QrCode size={40} style={{ color: '#374151', marginBottom: '12px' }} />
                 <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', marginBottom: '6px', fontSize: '0.95rem' }}>
-                  5 CÓDIGOS QR INSTITUCIONALES
+                  4 CÓDIGOS QR INSTITUCIONALES
                 </div>
                 <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.84rem', lineHeight: 1.6, marginBottom: '16px' }}>
                   Un QR por función. Al escanearlo el docente elige el curso en el formulario — no hace falta un QR por aula.
@@ -230,7 +219,7 @@ export default function QRPage() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {[
-                  { paso: '1', titulo: 'Generá los QR', desc: 'Presioná el botón para generar los 5 códigos QR institucionales.' },
+                  { paso: '1', titulo: 'Generá los QR', desc: 'Presioná el botón para generar los 4 códigos QR institucionales.' },
                   { paso: '2', titulo: 'Imprimí y pegálos', desc: 'Colocálos en sala de profesores, dirección o en cada aula.' },
                   { paso: '3', titulo: 'Escanear y elegir curso', desc: 'El formulario pregunta el curso — sin necesidad de un QR por aula.' },
                 ].map(({ paso, titulo, desc }) => (
