@@ -81,7 +81,7 @@ export default function HistorialPage() {
     try {
       const res = await fetch(`/api/var/${id}`, { method: 'DELETE' })
       if (res.ok) {
-        setRegistros(prev => prev.filter(r => r.id !== id))
+        cargar(page)
       } else {
         alert('Error al borrar el registro')
       }
