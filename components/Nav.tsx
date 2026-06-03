@@ -12,7 +12,7 @@ const navItems = [
   { href: '/var',         label: 'Activar VIR',         icon: Shield,          rol: ['admin', 'operativo'], accent: true },
   { href: '/campo',       label: 'Acciones positivas',  icon: Trophy,          rol: ['admin', 'operativo'], gold: true },
   { href: '/historial',   label: 'Historial VIR',       icon: History,         rol: ['admin', 'operativo'] },
-  { href: '/indicadores',  label: 'Indicadores',        icon: ClipboardList,   rol: ['admin', 'operativo'] },
+  { href: '/indicadores',  label: 'Indicadores',        icon: ClipboardList,   rol: ['admin', 'operativo', 'preceptora'] },
   { href: '/preceptoras',  label: 'Carga Mensual',      icon: ClipboardCheck,  rol: ['admin', 'preceptora'] },
   { href: '/estadisticas', label: 'Estadísticas',       icon: TrendingUp,      rol: ['admin'] },
   { href: '/reglas',       label: 'Criterios',          icon: BookOpen,        rol: ['admin', 'operativo'] },

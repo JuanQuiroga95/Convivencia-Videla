@@ -14,16 +14,6 @@ const ITEMS = [
     requiresLogin: true,
   },
   {
-    href: '/indicadores',
-    icon: ClipboardList,
-    label: 'INDICADORES',
-    desc: 'Carga periódica de asistencia, uniforme, hábitos y datos del curso.',
-    color: '#2D7A4F',
-    colorLight: 'rgba(45,122,79,0.15)',
-    border: 'rgba(45,122,79,0.4)',
-    requiresLogin: true,
-  },
-  {
     href: '/campo',
     icon: Trophy,
     label: 'ACCIONES POSITIVAS',
