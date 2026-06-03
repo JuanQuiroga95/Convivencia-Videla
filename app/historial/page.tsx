@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import Nav from '@/components/Nav'
-import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle } from 'lucide-react'
+import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle, Trash2 } from 'lucide-react'
 import { CATEGORIAS_VIR, INTERVINIENTES, MESES } from '@/lib/scoring'
 
 interface VIRRecord {
@@ -75,6 +75,20 @@ export default function HistorialPage() {
   }
 
   const aplicar = () => { setShowFiltros(false); cargar(1) }
+
+  const borrarRegistro = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que quieres borrar este registro?')) return
+    try {
+      const res = await fetch(`/api/var/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setRegistros(prev => prev.filter(r => r.id !== id))
+      } else {
+        alert('Error al borrar el registro')
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   const registrosFiltrados = filtros.busqueda
     ? registros.filter(r =>
@@ -261,19 +275,24 @@ export default function HistorialPage() {
                           {cat?.label || r.categoria_id || '—'}
                         </div>
                       </div>
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        background: r.resuelto ? 'rgba(45,122,79,0.1)' : 'rgba(193,18,31,0.08)',
-                        color: r.resuelto ? G : '#C1121F',
-                        border: `1px solid ${r.resuelto ? 'rgba(45,122,79,0.3)' : 'rgba(193,18,31,0.25)'}`,
-                        borderRadius: '20px', padding: '3px 10px',
-                        fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', fontWeight: 700,
-                        whiteSpace: 'nowrap' as const,
-                      }}>
-                        {r.resuelto
-                          ? <><CheckCircle size={12} /> Resuelto</>
-                          : <><XCircle size={12} /> No</>
-                        }
+                      <div className="flex items-center gap-2">
+                        <div style={{
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                          background: r.resuelto ? 'rgba(45,122,79,0.1)' : 'rgba(193,18,31,0.08)',
+                          color: r.resuelto ? G : '#C1121F',
+                          border: `1px solid ${r.resuelto ? 'rgba(45,122,79,0.3)' : 'rgba(193,18,31,0.25)'}`,
+                          borderRadius: '20px', padding: '3px 10px',
+                          fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', fontWeight: 700,
+                          whiteSpace: 'nowrap' as const,
+                        }}>
+                          {r.resuelto
+                            ? <><CheckCircle size={12} /> Resuelto</>
+                            : <><XCircle size={12} /> No</>
+                          }
+                        </div>
+                        <button onClick={() => borrarRegistro(r.id)} style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }} className="hover:text-red-500 transition-colors" title="Borrar registro">
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
 
@@ -302,7 +321,7 @@ export default function HistorialPage() {
           </div>
 
           {/* Pagination */}
-          {registrosFiltrados.length >= LIMIT && (
+          {(page > 1 || registrosFiltrados.length >= LIMIT) && (
             <div className="flex gap-3 justify-center mt-6">
               <button onClick={() => cargar(page - 1)} disabled={page <= 1} className="btn-outline" style={{ padding: '8px 16px' }}>
                 <ChevronLeft size={16} />
