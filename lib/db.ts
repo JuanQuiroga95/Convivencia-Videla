@@ -88,6 +88,13 @@ export async function setupDatabase() {
     created_at TIMESTAMP DEFAULT NOW()
   )`
 
+  await sql`CREATE TABLE IF NOT EXISTS configuracion (
+    clave VARCHAR(50) PRIMARY KEY,
+    valor TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW()
+  )`
+  await sql`INSERT INTO configuracion (clave, valor) VALUES ('pin_vir', '1240') ON CONFLICT (clave) DO NOTHING`
+
   return { ok: true }
 }
 

@@ -23,15 +23,20 @@ export default function AdminPage() {
   const [editUser, setEditUser] = useState<Usuario | null>(null)
   const [nuevoUser, setNuevoUser] = useState({ nombre: '', usuario: '', password: '', rol: 'operativo' })
   const [userMsg, setUserMsg] = useState<{ ok: boolean; msg: string } | null>(null)
+  const [pinVir, setPinVir] = useState('')
+  const [pinLoading, setPinLoading] = useState(false)
+  const [pinMsg, setPinMsg] = useState<{ok: boolean, msg: string} | null>(null)
 
   const loadUsuarios = () => fetch('/api/usuarios').then(r => r.json()).then(setUsuarios)
   const loadVar = () => fetch(`/api/var?mes=${mes}&anio=${new Date().getFullYear()}`).then(r => r.json()).then(d => setVarList(Array.isArray(d) ? d : []))
   const loadInd = () => fetch(`/api/indicadores?mes=${mes}&anio=${new Date().getFullYear()}`).then(r => r.json()).then(d => setIndList(Array.isArray(d) ? d : []))
+  const loadPin = () => fetch('/api/config?clave=pin_vir').then(r => r.json()).then(d => { if(d.ok) setPinVir(d.valor || '') })
 
   useEffect(() => {
     if (tab === 'usuarios') loadUsuarios()
     if (tab === 'var') loadVar()
     if (tab === 'indicadores') loadInd()
+    if (tab === 'setup') loadPin()
   }, [tab, mes])
 
   const handleSetup = async () => {
@@ -39,6 +44,19 @@ export default function AdminPage() {
     const res = await fetch('/api/setup')
     setSetupStatus(await res.json())
     setSetupLoading(false)
+  }
+
+  const handleGuardarPin = async () => {
+    setPinLoading(true)
+    const res = await fetch('/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clave: 'pin_vir', valor: pinVir })
+    })
+    const data = await res.json()
+    setPinMsg({ ok: data.ok, msg: data.ok ? 'PIN actualizado correctamente' : data.error })
+    setPinLoading(false)
+    setTimeout(() => setPinMsg(null), 3000)
   }
 
   const handleDemo = async () => {
@@ -256,6 +274,35 @@ export default function AdminPage() {
           {/* SETUP TAB */}
           {tab === 'setup' && (
             <div className="space-y-4">
+
+              {/* ── Configuración del PIN ── */}
+              <div className="glass rounded-xl p-5" style={{ border: '1px solid rgba(232,93,4,0.3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '1.2rem' }}>🔒</span>
+                  <div style={{ fontFamily: 'var(--font-condensed)', color: '#E85D04', letterSpacing: '0.05em', fontSize: '1rem' }}>PIN DE SEGURIDAD VIR</div>
+                </div>
+                <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.88rem', marginBottom: '10px', lineHeight: 1.6 }}>
+                  Este PIN será requerido al final del formulario cada vez que se intente registrar un VIR.
+                </p>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={pinVir}
+                    onChange={(e) => setPinVir(e.target.value)}
+                    className="input-videla"
+                    placeholder="Ej: 1240"
+                    style={{ maxWidth: '150px', letterSpacing: '0.1em', fontFamily: 'monospace' }}
+                  />
+                  <button onClick={handleGuardarPin} disabled={pinLoading} className="btn-gold" style={{ padding: '10px 20px', whiteSpace: 'nowrap' }}>
+                    {pinLoading ? 'Guardando...' : 'Guardar PIN'}
+                  </button>
+                </div>
+                {pinMsg && (
+                  <div className="mt-3" style={{ fontFamily: 'var(--font-condensed)', color: pinMsg.ok ? '#6EE7B7' : '#FCA5A5', fontSize: '0.85rem' }}>
+                    {pinMsg.msg}
+                  </div>
+                )}
+              </div>
 
               {/* ── Inicializar DB ── */}
               <div className="glass rounded-xl p-5">

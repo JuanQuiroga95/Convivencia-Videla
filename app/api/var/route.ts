@@ -9,9 +9,19 @@ export async function POST(request: NextRequest) {
   if (!sql) return NextResponse.json({ ok: false, error: 'Base de datos no configurada.' }, { status: 503 })
   try {
     const body = await request.json()
-    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion } = body
+    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, pin } = body
     if (!nombre_activador || nombre_activador.trim().length < 3) {
       return NextResponse.json({ ok: false, error: 'El nombre del activador es obligatorio.' }, { status: 400 })
+    }
+    if (!pin) {
+      return NextResponse.json({ ok: false, error: 'El PIN de autorización es obligatorio.' }, { status: 400 })
+    }
+
+    // Verificar PIN
+    const pinRes = await sql`SELECT valor FROM configuracion WHERE clave = 'pin_vir'`
+    const pinCorrecto = pinRes.rows.length > 0 ? pinRes.rows[0].valor : '1240'
+    if (pin !== pinCorrecto) {
+      return NextResponse.json({ ok: false, error: 'PIN de autorización incorrecto.' }, { status: 401 })
     }
     const now = new Date()
     await sql`INSERT INTO var_registros

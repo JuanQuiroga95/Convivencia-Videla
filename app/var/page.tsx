@@ -16,6 +16,7 @@ export default function VIRPage() {
     nombre_activador: '',
     estudiantes_involucrados: '',
     desc_mediacion: '',
+    pin: '',
   })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ok: boolean, message?: string} | null>(null)
@@ -43,7 +44,7 @@ export default function VIRPage() {
       const data = await res.json()
       setResult(data)
       if (data.ok) {
-        setForm({ curso_id: '', categoria_id: '', tipo_situacion: '', resuelto: '', tipo_reparacion: '', intervino: '', nombre_activador: '', estudiantes_involucrados: '', desc_mediacion: '' })
+        setForm({ curso_id: '', categoria_id: '', tipo_situacion: '', resuelto: '', tipo_reparacion: '', intervino: '', nombre_activador: '', estudiantes_involucrados: '', desc_mediacion: '', pin: '' })
         setStep(1)
       }
     } catch {
@@ -62,7 +63,7 @@ export default function VIRPage() {
     form.resuelto === 'si' ? (reparacionesDispo.length === 0 || !!form.tipo_reparacion) :
     form.resuelto === 'no' ? (form.estudiantes_involucrados.trim().length > 0 && form.desc_mediacion.trim().length > 0) : false
   )
-  const canSubmit = form.intervino && form.nombre_activador.trim().length >= 3
+  const canSubmit = form.intervino && form.nombre_activador.trim().length >= 3 && form.pin.length >= 4
 
   const G = '#2D7A4F'   // green
   const O = '#E85D04'   // orange
@@ -361,6 +362,23 @@ export default function VIRPage() {
                         Ingresá nombre y apellido completo
                       </p>
                     )}
+                  </div>
+
+                  {/* PIN obligatorio */}
+                  <div className="col-span-1 sm:col-span-2">
+                    <label style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.78rem', letterSpacing: '0.08em', display: 'block', marginBottom: '6px', marginTop: '12px' }}>
+                      <Shield size={13} style={{ display: 'inline', marginRight: '4px', marginBottom: '-2px' }} />
+                      PIN DE AUTORIZACIÓN *
+                    </label>
+                    <input
+                      type="password"
+                      className="input-videla"
+                      placeholder="****"
+                      value={form.pin}
+                      onChange={e => setForm(f => ({ ...f, pin: e.target.value }))}
+                      style={{ borderColor: form.pin.length > 0 && form.pin.length < 4 ? '#C1121F' : undefined, letterSpacing: '0.2em', fontFamily: 'monospace' }}
+                      maxLength={10}
+                    />
                   </div>
                 </div>
               </div>
