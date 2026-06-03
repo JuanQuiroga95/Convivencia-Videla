@@ -9,13 +9,13 @@ export async function POST(request: NextRequest) {
   if (!sql) return NextResponse.json({ ok: false, error: 'Base de datos no configurada.' }, { status: 503 })
   try {
     const body = await request.json()
-    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador } = body
+    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion } = body
     if (!nombre_activador || nombre_activador.trim().length < 3) {
       return NextResponse.json({ ok: false, error: 'El nombre del activador es obligatorio.' }, { status: 400 })
     }
     const now = new Date()
     await sql`INSERT INTO var_registros
-      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, mes, anio)
+      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, mes, anio)
       VALUES (
         ${curso_id},
         ${categoria_id || null},
@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
         ${tipo_reparacion || null},
         ${intervino},
         ${nombre_activador.trim()},
+        ${estudiantes_involucrados || null},
+        ${desc_mediacion || null},
         ${now.getMonth() + 1},
         ${now.getFullYear()}
       )`

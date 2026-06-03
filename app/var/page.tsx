@@ -14,6 +14,8 @@ export default function VIRPage() {
     tipo_reparacion: '',
     intervino: '',
     nombre_activador: '',
+    estudiantes_involucrados: '',
+    desc_mediacion: '',
   })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ok: boolean, message?: string} | null>(null)
@@ -41,7 +43,7 @@ export default function VIRPage() {
       const data = await res.json()
       setResult(data)
       if (data.ok) {
-        setForm({ curso_id: '', categoria_id: '', tipo_situacion: '', resuelto: '', tipo_reparacion: '', intervino: '', nombre_activador: '' })
+        setForm({ curso_id: '', categoria_id: '', tipo_situacion: '', resuelto: '', tipo_reparacion: '', intervino: '', nombre_activador: '', estudiantes_involucrados: '', desc_mediacion: '' })
         setStep(1)
       }
     } catch {
@@ -56,9 +58,11 @@ export default function VIRPage() {
   const reparacionesDispo = form.categoria_id ? (TIPOS_REPARACION_POR_CATEGORIA[form.categoria_id] || []) : []
 
   const canNextStep1 = form.curso_id && form.categoria_id && form.tipo_situacion
-  const canNextStep2 = esPositivo ? true : form.resuelto
-  const canSubmit = form.intervino && form.nombre_activador.trim().length >= 3 &&
-    (esPositivo || form.resuelto === 'no' || form.tipo_reparacion)
+  const canNextStep2 = esPositivo ? true : (
+    form.resuelto === 'si' ? (reparacionesDispo.length === 0 || !!form.tipo_reparacion) :
+    form.resuelto === 'no' ? (form.estudiantes_involucrados.trim().length > 0 && form.desc_mediacion.trim().length > 0) : false
+  )
+  const canSubmit = form.intervino && form.nombre_activador.trim().length >= 3
 
   const G = '#2D7A4F'   // green
   const O = '#E85D04'   // orange
@@ -278,6 +282,36 @@ export default function VIRPage() {
                 </div>
               )}
 
+              {form.resuelto === 'no' && (
+                <div className="slide-in space-y-4">
+                  <div>
+                    {sectionHeader('ESTUDIANTES INVOLUCRADOS', '#C1121F')}
+                    <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                      <input
+                        type="text"
+                        className="input-videla"
+                        placeholder="Apellido y Nombre del o de los /as estudiantes"
+                        value={form.estudiantes_involucrados}
+                        onChange={e => setForm(f => ({ ...f, estudiantes_involucrados: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    {sectionHeader('BREVE DESCRIPCIÓN DE LA MEDIACIÓN', '#C1121F')}
+                    <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                      <textarea
+                        className="input-videla"
+                        placeholder="Escribí acá la descripción..."
+                        value={form.desc_mediacion}
+                        onChange={e => setForm(f => ({ ...f, desc_mediacion: e.target.value }))}
+                        rows={3}
+                        style={{ resize: 'vertical' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <button onClick={() => setStep(3)} disabled={!canNextStep2} className="btn-gold w-full flex items-center justify-center gap-2">
                 Continuar <ChevronRight size={16} />
               </button>
@@ -341,6 +375,8 @@ export default function VIRPage() {
                     ['Situación', form.tipo_situacion],
                     ['Resuelto', esPositivo ? 'Positivo' : form.resuelto === 'si' ? 'Sí' : 'No'],
                     form.tipo_reparacion ? ['Reparación', form.tipo_reparacion] : null,
+                    form.resuelto === 'no' ? ['Estudiantes', form.estudiantes_involucrados] : null,
+                    form.resuelto === 'no' ? ['Mediación', form.desc_mediacion] : null,
                     ['Interviene', form.intervino],
                     form.nombre_activador ? ['Activador', form.nombre_activador] : null,
                   ].filter(Boolean).map(([k, v], i) => (

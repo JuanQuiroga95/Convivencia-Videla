@@ -13,6 +13,8 @@ interface VIRRecord {
   tipo_reparacion: string | null
   intervino: string
   nombre_activador: string | null
+  estudiantes_involucrados: string | null
+  desc_mediacion: string | null
   mes: number
   anio: number
   created_at: string
@@ -297,6 +299,16 @@ export default function HistorialPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2" style={{ borderTop: '1px solid var(--green-light)', paddingTop: '8px' }}>
+                      {r.estudiantes_involucrados && (
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Estudiantes:</span> {r.estudiantes_involucrados}
+                        </span>
+                      )}
+                      {r.desc_mediacion && (
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Mediación:</span> {r.desc_mediacion}
+                        </span>
+                      )}
                       {r.tipo_reparacion && (
                         <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                           <span style={{ color: 'var(--text-muted)' }}>Reparación:</span> {r.tipo_reparacion}

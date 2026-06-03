@@ -49,6 +49,8 @@ export async function setupDatabase() {
   )`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS categoria_id VARCHAR(50)`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS nombre_activador VARCHAR(150)`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estudiantes_involucrados TEXT`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS desc_mediacion TEXT`
 
   await sql`CREATE TABLE IF NOT EXISTS indicadores (
     id SERIAL PRIMARY KEY,
