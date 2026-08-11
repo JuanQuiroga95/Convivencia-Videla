@@ -160,7 +160,7 @@ export default function AdminPage() {
                 <div style={{ fontFamily: 'var(--font-condensed)', color: '#9CA3AF', fontSize: '0.78rem', letterSpacing: '0.08em' }}>
                   {usuarios.length} USUARIOS REGISTRADOS
                 </div>
-                <button onClick={() => { setShowForm(!showForm); setEditUser(null) }} className="btn-gold flex items-center gap-2" style={{ padding: '8px 14px', fontSize: '0.82rem', flexShrink: 0 }}>
+                <button onClick={() => { setShowForm(!showForm); setEditUser(null) }} style={{ background: '#C9A84C', color: '#1A4D2E', padding: '8px 14px', borderRadius: '8px', fontWeight: 'bold', fontFamily: 'var(--font-condensed)', fontSize: '0.82rem', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Plus size={14} /> Nuevo usuario
                 </button>
               </div>
@@ -191,7 +191,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-2">
-                    <button onClick={handleCrearUsuario} className="btn-gold" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>Crear</button>
+                    <button onClick={handleCrearUsuario} style={{ background: '#C9A84C', color: '#1A4D2E', padding: '8px 20px', borderRadius: '8px', fontWeight: 'bold', fontFamily: 'var(--font-condensed)', fontSize: '0.85rem' }}>Crear</button>
                     <button onClick={() => setShowForm(false)} className="btn-outline" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>Cancelar</button>
                   </div>
                 </div>
@@ -221,7 +221,7 @@ export default function AdminPage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <button onClick={handleEditarUsuario} className="btn-gold" style={{ padding: '6px 16px', fontSize: '0.8rem' }}>Guardar</button>
+                          <button onClick={handleEditarUsuario} style={{ background: '#C9A84C', color: '#1A4D2E', padding: '6px 16px', borderRadius: '8px', fontWeight: 'bold', fontFamily: 'var(--font-condensed)', fontSize: '0.8rem' }}>Guardar</button>
                           <button onClick={() => setEditUser(null)} className="btn-outline" style={{ padding: '6px 16px', fontSize: '0.8rem' }}>Cancelar</button>
                         </div>
                       </div>
@@ -293,7 +293,7 @@ export default function AdminPage() {
                     placeholder="Ej: 1240"
                     style={{ maxWidth: '150px', letterSpacing: '0.1em', fontFamily: 'monospace' }}
                   />
-                  <button onClick={handleGuardarPin} disabled={pinLoading} className="btn-gold" style={{ padding: '10px 20px', whiteSpace: 'nowrap' }}>
+                  <button onClick={handleGuardarPin} disabled={pinLoading} style={{ background: '#C9A84C', color: '#1A4D2E', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', fontFamily: 'var(--font-condensed)', whiteSpace: 'nowrap' }}>
                     {pinLoading ? 'Guardando...' : 'Guardar PIN'}
                   </button>
                 </div>
@@ -322,7 +322,7 @@ export default function AdminPage() {
                     <span style={{ fontFamily: 'var(--font-body)', color: '#FCA5A5', fontSize: '0.85rem' }}>{setupStatus.error}</span>
                   </div>
                 )}
-                <button onClick={handleSetup} disabled={setupLoading} className="btn-gold flex items-center gap-2">
+                <button onClick={handleSetup} disabled={setupLoading} style={{ background: '#C9A84C', color: '#1A4D2E', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontFamily: 'var(--font-condensed)' }} className="flex items-center gap-2">
                   <Database size={16} />
                   {setupLoading ? 'Configurando...' : 'Inicializar base de datos'}
                 </button>
