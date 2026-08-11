@@ -18,6 +18,7 @@ interface VIRRecord {
   mes: number
   anio: number
   created_at: string
+  estado?: string
 }
 
 const now = new Date()
@@ -89,6 +90,21 @@ export default function HistorialPage() {
       }
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  const handleEscalar = async (id: number) => {
+    if (window.confirm('¿Seguro que deseas derivar este caso al Consejo Escolar?')) {
+      try {
+        await fetch(`/api/var/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado: 'Escalado_Consejo' })
+        })
+        cargar(page)
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
@@ -205,7 +221,7 @@ export default function HistorialPage() {
                   <select className="input-videla" value={filtros.resuelto} onChange={e => setFiltros(f => ({ ...f, resuelto: e.target.value }))}>
                     <option value="">Todos</option>
                     <option value="true">Resuelto</option>
-                    <option value="false">No resuelto</option>
+                    <option value="false">No resuelto (Pendientes y Escalados)</option>
                   </select>
                 </div>
                 <div>
@@ -231,10 +247,13 @@ export default function HistorialPage() {
               {registrosFiltrados.length} registros {filtros.busqueda ? '(filtrado)' : ''}
             </div>
             <div style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid var(--green-border)', borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-condensed)', color: G }}>
-              ✓ Resueltos: {registrosFiltrados.filter(r => r.resuelto).length}
+              ✓ Resueltos: {registrosFiltrados.filter(r => r.resuelto || r.estado === 'Resuelto').length}
+            </div>
+            <div style={{ background: 'rgba(232,93,4,0.1)', border: '1px solid rgba(232,93,4,0.2)', borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-condensed)', color: O }}>
+              ! Pendientes: {registrosFiltrados.filter(r => !r.resuelto && r.estado !== 'Escalado_Consejo').length}
             </div>
             <div style={{ background: 'rgba(193,18,31,0.07)', border: '1px solid rgba(193,18,31,0.2)', borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-condensed)', color: '#C1121F' }}>
-              ✗ Escalados: {registrosFiltrados.filter(r => !r.resuelto).length}
+              ✗ Escalados al Consejo: {registrosFiltrados.filter(r => r.estado === 'Escalado_Consejo').length}
             </div>
           </div>
 
@@ -280,18 +299,25 @@ export default function HistorialPage() {
                       <div className="flex items-center gap-2">
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: '4px',
-                          background: r.resuelto ? 'rgba(45,122,79,0.1)' : 'rgba(193,18,31,0.08)',
-                          color: r.resuelto ? G : '#C1121F',
-                          border: `1px solid ${r.resuelto ? 'rgba(45,122,79,0.3)' : 'rgba(193,18,31,0.25)'}`,
+                          background: r.estado === 'Escalado_Consejo' ? 'rgba(193,18,31,0.08)' : (r.resuelto || r.estado === 'Resuelto' ? 'rgba(45,122,79,0.1)' : 'rgba(232,93,4,0.1)'),
+                          color: r.estado === 'Escalado_Consejo' ? '#C1121F' : (r.resuelto || r.estado === 'Resuelto' ? G : O),
+                          border: `1px solid ${r.estado === 'Escalado_Consejo' ? 'rgba(193,18,31,0.25)' : (r.resuelto || r.estado === 'Resuelto' ? 'rgba(45,122,79,0.3)' : 'rgba(232,93,4,0.3)')}`,
                           borderRadius: '20px', padding: '3px 10px',
                           fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', fontWeight: 700,
                           whiteSpace: 'nowrap' as const,
                         }}>
-                          {r.resuelto
-                            ? <><CheckCircle size={12} /> Resuelto</>
-                            : <><XCircle size={12} /> No</>
+                          {r.estado === 'Escalado_Consejo'
+                            ? <><XCircle size={12} /> Escalado al Consejo</>
+                            : (r.resuelto || r.estado === 'Resuelto')
+                              ? <><CheckCircle size={12} /> Resuelto</>
+                              : <><History size={12} /> Pendiente</>
                           }
                         </div>
+                        {!r.resuelto && r.estado !== 'Escalado_Consejo' && (
+                          <button onClick={() => handleEscalar(r.id)} style={{ color: '#C1121F', background: 'transparent', border: '1px solid #C1121F', borderRadius: '6px', cursor: 'pointer', padding: '4px 8px', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-condensed)' }} className="hover:bg-red-50 transition-colors" title="Derivar al Consejo Escolar">
+                            Escalar al Consejo
+                          </button>
+                        )}
                         <button onClick={() => borrarRegistro(r.id)} style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px' }} className="hover:text-red-500 transition-colors" title="Borrar registro">
                           <Trash2 size={16} />
                         </button>

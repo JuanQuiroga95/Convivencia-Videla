@@ -225,8 +225,8 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {vir.estado === 'Pendiente' && role === 'preceptora' && (
-                      <button onClick={() => handleEscalar(vir.id)} className="text-red-600 hover:text-red-900 flex items-center">
+                    {vir.estado === 'Pendiente' && (
+                      <button onClick={() => handleEscalar(vir.id)} className="text-red-600 hover:text-red-900 flex items-center text-sm font-bold">
                         <AlertTriangle className="w-4 h-4 mr-1" /> Derivar al Consejo
                       </button>
                     )}
