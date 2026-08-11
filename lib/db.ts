@@ -53,7 +53,7 @@ export async function setupDatabase() {
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS desc_mediacion TEXT`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estado VARCHAR(20) DEFAULT 'Pendiente'`
   await sql`UPDATE var_registros SET estado = 'Resuelto' WHERE resuelto = true AND (estado IS NULL OR estado = 'Pendiente')`
-  await sql`UPDATE var_registros SET estado = 'Escalado_Consejo' WHERE resuelto = false AND (estado IS NULL OR estado = 'Pendiente') AND created_at < '2026-08-12'`
+  await sql`UPDATE var_registros SET estado = 'Pendiente' WHERE resuelto = false AND estado = 'Escalado_Consejo' AND created_at < '2026-08-12'`
 
   await sql`CREATE TABLE IF NOT EXISTS vir_resoluciones_consejo (
     id_resolucion SERIAL PRIMARY KEY,

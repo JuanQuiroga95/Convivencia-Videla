@@ -38,7 +38,7 @@ export default function HistorialPage() {
     anio: String(now.getFullYear()),
     curso_id: '',
     categoria: '',
-    resuelto: '',
+    estado: '',
     intervino: '',
     busqueda: '',
   })
@@ -57,7 +57,7 @@ export default function HistorialPage() {
       if (filtros.anio) params.set('anio', filtros.anio)
       if (filtros.curso_id) params.set('curso_id', filtros.curso_id)
       if (filtros.categoria) params.set('categoria', filtros.categoria)
-      if (filtros.resuelto !== '') params.set('resuelto', filtros.resuelto)
+      if (filtros.estado !== '') params.set('estado', filtros.estado)
       if (filtros.intervino) params.set('intervino', filtros.intervino)
       params.set('page', String(p))
       params.set('limit', String(LIMIT))
@@ -243,10 +243,11 @@ export default function HistorialPage() {
                 </div>
                 <div>
                   <label style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: '4px' }}>ESTADO</label>
-                  <select className="input-videla" value={filtros.resuelto} onChange={e => setFiltros(f => ({ ...f, resuelto: e.target.value }))}>
+                  <select className="input-videla" value={filtros.estado} onChange={e => setFiltros(f => ({ ...f, estado: e.target.value }))}>
                     <option value="">Todos</option>
-                    <option value="true">Resuelto</option>
-                    <option value="false">No resuelto (Pendientes y Escalados)</option>
+                    <option value="Resuelto">Resueltos</option>
+                    <option value="Pendiente">Pendientes</option>
+                    <option value="Escalado_Consejo">Escalados al Consejo</option>
                   </select>
                 </div>
                 <div>
