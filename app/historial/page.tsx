@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Nav from '@/components/Nav'
 import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle, Trash2, Download } from 'lucide-react'
 import { CATEGORIAS_VIR, INTERVINIENTES, MESES } from '@/lib/scoring'
@@ -44,7 +44,7 @@ export default function HistorialPage() {
   })
   const [showFiltros, setShowFiltros] = useState(false)
   const [exportando, setExportando] = useState(false)
-  const printRef = React.useRef<HTMLDivElement>(null)
+  const printRef = useRef<HTMLDivElement>(null)
 
   const G = '#2D7A4F'
   const O = '#E85D04'
