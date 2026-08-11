@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import Nav from '@/components/Nav'
-import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle, Trash2, Download } from 'lucide-react'
 import { CATEGORIAS_VIR, INTERVINIENTES, MESES } from '@/lib/scoring'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
 
 interface VIRRecord {
   id: number
@@ -41,6 +43,8 @@ export default function HistorialPage() {
     busqueda: '',
   })
   const [showFiltros, setShowFiltros] = useState(false)
+  const [exportando, setExportando] = useState(false)
+  const printRef = React.useRef<HTMLDivElement>(null)
 
   const G = '#2D7A4F'
   const O = '#E85D04'
@@ -117,6 +121,24 @@ export default function HistorialPage() {
       )
     : registros
 
+  const exportarPDF = async () => {
+    if (!printRef.current) return
+    setExportando(true)
+    try {
+      const canvas = await html2canvas(printRef.current, { scale: 2 })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save('historial_vir.pdf')
+    } catch (e) {
+      console.error(e)
+      alert('Error al exportar PDF')
+    }
+    setExportando(false)
+  }
+
   const getCategoriaLabel = (id: string) => CATEGORIAS_VIR.find(c => c.id === id)?.label || id || '—'
 
   const sectionHeader = (text: string, color = G) => (
@@ -181,6 +203,9 @@ export default function HistorialPage() {
             </button>
             <button onClick={() => { cargar(1) }} style={{ background: O, color: 'white', border: 'none', borderRadius: '8px', padding: '0 14px', cursor: 'pointer', fontFamily: 'var(--font-condensed)', fontWeight: 700 }}>
               Buscar
+            </button>
+            <button onClick={exportarPDF} disabled={exportando} style={{ background: '#1D4ED8', color: 'white', border: 'none', borderRadius: '8px', padding: '0 14px', cursor: exportando ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-condensed)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Download size={15} /> {exportando ? '...' : 'PDF'}
             </button>
           </div>
 
@@ -271,7 +296,13 @@ export default function HistorialPage() {
             </div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-3" ref={printRef} style={{ background: 'var(--bg)', padding: exportando ? '20px' : '0' }}>
+            {exportando && (
+              <div className="mb-6 text-center">
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', color: 'var(--green-dark)' }}>REPORTE VIR</h2>
+                <p style={{ fontFamily: 'var(--font-body)', color: 'var(--text-muted)' }}>{new Date().toLocaleDateString('es-AR')}</p>
+              </div>
+            )}
             {registrosFiltrados.map(r => {
               const cat = CATEGORIAS_VIR.find(c => c.id === r.categoria_id)
               return (
