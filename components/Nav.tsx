@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Shield, Trophy, History, ClipboardList, BarChart3, BookOpen, QrCode, Settings, LogOut, Menu, X, ClipboardCheck, TrendingUp } from 'lucide-react'
+import { LayoutDashboard, Shield, Trophy, History, ClipboardList, BarChart3, BookOpen, QrCode, Settings, LogOut, Menu, X, ClipboardCheck, TrendingUp, AlertTriangle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface SessionData { autenticado: boolean; rol?: string; nombre?: string; usuario?: string }
@@ -18,6 +18,8 @@ const navItems = [
   { href: '/reglas',       label: 'Criterios',          icon: BookOpen,        rol: ['admin', 'operativo'] },
   { href: '/qr',           label: 'Códigos QR',         icon: QrCode,          rol: ['admin'] },
   { href: '/admin',        label: 'Admin',              icon: Settings,        rol: ['admin'] },
+  { href: '/admin/historial-vir', label: 'Consejo (Admin)', icon: AlertTriangle, rol: ['admin'] },
+  { href: '/preceptoras/historial-vir', label: 'Consejo (Preceptor)', icon: AlertTriangle, rol: ['preceptora'] },
 ]
 
 const GD = '#1A4D2E'; const O = '#E85D04'
