@@ -51,6 +51,19 @@ export async function setupDatabase() {
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS nombre_activador VARCHAR(150)`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estudiantes_involucrados TEXT`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS desc_mediacion TEXT`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estado VARCHAR(20) DEFAULT 'Pendiente'`
+  await sql`UPDATE var_registros SET estado = 'Resuelto' WHERE resuelto = true AND (estado IS NULL OR estado = 'Pendiente')`
+
+  await sql`CREATE TABLE IF NOT EXISTS vir_resoluciones_consejo (
+    id_resolucion SERIAL PRIMARY KEY,
+    id_vir INTEGER REFERENCES var_registros(id) ON DELETE CASCADE,
+    fecha_resolucion TIMESTAMP DEFAULT NOW(),
+    tipo_accion VARCHAR(150) NOT NULL,
+    puntos_descontados INTEGER,
+    observaciones TEXT,
+    autor_registro VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`
 
   await sql`CREATE TABLE IF NOT EXISTS indicadores (
     id SERIAL PRIMARY KEY,

@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/api/cursos":{},"/api/auth":{},"/api/campo":{},"/api/indicadores-mensuales":{},"/api/indicadores":{},"/api/setup":{},"/api/usuarios":{},"/api/ranking":{},"/api/var":{},"/api/demo":{}}}
+{"version":1,"functions":{"/api/campo":{},"/api/indicadores":{},"/api/indicadores-mensuales":{},"/api/cursos":{},"/api/ranking":{},"/api/setup":{},"/api/usuarios":{},"/api/resoluciones-consejo":{},"/api/var":{},"/api/auth":{},"/api/demo":{}}}

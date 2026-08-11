@@ -1,16 +1,16 @@
-"use strict";(()=>{var e={};e.id=912,e.ids=[912],e.modules={20399:e=>{e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},30517:e=>{e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},14300:e=>{e.exports=require("buffer")},6113:e=>{e.exports=require("crypto")},82361:e=>{e.exports=require("events")},57147:e=>{e.exports=require("fs")},13685:e=>{e.exports=require("http")},95687:e=>{e.exports=require("https")},41808:e=>{e.exports=require("net")},22037:e=>{e.exports=require("os")},71017:e=>{e.exports=require("path")},12781:e=>{e.exports=require("stream")},24404:e=>{e.exports=require("tls")},57310:e=>{e.exports=require("url")},15206:e=>{e.exports=require("zlib")},67363:(e,i,r)=>{r.r(i),r.d(i,{originalPathname:()=>p,patchFetch:()=>O,requestAsyncStorage:()=>R,routeModule:()=>d,serverHooks:()=>L,staticGenerationAsyncStorage:()=>A});var a={};r.r(a),r.d(a,{GET:()=>N,POST:()=>u,dynamic:()=>T,revalidate:()=>c});var t=r(49303),o=r(88716),s=r(60670),n=r(87070),E=r(9487);let T="force-dynamic",c=0;async function u(e){let i=await (0,E.AH)();if(!i)return n.NextResponse.json({ok:!1,error:"Base de datos no configurada."},{status:503});try{let r=await e.json(),{curso_id:a,mes:t,anio:o,es_cierre_academico:s}=r;if(s)await i`
+"use strict";(()=>{var e={};e.id=912,e.ids=[912],e.modules={20399:e=>{e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},30517:e=>{e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},14300:e=>{e.exports=require("buffer")},6113:e=>{e.exports=require("crypto")},82361:e=>{e.exports=require("events")},57147:e=>{e.exports=require("fs")},13685:e=>{e.exports=require("http")},95687:e=>{e.exports=require("https")},41808:e=>{e.exports=require("net")},22037:e=>{e.exports=require("os")},71017:e=>{e.exports=require("path")},12781:e=>{e.exports=require("stream")},24404:e=>{e.exports=require("tls")},57310:e=>{e.exports=require("url")},15206:e=>{e.exports=require("zlib")},36183:(e,i,a)=>{a.r(i),a.d(i,{originalPathname:()=>p,patchFetch:()=>O,requestAsyncStorage:()=>R,routeModule:()=>u,serverHooks:()=>d,staticGenerationAsyncStorage:()=>L});var r={};a.r(r),a.d(r,{GET:()=>A,POST:()=>c,dynamic:()=>T,revalidate:()=>N});var t=a(49303),o=a(88716),s=a(60670),E=a(87070),n=a(9487);let T="force-dynamic",N=0;async function c(e){let i=await (0,n.AH)();if(!i)return E.NextResponse.json({ok:!1,error:"Base de datos no configurada."},{status:503});try{let a=await e.json(),{curso_id:r,mes:t,anio:o,es_cierre_academico:s}=a;if(s)await i`
         INSERT INTO indicadores (curso_id, mes, anio, pct_aprobados, updated_at)
-        VALUES (${a}, ${t}, ${o}, ${r.pct_aprobados}, NOW())
+        VALUES (${r}, ${t}, ${o}, ${a.pct_aprobados}, NOW())
         ON CONFLICT (curso_id, mes, anio) DO UPDATE SET
           pct_aprobados = EXCLUDED.pct_aprobados,
           updated_at    = NOW()
-      `;else{let{limpieza:e,uniforme:s,asistencia:n,actas:E,ice_puntos:T,interv_tempranas:c,situaciones_previas:u}=r;await i`
+      `;else{let{limpieza:e,uniforme:s,asistencia:E,actas:n,ice_puntos:T,interv_tempranas:N,situaciones_previas:c}=a;await i`
         INSERT INTO indicadores
           (curso_id, mes, anio, limpieza, uniforme, asistencia,
            actas, ice_puntos, interv_tempranas, situaciones_previas, updated_at)
         VALUES
-          (${a}, ${t}, ${o}, ${e}, ${s||null}, ${n},
-           ${E}, ${T}, ${c??0}, ${u??0}, NOW())
+          (${r}, ${t}, ${o}, ${e}, ${s||null}, ${E},
+           ${n}, ${T}, ${N??0}, ${c??0}, NOW())
         ON CONFLICT (curso_id, mes, anio) DO UPDATE SET
           limpieza            = EXCLUDED.limpieza,
           uniforme            = EXCLUDED.uniforme,
@@ -20,7 +20,7 @@
           interv_tempranas    = EXCLUDED.interv_tempranas,
           situaciones_previas = EXCLUDED.situaciones_previas,
           updated_at          = NOW()
-      `}return n.NextResponse.json({ok:!0,message:"Guardado exitosamente"})}catch(e){return n.NextResponse.json({ok:!1,error:e.message},{status:500})}}async function N(e){let i=await (0,E.AH)();if(!i)return n.NextResponse.json([]);try{let r;let{searchParams:a}=new URL(e.url),t=a.get("mes"),o=a.get("anio")||new Date().getFullYear();return r=t?await i`
+      `}return E.NextResponse.json({ok:!0,message:"Guardado exitosamente"})}catch(e){return E.NextResponse.json({ok:!1,error:e.message},{status:500})}}async function A(e){let i=await (0,n.AH)();if(!i)return E.NextResponse.json([]);try{let a;let{searchParams:r}=new URL(e.url),t=r.get("mes"),o=r.get("anio")||new Date().getFullYear();return a=t?await i`
         SELECT i.*, c.nombre as curso_nombre FROM indicadores i
         JOIN cursos c ON c.id = i.curso_id
         WHERE i.mes = ${t} AND i.anio = ${o}
@@ -30,7 +30,7 @@
         JOIN cursos c ON c.id = i.curso_id
         WHERE i.anio = ${o}
         ORDER BY i.mes DESC, c.anio, c.division
-      `,n.NextResponse.json(r.rows)}catch{return n.NextResponse.json([])}}let d=new t.AppRouteRouteModule({definition:{kind:o.x.APP_ROUTE,page:"/api/indicadores/route",pathname:"/api/indicadores",filename:"route",bundlePath:"app/api/indicadores/route"},resolvedPagePath:"C:\\Users\\Docente\\Desktop\\Proyectos\\videla\\Convivencia-Videla-push\\app\\api\\indicadores\\route.ts",nextConfigOutput:"",userland:a}),{requestAsyncStorage:R,staticGenerationAsyncStorage:A,serverHooks:L}=d,p="/api/indicadores/route";function O(){return(0,s.patchFetch)({serverHooks:L,staticGenerationAsyncStorage:A})}},9487:(e,i,r)=>{async function a(){if(!process.env.POSTGRES_URL)return null;try{return(await r.e(462).then(r.bind(r,28462))).sql}catch{return null}}async function t(){if(!process.env.POSTGRES_URL)return null;try{return(await r.e(462).then(r.bind(r,28462))).db}catch{return null}}async function o(){let e=await a();if(!e)throw Error("POSTGRES_URL no configurada.");return await e`CREATE TABLE IF NOT EXISTS cursos (
+      `,E.NextResponse.json(a.rows)}catch{return E.NextResponse.json([])}}let u=new t.AppRouteRouteModule({definition:{kind:o.x.APP_ROUTE,page:"/api/indicadores/route",pathname:"/api/indicadores",filename:"route",bundlePath:"app/api/indicadores/route"},resolvedPagePath:"C:\\Users\\juanp\\.gemini\\antigravity-ide\\scratch\\Convivencia-Videla\\app\\api\\indicadores\\route.ts",nextConfigOutput:"",userland:r}),{requestAsyncStorage:R,staticGenerationAsyncStorage:L,serverHooks:d}=u,p="/api/indicadores/route";function O(){return(0,s.patchFetch)({serverHooks:d,staticGenerationAsyncStorage:L})}},9487:(e,i,a)=>{async function r(){if(!process.env.POSTGRES_URL)return null;try{return(await a.e(462).then(a.bind(a,28462))).sql}catch{return null}}async function t(){if(!process.env.POSTGRES_URL)return null;try{return(await a.e(462).then(a.bind(a,28462))).db}catch{return null}}async function o(){let e=await r();if(!e)throw Error("POSTGRES_URL no configurada.");return await e`CREATE TABLE IF NOT EXISTS cursos (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(20) NOT NULL UNIQUE,
     division VARCHAR(5) NOT NULL,
@@ -54,7 +54,16 @@
     mes INTEGER NOT NULL,
     anio INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
-  )`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS categoria_id VARCHAR(50)`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS nombre_activador VARCHAR(150)`,await e`CREATE TABLE IF NOT EXISTS indicadores (
+  )`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS categoria_id VARCHAR(50)`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS nombre_activador VARCHAR(150)`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estudiantes_involucrados TEXT`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS desc_mediacion TEXT`,await e`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estado VARCHAR(20) DEFAULT 'Pendiente'`,await e`UPDATE var_registros SET estado = 'Resuelto' WHERE resuelto = true AND (estado IS NULL OR estado = 'Pendiente')`,await e`CREATE TABLE IF NOT EXISTS vir_resoluciones_consejo (
+    id_resolucion SERIAL PRIMARY KEY,
+    id_vir INTEGER REFERENCES var_registros(id) ON DELETE CASCADE,
+    fecha_resolucion TIMESTAMP DEFAULT NOW(),
+    tipo_accion VARCHAR(150) NOT NULL,
+    puntos_descontados INTEGER,
+    observaciones TEXT,
+    autor_registro VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,await e`CREATE TABLE IF NOT EXISTS indicadores (
     id SERIAL PRIMARY KEY,
     curso_id INTEGER REFERENCES cursos(id),
     mes INTEGER NOT NULL,
@@ -82,7 +91,11 @@
     anio INTEGER NOT NULL,
     nombre_docente VARCHAR(150) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
-  )`,{ok:!0}}async function s(){let e=await a();if(!e)throw Error("POSTGRES_URL no configurada.");return await e`CREATE TABLE IF NOT EXISTS usuarios (
+  )`,await e`CREATE TABLE IF NOT EXISTS configuracion (
+    clave VARCHAR(50) PRIMARY KEY,
+    valor TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW()
+  )`,await e`INSERT INTO configuracion (clave, valor) VALUES ('pin_vir', '1240') ON CONFLICT (clave) DO NOTHING`,{ok:!0}}async function s(){let e=await r();if(!e)throw Error("POSTGRES_URL no configurada.");return await e`CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     usuario VARCHAR(50) NOT NULL UNIQUE,
@@ -92,4 +105,4 @@
     created_at TIMESTAMP DEFAULT NOW()
   )`,await e`INSERT INTO usuarios (nombre, usuario, password, rol)
     VALUES ('Administrador', 'Videla.4012', 'VirVidela4012', 'admin')
-    ON CONFLICT (usuario) DO NOTHING`,{ok:!0}}r.d(i,{$C:()=>s,AH:()=>a,VK:()=>t,kF:()=>o})}};var i=require("../../../webpack-runtime.js");i.C(e);var r=e=>i(i.s=e),a=i.X(0,[948,972],()=>r(67363));module.exports=a})();
+    ON CONFLICT (usuario) DO NOTHING`,{ok:!0}}a.d(i,{$C:()=>s,AH:()=>r,VK:()=>t,kF:()=>o})}};var i=require("../../../webpack-runtime.js");i.C(e);var a=e=>i(i.s=e),r=i.X(0,[948,972],()=>a(36183));module.exports=r})();

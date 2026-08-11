@@ -1,4 +1,4 @@
-// File: C:\Users\Docente\Desktop\Proyectos\videla\Convivencia-Videla-push\app\ranking-publico\page.tsx
+// File: C:\Users\juanp\.gemini\antigravity-ide\scratch\Convivencia-Videla\app\ranking-publico\page.tsx
 import * as entry from '../../../../app/ranking-publico/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

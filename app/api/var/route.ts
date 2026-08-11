@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   if (!sql) return NextResponse.json({ ok: false, error: 'Base de datos no configurada.' }, { status: 503 })
   try {
     const body = await request.json()
-    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, pin } = body
+    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, pin, estado } = body
     if (!nombre_activador || nombre_activador.trim().length < 3) {
       return NextResponse.json({ ok: false, error: 'El nombre del activador es obligatorio.' }, { status: 400 })
     }
@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'PIN de autorización incorrecto.' }, { status: 401 })
     }
     const now = new Date()
+    const estadoFinal = estado || (resuelto ? 'Resuelto' : 'Pendiente')
     await sql`INSERT INTO var_registros
-      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, mes, anio)
+      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, mes, anio, estado)
       VALUES (
         ${curso_id},
         ${categoria_id || null},
@@ -37,7 +38,8 @@ export async function POST(request: NextRequest) {
         ${estudiantes_involucrados || null},
         ${desc_mediacion || null},
         ${now.getMonth() + 1},
-        ${now.getFullYear()}
+        ${now.getFullYear()},
+        ${estadoFinal}
       )`
     return NextResponse.json({ ok: true, message: 'VIR registrado exitosamente' })
   } catch (e: any) {
@@ -56,6 +58,7 @@ export async function GET(request: NextRequest) {
     const categoria = searchParams.get('categoria')
     const resueltoStr = searchParams.get('resuelto')
     const intervino = searchParams.get('intervino')
+    const estado = searchParams.get('estado')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = (page - 1) * limit
@@ -99,6 +102,11 @@ export async function GET(request: NextRequest) {
       pCount++
       q += ` AND v.intervino = $${pCount}`
       values.push(intervino)
+    }
+    if (estado) {
+      pCount++
+      q += ` AND v.estado = $${pCount}`
+      values.push(estado)
     }
 
     q += ` ORDER BY v.created_at DESC LIMIT $${pCount + 1} OFFSET $${pCount + 2}`

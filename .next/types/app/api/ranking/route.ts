@@ -1,4 +1,4 @@
-// File: C:\Users\Docente\Desktop\Proyectos\videla\Convivencia-Videla-push\app\api\ranking\route.ts
+// File: C:\Users\juanp\.gemini\antigravity-ide\scratch\Convivencia-Videla\app\api\ranking\route.ts
 import * as entry from '../../../../../app/api/ranking/route.js'
 import type { NextRequest } from 'next/server.js'
 
