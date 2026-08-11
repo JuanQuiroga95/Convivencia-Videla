@@ -5,9 +5,11 @@ export default function HistorialVirAdminPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Nav />
-      <div className="py-10">
-        <HistorialVirClient role="admin" />
-      </div>
+      <main className="main-with-sidebar">
+        <div className="py-6 px-4 md:px-8">
+          <HistorialVirClient role="admin" />
+        </div>
+      </main>
     </div>
   )
 }

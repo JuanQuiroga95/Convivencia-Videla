@@ -40,16 +40,22 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
   const [puntos, setPuntos] = useState<number>(0)
   const [observaciones, setObservaciones] = useState('')
 
+  const [filtroMes, setFiltroMes] = useState<string>('')
+  const [filtroCurso, setFiltroCurso] = useState<string>('')
+  const [filtroEstado, setFiltroEstado] = useState<string>('')
+
   const dashboardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [filtroMes, filtroCurso])
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const resVirs = await fetch('/api/var')
+      const mesQuery = filtroMes ? `?mes=${filtroMes}` : ''
+      const cursoQuery = filtroCurso ? (filtroMes ? `&curso_nombre=${filtroCurso}` : `?curso_nombre=${filtroCurso}`) : ''
+      const resVirs = await fetch(`/api/var${mesQuery}${cursoQuery}`)
       const dataVirs = await resVirs.json()
       setVirs(dataVirs)
       
@@ -120,7 +126,10 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
     pdf.save('informe_consejo.pdf')
   }
 
-  const virsPendientesResueltos = virs.filter(v => v.estado === 'Pendiente' || v.estado === 'Resuelto')
+  const virsPendientesResueltos = virs.filter(v => 
+    (v.estado === 'Pendiente' || v.estado === 'Resuelto') &&
+    (filtroEstado ? v.estado === filtroEstado : true)
+  )
   const virsEscalados = virs.filter(v => v.estado === 'Escalado_Consejo' || resoluciones.some(r => r.id_vir === v.id))
 
   // Dashboard Stats
@@ -154,17 +163,39 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
       <div className="flex space-x-4 mb-6 border-b">
         <button
           onClick={() => setTab('pendientes')}
-          className={`py-2 px-4 ${tab === 'pendientes' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-gray-500'}`}
+          className={`py-2 px-4 ${tab === 'pendientes' ? 'border-b-2 border-[#1A4D2E] text-[#1A4D2E] font-bold' : 'text-gray-500'}`}
         >
           VIR Generales
         </button>
         <button
           onClick={() => setTab('escalados')}
-          className={`py-2 px-4 ${tab === 'escalados' ? 'border-b-2 border-red-600 text-red-600 font-bold' : 'text-gray-500'}`}
+          className={`py-2 px-4 ${tab === 'escalados' ? 'border-b-2 border-[#E85D04] text-[#E85D04] font-bold' : 'text-gray-500'}`}
         >
           Casos Escalados (Consejo)
         </button>
       </div>
+
+      {tab === 'pendientes' && (
+        <div className="mb-6 p-4 bg-white rounded-lg shadow flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-xs font-bold text-gray-500 mb-1">Mes</label>
+            <select value={filtroMes} onChange={e => setFiltroMes(e.target.value)} className="border rounded p-2 text-sm bg-gray-50 min-w-[120px]">
+              <option value="">Todos los meses</option>
+              {['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].map((m, i) => (
+                <option key={m} value={i + 1}>{m}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 mb-1">Estado</label>
+            <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="border rounded p-2 text-sm bg-gray-50 min-w-[120px]">
+              <option value="">Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Resuelto">Resuelto</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div>Cargando...</div>
