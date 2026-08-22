@@ -3,6 +3,7 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import { getSQL } from '@/lib/db'
+import { serializarLista } from '@/lib/scoring'
 
 // ── Datos fijos de demo ────────────────────────────────────────────────────
 
@@ -25,6 +26,18 @@ const VIR_POOL = [
 ]
 
 const INTERVINIENTES = ['Preceptor/a', 'Docente', 'SOE']
+
+// Secuencias de intervención previa usadas en los registros de demo
+const INTERVENCIONES_POOL = [
+  ['Advertencia verbal sobre la conducta', 'Recordatorio de la norma o acuerdo de convivencia'],
+  ['Pedido directo de modificar o cesar la conducta', 'Diálogo individual y breve con el estudiante'],
+  ['Señal o llamado de atención preventivo', 'Cambio de ubicación dentro del aula, cuando resulte pertinente'],
+  ['Invitación a reconocer el impacto de su conducta', 'Propuesta de resolver la situación mediante el diálogo'],
+  ['Acuerdo verbal inmediato para continuar la clase', 'Intervención de preceptoría'],
+]
+
+const RESPUESTAS_OK  = ['Modificó la conducta', 'Reconoció lo ocurrido', 'Aceptó reparar']
+const RESPUESTAS_NOK = ['Modificó momentáneamente y reincidió', 'Continuó con la conducta', 'No reconoció lo ocurrido']
 
 const ACCIONES_CAMPO = [
   { tipo: 'Participación en actos escolares',                          desc: 'Participación destacada en el acto conmemorativo institucional' },
@@ -128,13 +141,21 @@ export async function POST() {
           const activador = pick(ACTIVADORES)
           // Fecha dentro del mes
           const dia = 5 + (v * 3) % 20
+          const intervenciones = INTERVENCIONES_POOL[v % INTERVENCIONES_POOL.length]
+          const respuestas = resuelto
+            ? RESPUESTAS_OK.slice(0, 2)
+            : [RESPUESTAS_NOK[v % RESPUESTAS_NOK.length]]
+          const resultado = resuelto ? 'Resuelto con reparación' : 'Pendiente de reparación'
           await sql`
             INSERT INTO var_registros
-              (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, mes, anio, created_at)
+              (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador,
+               intervenciones_previas, respuesta_estudiante, resultado, estado, mes, anio, created_at)
             VALUES (
               ${curso.id}, ${vir.categoria_id}, ${vir.tipo},
               ${resuelto}, ${resuelto ? vir.reparacion : null},
               ${intervino}, ${activador},
+              ${serializarLista(intervenciones)}, ${serializarLista(respuestas)}, ${resultado},
+              ${resuelto ? 'Resuelto' : 'Pendiente'},
               ${mes}, ${ANIO},
               ${new Date(ANIO, mes - 1, dia).toISOString()}
             )

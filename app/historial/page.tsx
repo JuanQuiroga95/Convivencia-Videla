@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Nav from '@/components/Nav'
 import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle, Trash2, Download } from 'lucide-react'
-import { CATEGORIAS_VIR, INTERVINIENTES, MESES } from '@/lib/scoring'
+import { CATEGORIAS_VIR, INTERVINIENTES, MESES, RESULTADOS_VIR, getEstadoInfo, parseLista } from '@/lib/scoring'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 
@@ -17,6 +17,10 @@ interface VIRRecord {
   nombre_activador: string | null
   estudiantes_involucrados: string | null
   desc_mediacion: string | null
+  intervenciones_previas: string | null
+  intervencion_otra: string | null
+  respuesta_estudiante: string | null
+  resultado: string | null
   mes: number
   anio: number
   created_at: string
@@ -39,6 +43,7 @@ export default function HistorialPage() {
     curso_id: '',
     categoria: '',
     estado: '',
+    resultado: '',
     intervino: '',
     busqueda: '',
   })
@@ -58,6 +63,7 @@ export default function HistorialPage() {
       if (filtros.curso_id) params.set('curso_id', filtros.curso_id)
       if (filtros.categoria) params.set('categoria', filtros.categoria)
       if (filtros.estado !== '') params.set('estado', filtros.estado)
+      if (filtros.resultado) params.set('resultado', filtros.resultado)
       if (filtros.intervino) params.set('intervino', filtros.intervino)
       params.set('page', String(p))
       params.set('limit', String(LIMIT))
@@ -78,7 +84,7 @@ export default function HistorialPage() {
   }, [cargar])
 
   const limpiarFiltros = () => {
-    setFiltros({ mes: '', anio: String(now.getFullYear()), curso_id: '', categoria: '', resuelto: '', intervino: '', busqueda: '' })
+    setFiltros({ mes: '', anio: String(now.getFullYear()), curso_id: '', categoria: '', estado: '', resultado: '', intervino: '', busqueda: '' })
   }
 
   const aplicar = () => { setShowFiltros(false); cargar(1) }
@@ -247,7 +253,15 @@ export default function HistorialPage() {
                     <option value="">Todos</option>
                     <option value="Resuelto">Resueltos</option>
                     <option value="Pendiente">Pendientes</option>
+                    <option value="Derivado_SOE">Derivados a SOE / Preceptoría</option>
                     <option value="Escalado_Consejo">Escalados al Consejo</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: '4px' }}>RESULTADO</label>
+                  <select className="input-videla" value={filtros.resultado} onChange={e => setFiltros(f => ({ ...f, resultado: e.target.value }))}>
+                    <option value="">Todos</option>
+                    {RESULTADOS_VIR.map(r => <option key={r.id} value={r.label}>{r.label}</option>)}
                   </select>
                 </div>
                 <div>
@@ -276,7 +290,10 @@ export default function HistorialPage() {
               ✓ Resueltos: {registrosFiltrados.filter(r => r.resuelto || r.estado === 'Resuelto').length}
             </div>
             <div style={{ background: 'rgba(232,93,4,0.1)', border: '1px solid rgba(232,93,4,0.2)', borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-condensed)', color: O }}>
-              ! Pendientes: {registrosFiltrados.filter(r => !r.resuelto && r.estado !== 'Escalado_Consejo').length}
+              ! Pendientes: {registrosFiltrados.filter(r => !r.resuelto && r.estado !== 'Escalado_Consejo' && r.estado !== 'Derivado_SOE').length}
+            </div>
+            <div style={{ background: 'rgba(180,83,9,0.08)', border: '1px solid rgba(180,83,9,0.25)', borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-condensed)', color: '#B45309' }}>
+              → Derivados a SOE/Prec.: {registrosFiltrados.filter(r => r.estado === 'Derivado_SOE').length}
             </div>
             <div style={{ background: 'rgba(193,18,31,0.07)', border: '1px solid rgba(193,18,31,0.2)', borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-condensed)', color: '#C1121F' }}>
               ✗ Escalados al Consejo: {registrosFiltrados.filter(r => r.estado === 'Escalado_Consejo').length}
@@ -306,6 +323,9 @@ export default function HistorialPage() {
             )}
             {registrosFiltrados.map(r => {
               const cat = CATEGORIAS_VIR.find(c => c.id === r.categoria_id)
+              const estadoInfo = getEstadoInfo(r.estado, r.resuelto)
+              const intervenciones = parseLista(r.intervenciones_previas)
+              const respuestas = parseLista(r.respuesta_estudiante)
               return (
                 <div key={r.id} className="rounded-xl card-hover" style={{ border: '1.5px solid var(--green-border)', overflow: 'hidden', background: 'white' }}>
                   {/* Top stripe */}
@@ -331,19 +351,19 @@ export default function HistorialPage() {
                       <div className="flex items-center gap-2">
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: '4px',
-                          background: r.estado === 'Escalado_Consejo' ? 'rgba(193,18,31,0.08)' : (r.resuelto || r.estado === 'Resuelto' ? 'rgba(45,122,79,0.1)' : 'rgba(232,93,4,0.1)'),
-                          color: r.estado === 'Escalado_Consejo' ? '#C1121F' : (r.resuelto || r.estado === 'Resuelto' ? G : O),
-                          border: `1px solid ${r.estado === 'Escalado_Consejo' ? 'rgba(193,18,31,0.25)' : (r.resuelto || r.estado === 'Resuelto' ? 'rgba(45,122,79,0.3)' : 'rgba(232,93,4,0.3)')}`,
+                          background: `${estadoInfo.color}14`,
+                          color: estadoInfo.color,
+                          border: `1px solid ${estadoInfo.color}55`,
                           borderRadius: '20px', padding: '3px 10px',
                           fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', fontWeight: 700,
                           whiteSpace: 'nowrap' as const,
                         }}>
-                          {r.estado === 'Escalado_Consejo'
-                            ? <><XCircle size={12} /> Escalado al Consejo</>
-                            : (r.resuelto || r.estado === 'Resuelto')
-                              ? <><CheckCircle size={12} /> Resuelto</>
-                              : <><History size={12} /> Pendiente</>
-                          }
+                          {estadoInfo.id === 'Escalado_Consejo'
+                            ? <XCircle size={12} />
+                            : estadoInfo.id === 'Resuelto'
+                              ? <CheckCircle size={12} />
+                              : <History size={12} />}
+                          {estadoInfo.label}
                         </div>
                         {!r.resuelto && r.estado !== 'Escalado_Consejo' && (
                           <button onClick={() => handleEscalar(r.id)} style={{ color: '#C1121F', background: 'transparent', border: '1px solid #C1121F', borderRadius: '6px', cursor: 'pointer', padding: '4px 8px', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-condensed)' }} className="hover:bg-red-50 transition-colors" title="Derivar al Consejo Escolar">
@@ -356,6 +376,42 @@ export default function HistorialPage() {
                       </div>
                     </div>
 
+                    {(intervenciones.length > 0 || respuestas.length > 0 || r.resultado) && (
+                      <div className="mt-2 p-3 rounded-lg" style={{ background: 'var(--bg-alt)', border: '1px solid var(--green-border)' }}>
+                        {intervenciones.length > 0 && (
+                          <div className="mb-2">
+                            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.7rem', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>INTERVENCIÓN PREVIA</div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {intervenciones.map(i => (
+                                <span key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '0.74rem', background: 'rgba(232,93,4,0.09)', color: '#9A4A02', border: '1px solid rgba(232,93,4,0.25)', borderRadius: '20px', padding: '2px 8px' }}>{i}</span>
+                              ))}
+                            </div>
+                            {r.intervencion_otra && (
+                              <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>Otra:</span> {r.intervencion_otra}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {respuestas.length > 0 && (
+                          <div className="mb-2">
+                            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.7rem', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>RESPUESTA DEL ESTUDIANTE</div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {respuestas.map(i => (
+                                <span key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '0.74rem', background: 'rgba(45,122,79,0.08)', color: '#1F5C3B', border: '1px solid rgba(45,122,79,0.25)', borderRadius: '20px', padding: '2px 8px' }}>{i}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {r.resultado && (
+                          <div>
+                            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.7rem', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>RESULTADO</div>
+                            <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: estadoInfo.color, fontWeight: 600 }}>{r.resultado}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2" style={{ borderTop: '1px solid var(--green-light)', paddingTop: '8px' }}>
                       {r.estudiantes_involucrados && (
                         <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -364,7 +420,7 @@ export default function HistorialPage() {
                       )}
                       {r.desc_mediacion && (
                         <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                          <span style={{ color: 'var(--text-muted)' }}>Mediación:</span> {r.desc_mediacion}
+                          <span style={{ color: 'var(--text-muted)' }}>Observaciones:</span> {r.desc_mediacion}
                         </span>
                       )}
                       {r.tipo_reparacion && (

@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { FileText, AlertTriangle, CheckCircle, Clock, Download, Plus } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import { getEstadoInfo, parseLista } from '@/lib/scoring'
 
 interface VIR {
   id: number
@@ -15,6 +16,11 @@ interface VIR {
   resuelto: boolean
   created_at: string
   intervino: string
+  intervenciones_previas: string | null
+  intervencion_otra: string | null
+  respuesta_estudiante: string | null
+  resultado: string | null
+  desc_mediacion: string | null
 }
 
 interface Resolucion {
@@ -126,8 +132,8 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
     pdf.save('informe_consejo.pdf')
   }
 
-  const virsPendientesResueltos = virs.filter(v => 
-    (v.estado === 'Pendiente' || v.estado === 'Resuelto') &&
+  const virsPendientesResueltos = virs.filter(v =>
+    (v.estado === 'Pendiente' || v.estado === 'Resuelto' || v.estado === 'Derivado_SOE') &&
     (filtroEstado ? v.estado === filtroEstado : true)
   )
   const virsEscalados = virs.filter(v => v.estado === 'Escalado_Consejo' || resoluciones.some(r => r.id_vir === v.id))
@@ -192,6 +198,7 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
               <option value="">Todos</option>
               <option value="Pendiente">Pendiente</option>
               <option value="Resuelto">Resuelto</option>
+              <option value="Derivado_SOE">Derivado a SOE / Preceptoría</option>
             </select>
           </div>
         </div>
@@ -208,6 +215,8 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estudiante(s)</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Situación</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Intervención previa</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Resultado</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
               </tr>
@@ -219,13 +228,23 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
                   <td className="px-6 py-4 whitespace-nowrap">{vir.curso_nombre}</td>
                   <td className="px-6 py-4">{vir.estudiantes_involucrados}</td>
                   <td className="px-6 py-4">{vir.tipo_situacion}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1 max-w-xs">
+                      {parseLista(vir.intervenciones_previas).map(i => (
+                        <span key={i} className="text-[11px] bg-orange-50 text-orange-800 border border-orange-200 rounded-full px-2 py-0.5">{i}</span>
+                      ))}
+                      {parseLista(vir.intervenciones_previas).length === 0 && <span className="text-xs text-gray-400">Sin registro</span>}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{vir.resultado || '-'}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${vir.estado === 'Resuelto' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {vir.estado}
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      style={{ background: `${getEstadoInfo(vir.estado, vir.resuelto).color}1A`, color: getEstadoInfo(vir.estado, vir.resuelto).color }}>
+                      {getEstadoInfo(vir.estado, vir.resuelto).label}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {vir.estado === 'Pendiente' && (
+                    {(vir.estado === 'Pendiente' || vir.estado === 'Derivado_SOE') && (
                       <button onClick={() => handleEscalar(vir.id)} className="text-red-600 hover:text-red-900 flex items-center text-sm font-bold">
                         <AlertTriangle className="w-4 h-4 mr-1" /> Derivar al Consejo
                       </button>
@@ -364,6 +383,15 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
             <div className="mb-4 text-sm text-gray-600">
               <p><strong>Estudiantes:</strong> {selectedVir.estudiantes_involucrados}</p>
               <p><strong>Situación:</strong> {selectedVir.tipo_situacion}</p>
+              {parseLista(selectedVir.intervenciones_previas).length > 0 && (
+                <p><strong>Intervención previa:</strong> {parseLista(selectedVir.intervenciones_previas).join(' · ')}</p>
+              )}
+              {selectedVir.intervencion_otra && <p><strong>Otra intervención:</strong> {selectedVir.intervencion_otra}</p>}
+              {parseLista(selectedVir.respuesta_estudiante).length > 0 && (
+                <p><strong>Respuesta del estudiante:</strong> {parseLista(selectedVir.respuesta_estudiante).join(' · ')}</p>
+              )}
+              {selectedVir.resultado && <p><strong>Resultado:</strong> {selectedVir.resultado}</p>}
+              {selectedVir.desc_mediacion && <p><strong>Observaciones:</strong> {selectedVir.desc_mediacion}</p>}
             </div>
             
             <div className="space-y-4">

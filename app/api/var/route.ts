@@ -3,19 +3,35 @@ export const revalidate = 0
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getSQL, getDB } from '@/lib/db'
+import { CATEGORIAS_VIR, estadoDesdeResultado, serializarLista } from '@/lib/scoring'
 
 export async function POST(request: NextRequest) {
   const sql = await getSQL()
   if (!sql) return NextResponse.json({ ok: false, error: 'Base de datos no configurada.' }, { status: 503 })
   try {
     const body = await request.json()
-    const { curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, pin, estado } = body
+    const {
+      curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino,
+      nombre_activador, estudiantes_involucrados, desc_mediacion, pin, estado,
+      intervenciones_previas, intervencion_otra, respuesta_estudiante, resultado,
+    } = body
     if (!nombre_activador || nombre_activador.trim().length < 3) {
       return NextResponse.json({ ok: false, error: 'El nombre del activador es obligatorio.' }, { status: 400 })
     }
     if (!pin) {
       return NextResponse.json({ ok: false, error: 'El PIN de autorización es obligatorio.' }, { status: 400 })
     }
+
+    const intervencionesLista: string[] = Array.isArray(intervenciones_previas)
+      ? intervenciones_previas.map((i: any) => String(i))
+      : []
+    const esPositivo = !!CATEGORIAS_VIR.find(c => c.id === categoria_id)?.esPositivo
+    if (!esPositivo && intervencionesLista.length === 0) {
+      return NextResponse.json({ ok: false, error: 'Registrá al menos una intervención previa realizada antes de activar el VIR.' }, { status: 400 })
+    }
+    const respuestasLista: string[] = Array.isArray(respuesta_estudiante)
+      ? respuesta_estudiante.map((r: any) => String(r))
+      : []
 
     // Verificar PIN
     const pinRes = await sql`SELECT valor FROM configuracion WHERE clave = 'pin_vir'`
@@ -24,19 +40,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'PIN de autorización incorrecto.' }, { status: 401 })
     }
     const now = new Date()
-    const estadoFinal = estado || (resuelto ? 'Resuelto' : 'Pendiente')
+    // El resultado elegido define el estado del circuito y el booleano `resuelto`
+    // (conducta -> intervención -> oportunidad -> VIR -> reparación o escalamiento).
+    const derivado = estadoDesdeResultado(resultado, !!resuelto)
+    const estadoFinal = estado || derivado.estado
+    const resueltoFinal = resultado ? derivado.resuelto : !!resuelto
     await sql`INSERT INTO var_registros
-      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador, estudiantes_involucrados, desc_mediacion, mes, anio, estado)
+      (curso_id, categoria_id, tipo_situacion, resuelto, tipo_reparacion, intervino, nombre_activador,
+       estudiantes_involucrados, desc_mediacion, intervenciones_previas, intervencion_otra,
+       respuesta_estudiante, resultado, mes, anio, estado)
       VALUES (
         ${curso_id},
         ${categoria_id || null},
         ${tipo_situacion},
-        ${resuelto},
+        ${resueltoFinal},
         ${tipo_reparacion || null},
         ${intervino},
         ${nombre_activador.trim()},
         ${estudiantes_involucrados || null},
         ${desc_mediacion || null},
+        ${serializarLista(intervencionesLista)},
+        ${intervencion_otra || null},
+        ${serializarLista(respuestasLista)},
+        ${resultado || null},
         ${now.getMonth() + 1},
         ${now.getFullYear()},
         ${estadoFinal}
@@ -107,6 +133,12 @@ export async function GET(request: NextRequest) {
       pCount++
       q += ` AND v.estado = $${pCount}`
       values.push(estado)
+    }
+    const resultadoFiltro = searchParams.get('resultado')
+    if (resultadoFiltro) {
+      pCount++
+      q += ` AND v.resultado = $${pCount}`
+      values.push(resultadoFiltro)
     }
 
     q += ` ORDER BY v.created_at DESC LIMIT $${pCount + 1} OFFSET $${pCount + 2}`

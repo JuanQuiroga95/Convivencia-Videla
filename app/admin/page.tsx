@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
 import { Settings, Database, CheckCircle, AlertCircle, Users, Plus, Trash2, Edit2, X } from 'lucide-react'
-import { MESES } from '@/lib/scoring'
+import { MESES, getEstadoInfo, parseLista } from '@/lib/scoring'
 
 interface Usuario { id: number; nombre: string; usuario: string; rol: string; activo: boolean }
 
@@ -420,8 +420,8 @@ export default function AdminPage() {
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
                           <span style={{ fontFamily: 'var(--font-display)', color: '#C9A84C', fontSize: '1rem' }}>{v.curso_nombre}</span>
-                          <span style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '0.72rem', fontFamily: 'var(--font-condensed)', background: v.resuelto ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.2)', color: v.resuelto ? '#6EE7B7' : '#FCA5A5', whiteSpace: 'nowrap' }}>
-                            {v.resuelto ? 'RESUELTO' : 'SIN RESOLVER'}
+                          <span style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '0.72rem', fontFamily: 'var(--font-condensed)', background: `${getEstadoInfo(v.estado, v.resuelto).color}33`, color: getEstadoInfo(v.estado, v.resuelto).color, whiteSpace: 'nowrap' }}>
+                            {getEstadoInfo(v.estado, v.resuelto).label.toUpperCase()}
                           </span>
                         </div>
                         <span style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
@@ -430,6 +430,12 @@ export default function AdminPage() {
                       </div>
                       <div style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF', fontSize: '0.82rem', marginTop: '4px' }}>
                         {v.tipo_situacion} · {v.intervino}{v.tipo_reparacion && ` · ${v.tipo_reparacion}`}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-body)', color: '#6B7280', fontSize: '0.75rem', marginTop: '2px' }}>
+                        {parseLista(v.intervenciones_previas).length > 0
+                          ? `Intervención previa: ${parseLista(v.intervenciones_previas).join(' · ')}`
+                          : 'Sin intervención previa registrada'}
+                        {v.resultado && ` · Resultado: ${v.resultado}`}
                       </div>
                     </div>
                   ))}

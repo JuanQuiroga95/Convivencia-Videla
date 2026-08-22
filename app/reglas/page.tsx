@@ -1,5 +1,6 @@
 import Nav from '@/components/Nav'
 import { BookOpen } from 'lucide-react'
+import { SECUENCIA_VIR } from '@/lib/scoring'
 
 const RUBRICA_LIMPIEZA = [
   { val: '⭐⭐⭐⭐⭐', label: '5 – Aula impecable', desc: 'Sin residuos, bancos ordenados, pizarrón limpio.' },
@@ -43,6 +44,59 @@ export default function ReglasPage() {
         </div>
 
         <div className="px-6 py-6 max-w-2xl space-y-8">
+
+          {/* Circuito del VIR */}
+          <section>
+            <SectionTitle text="CIRCUITO DEL VIR" color={O} />
+            <p style={{ fontFamily: 'var(--font-body)', color: '#4A6741', fontSize: '0.9rem', marginBottom: '12px' }}>
+              El VIR no es solo el registro de lo que pasó: es el registro de un proceso de intervención.
+              La activación no debería producirse después de una cadena indefinida de llamados de atención.
+            </p>
+            <div style={{ borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--green-border)' }}>
+              {SECUENCIA_VIR.map((p, i) => (
+                <div key={p.paso} style={{ padding: '12px 16px', background: i % 2 === 0 ? 'white' : '#F4F7F4', borderTop: i > 0 ? '1px solid rgba(45,122,79,0.12)' : 'none', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', background: G, color: 'white', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '0.9rem' }}>{p.paso}</span>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-condensed)', color: '#1A4D2E', fontWeight: 700, fontSize: '0.92rem', letterSpacing: '0.04em' }}>{p.titulo.toUpperCase()}</div>
+                    <div style={{ fontFamily: 'var(--font-body)', color: '#4A6741', fontSize: '0.84rem', marginTop: '2px' }}>{p.detalle}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Llamar la atención vs intervenir */}
+          <section>
+            <SectionTitle text="LLAMAR LA ATENCIÓN NO ES MEDIAR" color={R} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div style={{ background: '#FEE2E2', border: '2px solid #FCA5A5', borderRadius: '12px', padding: '16px' }}>
+                <div style={{ fontFamily: 'var(--font-display)', color: '#991B1B', fontSize: '1.05rem', letterSpacing: '0.04em' }}>LLAMAR LA ATENCIÓN</div>
+                <div style={{ fontFamily: 'var(--font-body)', color: '#7F1D1D', fontSize: '0.84rem', marginTop: '6px' }}>
+                  Señalar una conducta y pedir que cese: “Guardá el celular”, “Dejá de interrumpir”,
+                  “Sentate y realizá la actividad”. Repetirlo cinco veces no es una intervención registrable.
+                </div>
+              </div>
+              <div style={{ background: '#D1FAE5', border: '2px solid #6EE7B7', borderRadius: '12px', padding: '16px' }}>
+                <div style={{ fontFamily: 'var(--font-display)', color: '#064E3B', fontSize: '1.05rem', letterSpacing: '0.04em' }}>INTERVENCIÓN FORMATIVA</div>
+                <ul style={{ fontFamily: 'var(--font-body)', color: '#065F46', fontSize: '0.84rem', marginTop: '6px', paddingLeft: '16px', listStyle: 'disc' }}>
+                  <li>Explicitar qué conducta afecta la convivencia.</li>
+                  <li>Señalar qué acuerdo o norma se está incumpliendo.</li>
+                  <li>Dar la posibilidad de reconocer lo ocurrido.</li>
+                  <li>Ofrecer una oportunidad concreta de modificarla.</li>
+                  <li>Proponer una reparación cuando corresponda.</li>
+                  <li>Registrar qué respuesta tuvo el estudiante.</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: 'white', border: '2px solid var(--green-border)', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+              <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontSize: '0.78rem', letterSpacing: '0.1em', fontWeight: 700 }}>EJEMPLO</div>
+              <div style={{ fontFamily: 'var(--font-body)', color: '#0F2010', fontSize: '0.86rem', marginTop: '4px', fontStyle: 'italic' }}>
+                “Estás utilizando el celular durante la clase y ya se te indicó que debe permanecer guardado.
+                Esto está afectando tu trabajo y la dinámica del grupo. Tenés ahora la posibilidad de guardarlo
+                y continuar con la actividad. Si decidís continuar utilizándolo, corresponde activar el VIR.”
+              </div>
+            </div>
+          </section>
 
           {/* Dimensiones */}
           <section>

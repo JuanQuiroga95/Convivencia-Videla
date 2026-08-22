@@ -52,6 +52,13 @@ export async function setupDatabase() {
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estudiantes_involucrados TEXT`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS desc_mediacion TEXT`
   await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS estado VARCHAR(20) DEFAULT 'Pendiente'`
+  // Registro estructurado del proceso de intervención (síntesis VIR jun-ago 2026)
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS intervenciones_previas TEXT`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS intervencion_otra TEXT`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS respuesta_estudiante TEXT`
+  await sql`ALTER TABLE var_registros ADD COLUMN IF NOT EXISTS resultado VARCHAR(120)`
+  await sql`UPDATE var_registros SET resultado = 'Resuelto con reparación' WHERE resultado IS NULL AND resuelto = true AND tipo_reparacion IS NOT NULL`
+  await sql`UPDATE var_registros SET resultado = 'Resuelto' WHERE resultado IS NULL AND resuelto = true`
   await sql`UPDATE var_registros SET estado = 'Resuelto' WHERE resuelto = true AND (estado IS NULL OR estado = 'Pendiente')`
   await sql`UPDATE var_registros SET estado = 'Pendiente' WHERE resuelto = false AND estado = 'Escalado_Consejo' AND created_at < '2026-08-12'`
 

@@ -1,8 +1,49 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import Nav from '@/components/Nav'
-import { Shield, CheckCircle, AlertCircle, ChevronRight, User } from 'lucide-react'
-import { CATEGORIAS_VIR, TIPOS_REPARACION_POR_CATEGORIA, INTERVINIENTES } from '@/lib/scoring'
+import { Shield, CheckCircle, AlertCircle, ChevronRight, User, Info } from 'lucide-react'
+import {
+  CATEGORIAS_VIR, TIPOS_REPARACION_POR_CATEGORIA, INTERVINIENTES,
+  INTERVENCIONES_PREVIAS, OPCION_INTERVENCION_OTRA,
+  RESPUESTAS_ESTUDIANTE, RESULTADOS_VIR, getResultado,
+} from '@/lib/scoring'
+
+const STEP_LABELS = ['Identificación', 'Intervención previa', 'Respuesta y resultado', 'Cierre']
+
+const G = '#2D7A4F'   // green
+const O = '#E85D04'   // orange
+const R = '#C1121F'   // red
+
+type ListField = 'intervenciones_previas' | 'respuesta_estudiante'
+
+function Opcion({ tipo, name, label, ayuda, checked, color, onChange }: {
+  tipo: 'checkbox' | 'radio'
+  name?: string
+  label: string
+  ayuda?: string
+  checked: boolean
+  color: string
+  onChange: () => void
+}) {
+  return (
+    <label className="flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all"
+      style={{
+        background: checked ? `${color}14` : 'var(--bg-alt)',
+        border: `1.5px solid ${checked ? color : 'var(--green-border)'}`,
+      }}>
+      <input type={tipo} name={name} checked={checked} onChange={onChange}
+        style={{ accentColor: color, marginTop: '3px', flexShrink: 0 }} />
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: 'var(--text-primary)', fontWeight: checked ? 600 : 400 }}>
+        {label}
+        {ayuda && (
+          <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '2px' }}>
+            {ayuda}
+          </span>
+        )}
+      </span>
+    </label>
+  )
+}
 
 export default function VIRPage() {
   const [cursos, setCursos] = useState<{id: number, nombre: string}[]>([])
@@ -10,16 +51,19 @@ export default function VIRPage() {
     curso_id: '',
     categoria_id: '',
     tipo_situacion: '',
-    resuelto: '',
+    estudiantes_involucrados: '',
+    intervenciones_previas: [] as string[],
+    intervencion_otra: '',
+    respuesta_estudiante: [] as string[],
+    resultado: '',
     tipo_reparacion: '',
+    desc_mediacion: '',
     intervino: '',
     nombre_activador: '',
-    estudiantes_involucrados: '',
-    desc_mediacion: '',
     pin: '',
   })
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<{ok: boolean, message?: string} | null>(null)
+  const [result, setResult] = useState<{ok: boolean, message?: string, error?: string} | null>(null)
   const [step, setStep] = useState(1)
 
   useEffect(() => {
@@ -28,6 +72,25 @@ export default function VIRPage() {
     const curso = params.get('curso')
     if (curso) setForm(f => ({ ...f, curso_id: curso }))
   }, [])
+
+  const resetForm = () => setForm({
+    curso_id: '', categoria_id: '', tipo_situacion: '', estudiantes_involucrados: '',
+    intervenciones_previas: [], intervencion_otra: '', respuesta_estudiante: [],
+    resultado: '', tipo_reparacion: '', desc_mediacion: '',
+    intervino: '', nombre_activador: '', pin: '',
+  })
+
+  const toggleLista = (campo: ListField, valor: string) =>
+    setForm(f => ({
+      ...f,
+      [campo]: f[campo].includes(valor) ? f[campo].filter(v => v !== valor) : [...f[campo], valor],
+    }))
+
+  const categoriaActual = CATEGORIAS_VIR.find(c => c.id === form.categoria_id)
+  const esPositivo = !!categoriaActual?.esPositivo
+  const resultadoInfo = getResultado(form.resultado)
+  const reparacionesDispo = form.categoria_id ? (TIPOS_REPARACION_POR_CATEGORIA[form.categoria_id] || []) : []
+  const pidioOtra = form.intervenciones_previas.includes(OPCION_INTERVENCION_OTRA)
 
   const handleSubmit = async () => {
     setLoading(true)
@@ -38,37 +101,37 @@ export default function VIRPage() {
         body: JSON.stringify({
           ...form,
           curso_id: parseInt(form.curso_id),
-          resuelto: form.resuelto === 'si',
+          resuelto: esPositivo ? true : !!resultadoInfo?.resuelto,
+          intervencion_otra: pidioOtra ? form.intervencion_otra : '',
+          tipo_reparacion: resultadoInfo?.requiereReparacion ? form.tipo_reparacion : '',
         })
       })
       const data = await res.json()
       setResult(data)
       if (data.ok) {
-        setForm({ curso_id: '', categoria_id: '', tipo_situacion: '', resuelto: '', tipo_reparacion: '', intervino: '', nombre_activador: '', estudiantes_involucrados: '', desc_mediacion: '', pin: '' })
+        resetForm()
         setStep(1)
       }
     } catch {
-      setResult({ ok: false, message: 'Error de conexión' })
+      setResult({ ok: false, error: 'Error de conexión' })
     }
     setLoading(false)
   }
 
-  const categoriaActual = CATEGORIAS_VIR.find(c => c.id === form.categoria_id)
-  const esPositivo = categoriaActual?.esPositivo
-
-  const reparacionesDispo = form.categoria_id ? (TIPOS_REPARACION_POR_CATEGORIA[form.categoria_id] || []) : []
-
-  const canNextStep1 = form.curso_id && form.categoria_id && form.tipo_situacion
-  const canNextStep2 = esPositivo ? true : (
-    form.resuelto === 'si' ? (reparacionesDispo.length === 0 || !!form.tipo_reparacion) :
-    form.resuelto === 'no' ? (form.estudiantes_involucrados.trim().length > 0 && form.desc_mediacion.trim().length > 0) : false
+  const canNextStep1 = !!(form.curso_id && form.categoria_id && form.tipo_situacion)
+  const canNextStep2 = esPositivo || (
+    form.estudiantes_involucrados.trim().length > 0 &&
+    form.intervenciones_previas.length > 0 &&
+    (!pidioOtra || form.intervencion_otra.trim().length >= 3)
   )
-  const canSubmit = form.intervino && form.nombre_activador.trim().length >= 3 && form.pin.length >= 4
+  const canNextStep3 = esPositivo || (
+    form.respuesta_estudiante.length > 0 &&
+    !!form.resultado &&
+    (!resultadoInfo?.requiereReparacion || reparacionesDispo.length === 0 || !!form.tipo_reparacion)
+  )
+  const canSubmit = !!form.intervino && form.nombre_activador.trim().length >= 3 && form.pin.length >= 4
 
-  const G = '#2D7A4F'   // green
-  const O = '#E85D04'   // orange
-
-  const sectionHeader = (text: string, color = G) => (
+  const sectionHeader = (text: string, color = G, nota?: string) => (
     <div style={{
       background: color,
       color: 'white',
@@ -78,8 +141,38 @@ export default function VIRPage() {
       letterSpacing: '0.1em',
       fontSize: '0.78rem',
       fontWeight: 700,
-    }}>{text}</div>
+    }}>
+      {text}
+      {nota && <span style={{ display: 'block', letterSpacing: '0.02em', fontWeight: 400, fontSize: '0.72rem', opacity: 0.85 }}>{nota}</span>}
+    </div>
   )
+
+  const boxStyle = { border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }
+
+  const resumenSituacion = (
+    <div className="p-4 rounded-xl" style={{ background: 'var(--green-light)', border: '1.5px solid var(--green-border)' }}>
+      <div style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-muted)', fontSize: '0.75rem', letterSpacing: '0.1em' }}>SITUACIÓN REGISTRADA</div>
+      <div style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)', marginTop: '4px', fontWeight: 600 }}>{form.tipo_situacion}</div>
+      <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontSize: '0.85rem' }}>
+        Curso: {cursos.find(c => String(c.id) === form.curso_id)?.nombre} · {categoriaActual?.label}
+      </div>
+    </div>
+  )
+
+  const resumenItems = ([
+    ['Curso', cursos.find(c => String(c.id) === form.curso_id)?.nombre],
+    ['Categoría', categoriaActual?.label],
+    ['Situación', form.tipo_situacion],
+    ['Estudiantes', form.estudiantes_involucrados],
+    ['Intervención previa', form.intervenciones_previas.join(' · ')],
+    ['Otra intervención', pidioOtra ? form.intervencion_otra : ''],
+    ['Respuesta', form.respuesta_estudiante.join(' · ')],
+    ['Resultado', esPositivo ? 'VIR positivo' : form.resultado],
+    ['Reparación', resultadoInfo?.requiereReparacion ? form.tipo_reparacion : ''],
+    ['Observaciones', form.desc_mediacion],
+    ['Interviene', form.intervino],
+    ['Activador', form.nombre_activador],
+  ] as [string, string | undefined][]).filter(([, v]) => !!v) as [string, string][]
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -104,9 +197,19 @@ export default function VIRPage() {
             </div>
           </div>
 
+          {/* Secuencia institucional */}
+          <div className="mt-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <div style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.9)', fontSize: '0.76rem', letterSpacing: '0.06em' }}>
+              CONDUCTA → INTERVENCIÓN → OPORTUNIDAD DE MODIFICAR → VIR → REPARACIÓN O ESCALAMIENTO
+            </div>
+            <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.55)', fontSize: '0.78rem', marginTop: '2px' }}>
+              El VIR registra un proceso de intervención, no solo lo que pasó.
+            </div>
+          </div>
+
           {/* Steps indicator */}
-          <div className="flex items-center gap-2 mt-4">
-            {[1, 2, 3].map(s => (
+          <div className="flex items-center gap-2 mt-4 flex-wrap">
+            {[1, 2, 3, 4].map(s => (
               <div key={s} className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm"
                   style={{
@@ -117,11 +220,11 @@ export default function VIRPage() {
                   }}>
                   {s}
                 </div>
-                {s < 3 && <div className="w-8 h-px" style={{ background: step > s ? 'var(--orange)' : 'rgba(255,255,255,0.2)' }} />}
+                {s < 4 && <div className="w-8 h-px" style={{ background: step > s ? 'var(--orange)' : 'rgba(255,255,255,0.2)' }} />}
               </div>
             ))}
             <span style={{ fontFamily: 'var(--font-condensed)', color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem', marginLeft: '8px' }}>
-              {step === 1 ? 'Identificación' : step === 2 ? 'Resolución' : 'Cierre'}
+              {STEP_LABELS[step - 1]}
             </span>
           </div>
         </div>
@@ -143,18 +246,17 @@ export default function VIRPage() {
 
           {result && !result.ok && (
             <div className="mb-6 p-4 rounded-xl flex items-center gap-3" style={{ background: 'rgba(193,18,31,0.08)', border: '1px solid rgba(193,18,31,0.3)' }}>
-              <AlertCircle size={20} style={{ color: '#C1121F' }} />
-              <span style={{ fontFamily: 'var(--font-body)', color: '#C1121F', fontSize: '0.9rem' }}>{result.message}</span>
+              <AlertCircle size={20} style={{ color: R }} />
+              <span style={{ fontFamily: 'var(--font-body)', color: R, fontSize: '0.9rem' }}>{result.error || result.message}</span>
             </div>
           )}
 
           {/* STEP 1 — Identificación */}
           {step === 1 && (
             <div className="space-y-4 slide-in">
-              {/* Curso */}
               <div>
                 {sectionHeader('CURSO')}
-                <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                <div style={boxStyle}>
                   <select className="input-videla" value={form.curso_id} onChange={e => setForm(f => ({ ...f, curso_id: e.target.value }))}>
                     <option value="">Seleccionar curso...</option>
                     {cursos.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -162,50 +264,28 @@ export default function VIRPage() {
                 </div>
               </div>
 
-              {/* Categoría */}
               <div>
                 {sectionHeader('CATEGORÍA DE LA SITUACIÓN', O)}
-                <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                <div style={boxStyle}>
                   <div className="grid grid-cols-1 gap-2">
                     {CATEGORIAS_VIR.map(cat => (
-                      <label key={cat.id} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all"
-                        style={{
-                          background: form.categoria_id === cat.id ? 'rgba(45,122,79,0.1)' : 'var(--bg-alt)',
-                          border: `1.5px solid ${form.categoria_id === cat.id ? G : 'var(--green-border)'}`,
-                        }}>
-                        <input type="radio" name="categoria" value={cat.id}
-                          checked={form.categoria_id === cat.id}
-                          onChange={e => setForm(f => ({ ...f, categoria_id: e.target.value, tipo_situacion: '' }))}
-                          style={{ accentColor: G }} />
-                        <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: form.categoria_id === cat.id ? 600 : 400 }}>
-                          {cat.label}
-                        </span>
-                      </label>
+                      <Opcion key={cat.id} tipo="radio" name="categoria" label={cat.label} color={G}
+                        checked={form.categoria_id === cat.id}
+                        onChange={() => setForm(f => ({ ...f, categoria_id: cat.id, tipo_situacion: '' }))} />
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Situación específica */}
               {form.categoria_id && categoriaActual && (
                 <div className="slide-in">
                   {sectionHeader('SITUACIÓN ESPECÍFICA', categoriaActual.color)}
-                  <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                  <div style={boxStyle}>
                     <div className="grid grid-cols-1 gap-2">
                       {categoriaActual.situaciones.map(sit => (
-                        <label key={sit} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all"
-                          style={{
-                            background: form.tipo_situacion === sit ? 'rgba(232,93,4,0.08)' : 'var(--bg-alt)',
-                            border: `1.5px solid ${form.tipo_situacion === sit ? O : 'var(--green-border)'}`,
-                          }}>
-                          <input type="radio" name="situacion" value={sit}
-                            checked={form.tipo_situacion === sit}
-                            onChange={e => setForm(f => ({ ...f, tipo_situacion: e.target.value }))}
-                            style={{ accentColor: O }} />
-                          <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                            {sit}
-                          </span>
-                        </label>
+                        <Opcion key={sit} tipo="radio" name="situacion" label={sit} color={O}
+                          checked={form.tipo_situacion === sit}
+                          onChange={() => setForm(f => ({ ...f, tipo_situacion: sit }))} />
                       ))}
                     </div>
                   </div>
@@ -218,17 +298,10 @@ export default function VIRPage() {
             </div>
           )}
 
-          {/* STEP 2 — Resolución */}
+          {/* STEP 2 — Intervención previa */}
           {step === 2 && (
             <div className="space-y-4 slide-in">
-              {/* Resumen */}
-              <div className="p-4 rounded-xl" style={{ background: 'var(--green-light)', border: '1.5px solid var(--green-border)' }}>
-                <div style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-muted)', fontSize: '0.75rem', letterSpacing: '0.1em' }}>SITUACIÓN REGISTRADA</div>
-                <div style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)', marginTop: '4px', fontWeight: 600 }}>{form.tipo_situacion}</div>
-                <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontSize: '0.85rem' }}>
-                  Curso: {cursos.find(c => String(c.id) === form.curso_id)?.nombre} · {categoriaActual?.label}
-                </div>
-              </div>
+              {resumenSituacion}
 
               {esPositivo ? (
                 <div className="p-4 rounded-xl" style={{ background: 'rgba(45,122,79,0.1)', border: '1px solid rgba(45,122,79,0.4)' }}>
@@ -238,56 +311,10 @@ export default function VIRPage() {
                   </div>
                 </div>
               ) : (
-                <div>
-                  {sectionHeader('¿SE RESOLVIÓ CON REPARACIÓN?', O)}
-                  <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
-                    {['si', 'no'].map(val => (
-                      <label key={val} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer mb-2 transition-all"
-                        style={{
-                          background: form.resuelto === val ? (val === 'si' ? 'rgba(45,122,79,0.1)' : 'rgba(193,18,31,0.08)') : 'var(--bg-alt)',
-                          border: `1.5px solid ${form.resuelto === val ? (val === 'si' ? G : '#C1121F') : 'var(--green-border)'}`,
-                        }}>
-                        <input type="radio" name="resuelto" value={val}
-                          checked={form.resuelto === val}
-                          onChange={e => setForm(f => ({ ...f, resuelto: e.target.value }))}
-                          style={{ accentColor: val === 'si' ? G : '#C1121F' }} />
-                        <span style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontWeight: 500 }}>
-                          {val === 'si' ? '✓ Sí' : '✗ No'}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {form.resuelto === 'si' && reparacionesDispo.length > 0 && (
-                <div className="slide-in">
-                  {sectionHeader('TIPO DE REPARACIÓN', G)}
-                  <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
-                    <div className="grid grid-cols-1 gap-2">
-                      {reparacionesDispo.map(tipo => (
-                        <label key={tipo} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all"
-                          style={{
-                            background: form.tipo_reparacion === tipo ? 'rgba(45,122,79,0.1)' : 'var(--bg-alt)',
-                            border: `1.5px solid ${form.tipo_reparacion === tipo ? G : 'var(--green-border)'}`,
-                          }}>
-                          <input type="radio" name="reparacion" value={tipo}
-                            checked={form.tipo_reparacion === tipo}
-                            onChange={e => setForm(f => ({ ...f, tipo_reparacion: e.target.value }))}
-                            style={{ accentColor: G }} />
-                          <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{tipo}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {form.resuelto === 'no' && (
-                <div className="slide-in space-y-4">
+                <>
                   <div>
-                    {sectionHeader('ESTUDIANTES INVOLUCRADOS', '#C1121F')}
-                    <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                    {sectionHeader('ESTUDIANTE / S INVOLUCRADO / S', R)}
+                    <div style={boxStyle}>
                       <input
                         type="text"
                         className="input-videla"
@@ -297,20 +324,61 @@ export default function VIRPage() {
                       />
                     </div>
                   </div>
+
+                  <div className="p-3 rounded-lg flex gap-2" style={{ background: 'rgba(232,93,4,0.07)', border: '1px solid rgba(232,93,4,0.25)' }}>
+                    <Info size={16} style={{ color: O, flexShrink: 0, marginTop: '2px' }} />
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Llamar la atención no es lo mismo que mediar. Marcá lo que efectivamente hiciste
+                      <strong> antes </strong> de activar el VIR: señalar la conducta, recordar el acuerdo
+                      y dar una oportunidad concreta de modificarla.
+                    </span>
+                  </div>
+
                   <div>
-                    {sectionHeader('BREVE DESCRIPCIÓN DE LA MEDIACIÓN', '#C1121F')}
-                    <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
-                      <textarea
-                        className="input-videla"
-                        placeholder="Escribí acá la descripción..."
-                        value={form.desc_mediacion}
-                        onChange={e => setForm(f => ({ ...f, desc_mediacion: e.target.value }))}
-                        rows={3}
-                        style={{ resize: 'vertical' }}
-                      />
+                    {sectionHeader('INTERVENCIÓN PREVIA REALIZADA', O, 'Marcá todas las que correspondan (al menos una)')}
+                    <div style={boxStyle}>
+                      <div className="space-y-4">
+                        {INTERVENCIONES_PREVIAS.map(grupo => (
+                          <div key={grupo.id}>
+                            <div style={{
+                              fontFamily: 'var(--font-condensed)', fontSize: '0.75rem', letterSpacing: '0.08em',
+                              color: grupo.color, fontWeight: 700, marginBottom: '6px', textTransform: 'uppercase',
+                            }}>
+                              {grupo.label}
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                              {grupo.opciones.map(op => (
+                                <Opcion key={op} tipo="checkbox" label={op} color={grupo.color}
+                                  checked={form.intervenciones_previas.includes(op)}
+                                  onChange={() => toggleLista('intervenciones_previas', op)} />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {pidioOtra && (
+                        <div className="mt-4 slide-in">
+                          <label style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.78rem', letterSpacing: '0.08em', display: 'block', marginBottom: '6px' }}>
+                            ¿CUÁL FUE LA OTRA INTERVENCIÓN? *
+                          </label>
+                          <textarea
+                            className="input-videla"
+                            placeholder="Describí brevemente la intervención realizada..."
+                            value={form.intervencion_otra}
+                            onChange={e => setForm(f => ({ ...f, intervencion_otra: e.target.value }))}
+                            rows={2}
+                            style={{ resize: 'vertical' }}
+                          />
+                        </div>
+                      )}
+
+                      <div style={{ fontFamily: 'var(--font-condensed)', fontSize: '0.78rem', marginTop: '10px', color: form.intervenciones_previas.length ? G : 'var(--text-muted)' }}>
+                        {form.intervenciones_previas.length} intervención/es seleccionada/s
+                      </div>
                     </div>
                   </div>
-                </div>
+                </>
               )}
 
               <button onClick={() => setStep(3)} disabled={!canNextStep2} className="btn-gold w-full flex items-center justify-center gap-2">
@@ -320,30 +388,106 @@ export default function VIRPage() {
             </div>
           )}
 
-          {/* STEP 3 — Cierre */}
+          {/* STEP 3 — Respuesta del estudiante y resultado */}
           {step === 3 && (
             <div className="space-y-4 slide-in">
-              {/* Quien activa el VIR */}
+              {resumenSituacion}
+
+              {!esPositivo && (
+                <>
+                  <div>
+                    {sectionHeader('RESPUESTA DEL ESTUDIANTE', G, 'Qué pasó después de la intervención')}
+                    <div style={boxStyle}>
+                      <div className="grid grid-cols-1 gap-2">
+                        {RESPUESTAS_ESTUDIANTE.map(r => (
+                          <Opcion key={r.id} tipo="checkbox" label={r.label}
+                            color={r.tono === 'positivo' ? G : r.tono === 'negativo' ? R : O}
+                            checked={form.respuesta_estudiante.includes(r.label)}
+                            onChange={() => toggleLista('respuesta_estudiante', r.label)} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    {sectionHeader('RESULTADO', O, 'Define el estado del VIR')}
+                    <div style={boxStyle}>
+                      <div className="grid grid-cols-1 gap-2">
+                        {RESULTADOS_VIR.map(res => (
+                          <Opcion key={res.id} tipo="radio" name="resultado" label={res.label} ayuda={res.ayuda}
+                            color={res.color}
+                            checked={form.resultado === res.label}
+                            onChange={() => setForm(f => ({
+                              ...f,
+                              resultado: res.label,
+                              tipo_reparacion: res.requiereReparacion ? f.tipo_reparacion : '',
+                            }))} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {resultadoInfo?.requiereReparacion && reparacionesDispo.length > 0 && (
+                <div className="slide-in">
+                  {sectionHeader('TIPO DE REPARACIÓN', G)}
+                  <div style={boxStyle}>
+                    <div className="grid grid-cols-1 gap-2">
+                      {reparacionesDispo.map(tipo => (
+                        <Opcion key={tipo} tipo="radio" name="reparacion" label={tipo} color={G}
+                          checked={form.tipo_reparacion === tipo}
+                          onChange={() => setForm(f => ({ ...f, tipo_reparacion: tipo }))} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(resultadoInfo?.estado === 'Escalado_Consejo' || resultadoInfo?.estado === 'Derivado_SOE') && (
+                <div className="p-3 rounded-lg flex gap-2 slide-in" style={{ background: 'rgba(193,18,31,0.07)', border: '1px solid rgba(193,18,31,0.25)' }}>
+                  <AlertCircle size={16} style={{ color: R, flexShrink: 0, marginTop: '2px' }} />
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    El caso quedará visible en el historial de Preceptoría y del Equipo Directivo para su seguimiento.
+                  </span>
+                </div>
+              )}
+
+              <div>
+                {sectionHeader('OBSERVACIONES', '#6B7280', 'Opcional: solo si algo no queda reflejado en las opciones')}
+                <div style={boxStyle}>
+                  <textarea
+                    className="input-videla"
+                    placeholder="Ej: detalle particular de la situación o del acuerdo alcanzado..."
+                    value={form.desc_mediacion}
+                    onChange={e => setForm(f => ({ ...f, desc_mediacion: e.target.value }))}
+                    rows={3}
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+              </div>
+
+              <button onClick={() => setStep(4)} disabled={!canNextStep3} className="btn-gold w-full flex items-center justify-center gap-2">
+                Continuar <ChevronRight size={16} />
+              </button>
+              <button onClick={() => setStep(2)} className="btn-outline w-full">Atrás</button>
+            </div>
+          )}
+
+          {/* STEP 4 — Cierre */}
+          {step === 4 && (
+            <div className="space-y-4 slide-in">
               <div>
                 {sectionHeader('QUIEN ACTIVA EL VIR', O)}
-                <div style={{ border: '1.5px solid var(--green-border)', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px' }}>
+                <div style={boxStyle}>
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     {INTERVINIENTES.map(i => (
-                      <label key={i} className="flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all"
-                        style={{
-                          background: form.intervino === i ? 'rgba(45,122,79,0.1)' : 'var(--bg-alt)',
-                          border: `1.5px solid ${form.intervino === i ? G : 'var(--green-border)'}`,
-                        }}>
-                        <input type="radio" name="intervino" value={i}
-                          checked={form.intervino === i}
-                          onChange={e => setForm(f => ({ ...f, intervino: e.target.value }))}
-                          style={{ accentColor: G }} />
-                        <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', color: 'var(--text-primary)' }}>{i}</span>
-                      </label>
+                      <Opcion key={i} tipo="radio" name="intervino" label={i} color={G}
+                        checked={form.intervino === i}
+                        onChange={() => setForm(f => ({ ...f, intervino: i }))} />
                     ))}
                   </div>
 
-                  {/* Nombre y apellido obligatorio */}
                   <div>
                     <label style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.78rem', letterSpacing: '0.08em', display: 'block', marginBottom: '6px' }}>
                       <User size={13} style={{ display: 'inline', marginRight: '4px', marginBottom: '-2px' }} />
@@ -355,17 +499,16 @@ export default function VIRPage() {
                       placeholder="Ej: María González"
                       value={form.nombre_activador}
                       onChange={e => setForm(f => ({ ...f, nombre_activador: e.target.value }))}
-                      style={{ borderColor: form.nombre_activador.trim().length > 0 && form.nombre_activador.trim().length < 3 ? '#C1121F' : undefined }}
+                      style={{ borderColor: form.nombre_activador.trim().length > 0 && form.nombre_activador.trim().length < 3 ? R : undefined }}
                     />
                     {form.nombre_activador.trim().length > 0 && form.nombre_activador.trim().length < 3 && (
-                      <p style={{ fontFamily: 'var(--font-body)', color: '#C1121F', fontSize: '0.78rem', marginTop: '4px' }}>
+                      <p style={{ fontFamily: 'var(--font-body)', color: R, fontSize: '0.78rem', marginTop: '4px' }}>
                         Ingresá nombre y apellido completo
                       </p>
                     )}
                   </div>
 
-                  {/* PIN obligatorio */}
-                  <div className="col-span-1 sm:col-span-2">
+                  <div>
                     <label style={{ fontFamily: 'var(--font-condensed)', color: 'var(--text-secondary)', fontSize: '0.78rem', letterSpacing: '0.08em', display: 'block', marginBottom: '6px', marginTop: '12px' }}>
                       <Shield size={13} style={{ display: 'inline', marginRight: '4px', marginBottom: '-2px' }} />
                       PIN DE AUTORIZACIÓN *
@@ -376,32 +519,22 @@ export default function VIRPage() {
                       placeholder="****"
                       value={form.pin}
                       onChange={e => setForm(f => ({ ...f, pin: e.target.value }))}
-                      style={{ borderColor: form.pin.length > 0 && form.pin.length < 4 ? '#C1121F' : undefined, letterSpacing: '0.2em', fontFamily: 'monospace' }}
+                      style={{ borderColor: form.pin.length > 0 && form.pin.length < 4 ? R : undefined, letterSpacing: '0.2em', fontFamily: 'monospace' }}
                       maxLength={10}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Summary */}
+              {/* Resumen */}
               <div className="rounded-xl p-4 space-y-2" style={{ background: 'var(--green-light)', border: '1.5px solid var(--green-border)' }}>
                 <div style={{ fontFamily: 'var(--font-condensed)', color: G, fontSize: '0.8rem', letterSpacing: '0.1em', fontWeight: 700 }}>RESUMEN VIR</div>
-                <div className="grid grid-cols-2 gap-y-1 text-sm">
-                  {[
-                    ['Curso', cursos.find(c => String(c.id) === form.curso_id)?.nombre],
-                    ['Categoría', categoriaActual?.label],
-                    ['Situación', form.tipo_situacion],
-                    ['Resuelto', esPositivo ? 'Positivo' : form.resuelto === 'si' ? 'Sí' : 'No'],
-                    form.tipo_reparacion ? ['Reparación', form.tipo_reparacion] : null,
-                    form.resuelto === 'no' ? ['Estudiantes', form.estudiantes_involucrados] : null,
-                    form.resuelto === 'no' ? ['Mediación', form.desc_mediacion] : null,
-                    ['Interviene', form.intervino],
-                    form.nombre_activador ? ['Activador', form.nombre_activador] : null,
-                  ].filter(Boolean).map(([k, v], i) => (
-                    <>
-                      <span key={`k${i}`} style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-condensed)' }}>{k}</span>
-                      <span key={`v${i}`} style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{v}</span>
-                    </>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                  {resumenItems.map(([k, v]) => (
+                    <Fragment key={k}>
+                      <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-condensed)' }}>{k}</span>
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{v}</span>
+                    </Fragment>
                   ))}
                 </div>
               </div>
@@ -409,7 +542,7 @@ export default function VIRPage() {
               <button onClick={handleSubmit} disabled={!canSubmit || loading} className="btn-gold w-full">
                 {loading ? 'Guardando...' : 'REGISTRAR VIR'}
               </button>
-              <button onClick={() => setStep(2)} className="btn-outline w-full">Atrás</button>
+              <button onClick={() => setStep(3)} className="btn-outline w-full">Atrás</button>
             </div>
           )}
         </div>
