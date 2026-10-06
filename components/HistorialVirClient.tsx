@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { FileText, AlertTriangle, CheckCircle, Clock, Download, Plus } from 'lucide-react'
-import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { getEstadoInfo, parseLista } from '@/lib/scoring'
 
 interface VIR {
@@ -122,13 +122,72 @@ export default function HistorialVirClient({ role }: { role: 'admin' | 'precepto
   }
 
   const exportPDF = async () => {
-    if (!dashboardRef.current) return
-    const canvas = await html2canvas(dashboardRef.current, { scale: 2 })
-    const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    const pdf = new jsPDF('l', 'mm', 'a4')
+    const pageWidth = pdf.internal.pageSize.getWidth()
+
+    // Title
+    pdf.setFontSize(16)
+    pdf.setTextColor(45, 122, 79)
+    pdf.text('INFORME CONSEJO ESCOLAR', pageWidth / 2, 15, { align: 'center' })
+    pdf.setFontSize(9)
+    pdf.setTextColor(100, 100, 100)
+    pdf.text(`${virsEscalados.length} casos escalados  ·  ${resoluciones.length} resueltos  ·  ${new Date().toLocaleDateString('es-AR')}`, pageWidth / 2, 21, { align: 'center' })
+
+    const headers = [['Fecha', 'Curso', 'Estudiante(s)', 'Situación', 'Estado', 'Resolución', 'Puntos', 'Observaciones']]
+    const body = virsEscalados.map(vir => {
+      const resolucion = resoluciones.find(r => r.id_vir === vir.id)
+      return [
+        new Date(vir.created_at).toLocaleDateString('es-AR'),
+        vir.curso_nombre,
+        vir.estudiantes_involucrados || '—',
+        vir.tipo_situacion,
+        resolucion ? 'Resuelto por Consejo' : 'Pendiente Consejo',
+        resolucion ? resolucion.tipo_accion : '—',
+        resolucion && resolucion.puntos_descontados > 0 ? `-${resolucion.puntos_descontados} pts` : '—',
+        resolucion ? (resolucion.observaciones || '—') : '—',
+      ]
+    })
+
+    autoTable(pdf, {
+      startY: 26,
+      head: headers,
+      body: body,
+      styles: {
+        fontSize: 7,
+        cellPadding: 2,
+        overflow: 'linebreak',
+        lineColor: [200, 200, 200],
+        lineWidth: 0.1,
+      },
+      headStyles: {
+        fillColor: [232, 93, 4],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 7.5,
+      },
+      alternateRowStyles: {
+        fillColor: [255, 248, 240],
+      },
+      didParseCell: function (data) {
+        if (data.section === 'body' && data.column.index === 4) {
+          const val = data.cell.raw as string
+          if (val.includes('Resuelto')) data.cell.styles.textColor = [45, 122, 79]
+          else data.cell.styles.textColor = [193, 18, 31]
+        }
+      },
+      margin: { top: 26, bottom: 15 },
+      didDrawPage: function (data) {
+        const pageCount = pdf.getNumberOfPages()
+        pdf.setFontSize(7)
+        pdf.setTextColor(150, 150, 150)
+        pdf.text(
+          `Página ${data.pageNumber} de ${pageCount}`,
+          pageWidth / 2, pdf.internal.pageSize.getHeight() - 8,
+          { align: 'center' }
+        )
+      },
+    })
+
     pdf.save('informe_consejo.pdf')
   }
 

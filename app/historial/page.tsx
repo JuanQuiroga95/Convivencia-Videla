@@ -1,10 +1,10 @@
 'use client'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Nav from '@/components/Nav'
 import { History, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, XCircle, Trash2, Download } from 'lucide-react'
 import { CATEGORIAS_VIR, INTERVINIENTES, MESES, RESULTADOS_VIR, getEstadoInfo, parseLista } from '@/lib/scoring'
 import { jsPDF } from 'jspdf'
-import html2canvas from 'html2canvas'
+import autoTable from 'jspdf-autotable'
 
 interface VIRRecord {
   id: number
@@ -49,7 +49,7 @@ export default function HistorialPage() {
   })
   const [showFiltros, setShowFiltros] = useState(false)
   const [exportando, setExportando] = useState(false)
-  const printRef = useRef<HTMLDivElement>(null)
+
 
   const G = '#2D7A4F'
   const O = '#E85D04'
@@ -128,15 +128,127 @@ export default function HistorialPage() {
     : registros
 
   const exportarPDF = async () => {
-    if (!printRef.current) return
     setExportando(true)
     try {
-      const canvas = await html2canvas(printRef.current, { scale: 2 })
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      // Fetch ALL records matching current filters (no pagination limit)
+      const params = new URLSearchParams()
+      if (filtros.mes) params.set('mes', filtros.mes)
+      if (filtros.anio) params.set('anio', filtros.anio)
+      if (filtros.curso_id) params.set('curso_id', filtros.curso_id)
+      if (filtros.categoria) params.set('categoria', filtros.categoria)
+      if (filtros.estado !== '') params.set('estado', filtros.estado)
+      if (filtros.resultado) params.set('resultado', filtros.resultado)
+      if (filtros.intervino) params.set('intervino', filtros.intervino)
+      params.set('page', '1')
+      params.set('limit', '9999')
+      const res = await fetch(`/api/var?${params}`)
+      const allRecords: VIRRecord[] = await res.json()
+
+      // Apply text search filter if active
+      const datos = filtros.busqueda
+        ? allRecords.filter(r =>
+            r.tipo_situacion?.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
+            r.curso_nombre?.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
+            r.nombre_activador?.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
+            r.intervino?.toLowerCase().includes(filtros.busqueda.toLowerCase())
+          )
+        : allRecords
+
+      const pdf = new jsPDF('l', 'mm', 'a4') // landscape for wider tables
+      const pageWidth = pdf.internal.pageSize.getWidth()
+
+      // Title
+      pdf.setFontSize(16)
+      pdf.setTextColor(45, 122, 79)
+      pdf.text('REPORTE HISTORIAL VIR', pageWidth / 2, 15, { align: 'center' })
+      
+      // Subtitle with filters
+      pdf.setFontSize(9)
+      pdf.setTextColor(100, 100, 100)
+      const filtrosActivos: string[] = []
+      if (filtros.mes) filtrosActivos.push(`Mes: ${MESES[parseInt(filtros.mes)]}`)
+      if (filtros.anio) filtrosActivos.push(`Año: ${filtros.anio}`)
+      if (filtros.estado) filtrosActivos.push(`Estado: ${filtros.estado}`)
+      if (filtros.categoria) {
+        const cat = CATEGORIAS_VIR.find(c => c.id === filtros.categoria)
+        filtrosActivos.push(`Categoría: ${cat?.label || filtros.categoria}`)
+      }
+      if (filtros.resultado) filtrosActivos.push(`Resultado: ${filtros.resultado}`)
+      if (filtros.intervino) filtrosActivos.push(`Intervino: ${filtros.intervino}`)
+      const subtitulo = filtrosActivos.length > 0
+        ? `Filtros: ${filtrosActivos.join(' | ')}  ·  ${datos.length} registros  ·  ${new Date().toLocaleDateString('es-AR')}`
+        : `${datos.length} registros  ·  ${new Date().toLocaleDateString('es-AR')}`
+      pdf.text(subtitulo, pageWidth / 2, 21, { align: 'center' })
+
+      // Table
+      const headers = [['Fecha', 'Curso', 'Estudiante(s)', 'Situación', 'Intervención previa', 'Resultado', 'Estado']]
+      const body = datos.map(r => {
+        const estadoInfo = getEstadoInfo(r.estado, r.resuelto)
+        const intervenciones = parseLista(r.intervenciones_previas)
+        return [
+          new Date(r.created_at).toLocaleDateString('es-AR'),
+          r.curso_nombre,
+          r.estudiantes_involucrados || '—',
+          r.tipo_situacion,
+          intervenciones.length > 0 ? intervenciones.join(', ') : 'Sin registro',
+          r.resultado || '—',
+          estadoInfo.label,
+        ]
+      })
+
+      autoTable(pdf, {
+        startY: 26,
+        head: headers,
+        body: body,
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+          overflow: 'linebreak',
+          lineColor: [200, 200, 200],
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: [45, 122, 79],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 7.5,
+        },
+        alternateRowStyles: {
+          fillColor: [245, 250, 245],
+        },
+        columnStyles: {
+          0: { cellWidth: 22 },   // Fecha
+          1: { cellWidth: 22 },   // Curso
+          2: { cellWidth: 40 },   // Estudiantes
+          3: { cellWidth: 55 },   // Situación
+          4: { cellWidth: 70 },   // Intervención previa
+          5: { cellWidth: 35 },   // Resultado
+          6: { cellWidth: 28 },   // Estado
+        },
+        didParseCell: function (data) {
+          // Color the estado column
+          if (data.section === 'body' && data.column.index === 6) {
+            const val = data.cell.raw as string
+            if (val === 'Resuelto') data.cell.styles.textColor = [45, 122, 79]
+            else if (val === 'Pendiente') data.cell.styles.textColor = [232, 93, 4]
+            else if (val.includes('SOE')) data.cell.styles.textColor = [180, 83, 9]
+            else if (val.includes('Consejo')) data.cell.styles.textColor = [193, 18, 31]
+          }
+        },
+        margin: { top: 26, bottom: 15 },
+        didDrawPage: function (data) {
+          // Footer with page number
+          const pageCount = pdf.getNumberOfPages()
+          pdf.setFontSize(7)
+          pdf.setTextColor(150, 150, 150)
+          pdf.text(
+            `Página ${data.pageNumber} de ${pageCount}`,
+            pageWidth / 2, pdf.internal.pageSize.getHeight() - 8,
+            { align: 'center' }
+          )
+        },
+      })
+
       pdf.save('historial_vir.pdf')
     } catch (e) {
       console.error(e)
@@ -314,13 +426,8 @@ export default function HistorialPage() {
             </div>
           )}
 
-          <div className="space-y-3" ref={printRef} style={{ background: 'var(--bg)', padding: exportando ? '20px' : '0' }}>
-            {exportando && (
-              <div className="mb-6 text-center">
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', color: 'var(--green-dark)' }}>REPORTE VIR</h2>
-                <p style={{ fontFamily: 'var(--font-body)', color: 'var(--text-muted)' }}>{new Date().toLocaleDateString('es-AR')}</p>
-              </div>
-            )}
+          <div className="space-y-3" style={{ background: 'var(--bg)' }}>
+
             {registrosFiltrados.map(r => {
               const cat = CATEGORIAS_VIR.find(c => c.id === r.categoria_id)
               const estadoInfo = getEstadoInfo(r.estado, r.resuelto)
