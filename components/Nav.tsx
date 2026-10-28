@@ -9,7 +9,7 @@ interface SessionData { autenticado: boolean; rol?: string; nombre?: string; usu
 const navItems = [
   { href: '/dashboard',   label: 'Inicio',             icon: LayoutDashboard, rol: ['admin', 'operativo'] },
   { href: '/tablero',     label: 'Tablero',             icon: BarChart3,       rol: ['admin', 'operativo'] },
-  { href: '/var',         label: 'Activar VIR',         icon: Shield,          rol: ['admin', 'operativo'], accent: true },
+  { href: '/var',         label: 'Activar VIR',         icon: Shield,          rol: ['admin', 'operativo', 'preceptora'], accent: true },
   { href: '/campo',       label: 'Acciones positivas',  icon: Trophy,          rol: ['admin', 'operativo'], gold: true },
   { href: '/historial',   label: 'Historial VIR',       icon: History,         rol: ['admin', 'operativo'] },
   { href: '/indicadores',  label: 'Indicadores',        icon: ClipboardList,   rol: ['admin', 'operativo', 'preceptora'] },
@@ -24,13 +24,16 @@ const navItems = [
 
 const GD = '#1A4D2E'; const O = '#E85D04'
 
+// Sesión cacheada entre navegaciones para no mostrar el menú completo mientras carga
+let sessionCache: SessionData | null = null
+
 export default function Nav() {
   const pathname = usePathname()
-  const [session, setSession] = useState<SessionData>({ autenticado: false })
+  const [session, setSession] = useState<SessionData | null>(sessionCache)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
-    fetch('/api/auth').then(r => r.json()).then(setSession)
+    fetch('/api/auth').then(r => r.json()).then((d: SessionData) => { sessionCache = d; setSession(d) })
   }, [])
 
   // Cerrar drawer al cambiar de ruta
@@ -47,11 +50,12 @@ export default function Nav() {
   }, [drawerOpen])
 
   const handleLogout = async () => {
+    sessionCache = null
     await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) })
     window.location.href = '/login'
   }
 
-  const itemsVisibles = navItems.filter(item => !session.rol || item.rol.includes(session.rol))
+  const itemsVisibles = !session ? [] : navItems.filter(item => !session.rol || item.rol.includes(session.rol))
 
   const NavLinks = () => (
     <>
@@ -96,7 +100,7 @@ export default function Nav() {
           <NavLinks />
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          {session.autenticado && (
+          {session?.autenticado && (
             <>
               <div style={{ fontFamily: 'var(--font-condensed)', color: O, fontSize: '0.82rem', fontWeight: 700, marginBottom: '1px' }}>{session.nombre || 'Usuario'}</div>
               <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', marginBottom: '2px' }}>•{session.usuario}</div>
@@ -161,7 +165,7 @@ export default function Nav() {
 
         {/* User info + logout */}
         <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          {session.autenticado && (
+          {session?.autenticado && (
             <>
               <div style={{ fontFamily: 'var(--font-condensed)', color: O, fontSize: '0.85rem', fontWeight: 700, marginBottom: '1px' }}>{session.nombre || 'Usuario'}</div>
               <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', marginBottom: '2px' }}>•{session.usuario}</div>
