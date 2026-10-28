@@ -57,10 +57,15 @@ export default function Nav() {
 
   const itemsVisibles = !session ? [] : navItems.filter(item => !session.rol || item.rol.includes(session.rol))
 
+  // Solo se marca el ítem más específico (ej: /preceptoras/historial-vir no marca /preceptoras)
+  const hrefActivo = navItems
+    .filter(({ href }) => pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/')))
+    .reduce<string | null>((best, { href }) => (!best || href.length > best.length ? href : best), null)
+
   const NavLinks = () => (
     <>
       {itemsVisibles.map(({ href, label, icon: Icon, accent, gold }: any) => {
-        const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'))
+        const active = href === hrefActivo
         const textColor = active ? GD : accent ? '#FCA5A5' : gold ? '#FCD34D' : 'rgba(255,255,255,0.72)'
         return (
           <Link key={href} href={href}
